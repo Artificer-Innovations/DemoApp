@@ -24,7 +24,7 @@ This document contains granular, step-by-step tasks to build the MVP based on th
 
 ---
 
-### Task 1.2: Setup Shared Package
+###  DONE - Task 1.2: Setup Shared Package
 **Goal**: Create the shared package structure for cross-platform code
 **Scope**: Basic package structure, TypeScript config, initial exports
 **Tests**:
