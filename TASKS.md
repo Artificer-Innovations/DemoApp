@@ -56,7 +56,7 @@ This document contains granular, step-by-step tasks to build the MVP based on th
 
 ---
 
-### Task 1.4: Setup Mobile App Foundation
+### DONE - Task 1.4: Setup Mobile App Foundation
 **Goal**: Create React Native app with Expo, TypeScript, and basic navigation
 **Scope**: Expo config, React Native setup, basic navigation structure
 **Tests**:
@@ -73,12 +73,12 @@ This document contains granular, step-by-step tasks to build the MVP based on th
 
 ---
 
-### Task 1.5: Setup Supabase Local Environment
+### DONE - Task 1.5: Setup Supabase Local Environment
 **Goal**: Configure Supabase for local development with Docker
 **Scope**: Supabase CLI setup, local database, basic configuration
 **Tests**:
 - Unit: `supabase status` should show all services running
-- Manual: Access Supabase Studio at http://localhost:54323
+git 
 
 **Deliverables**:
 - `supabase/config.toml` configuration file
