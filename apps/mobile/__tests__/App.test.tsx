@@ -8,13 +8,13 @@ describe('Mobile App', () => {
     const { getByText } = render(<App />);
     
     // Check if the app content is rendered
-    expect(getByText('Mobile App Works!')).toBeTruthy();
+    expect(getByText('Welcome to Demo App')).toBeTruthy();
   });
 
   it('renders subtitle text', () => {
     const { getByText } = render(<App />);
     
     // Check if subtitle is present
-    expect(getByText('Testing minimal setup')).toBeTruthy();
+    expect(getByText('A modern full-stack application with React, React Native, and Supabase')).toBeTruthy();
   });
 });
