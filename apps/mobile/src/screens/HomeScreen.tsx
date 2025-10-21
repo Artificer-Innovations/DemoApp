@@ -7,7 +7,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HOME_TITLE, HOME_SUBTITLE } from '@shared';
+import { HOME_TITLE, HOME_SUBTITLE } from '@shared/utils/strings';
 
 type RootStackParamList = {
   Home: undefined;

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { HOME_TITLE, HOME_SUBTITLE } from '@shared';
+import { HOME_TITLE, HOME_SUBTITLE } from '@shared/utils/strings';
 
 export default function HomePage() {
   return (

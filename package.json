@@ -25,7 +25,7 @@
     "web": "cd apps/web && npm run dev",
     "dev:supabase": "supabase start",
     "dev:all": "concurrently \"npm run dev:supabase\" \"npm run mobile\" \"npm run web\"",
-    "gen:types": "supabase gen types typescript --local > apps/mobile/src/types/database.ts && cp apps/mobile/src/types/database.ts apps/web/src/types/database.ts",
+    "gen:types": "./scripts/generate-types.sh",
     "gen:types:staging": "supabase gen types typescript --project-id $STAGING_PROJECT_REF > apps/mobile/src/types/database.ts && cp apps/mobile/src/types/database.ts apps/web/src/types/database.ts",
     "test": "npm run test:unit && npm run test:integration && npm run test:db",
     "test:all": "npm run test && npm run test:e2e",

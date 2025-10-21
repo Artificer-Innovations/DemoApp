@@ -90,7 +90,7 @@ git
 
 ## Phase 2: Database Schema & Types
 
-### Task 2.1: Create Initial Database Schema
+### DONE - Task 2.1: Create Initial Database Schema
 **Goal**: Set up basic user profiles table with RLS policies
 **Scope**: User profiles table, RLS policies, basic constraints
 **Tests**:
@@ -105,7 +105,7 @@ git
 
 ---
 
-### Task 2.2: Generate TypeScript Types
+### DONE - Task 2.2: Generate TypeScript Types
 **Goal**: Generate TypeScript types from database schema
 **Scope**: Type generation script, type exports, integration with apps
 **Tests**:
