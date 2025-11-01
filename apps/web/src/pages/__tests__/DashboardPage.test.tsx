@@ -1,0 +1,163 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import DashboardPage from '../DashboardPage';
+import { AuthProvider } from '@shared/contexts/AuthContext';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+describe('DashboardPage', () => {
+  let mockSupabaseClient: Partial<SupabaseClient>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    
+    mockSupabaseClient = {
+      auth: {
+        getSession: vi.fn().mockResolvedValue({
+          data: {
+            session: {
+              user: {
+                id: 'test-user-id',
+                email: 'test@example.com',
+              },
+            },
+          },
+        }),
+        onAuthStateChange: vi.fn().mockReturnValue({
+          data: {
+            subscription: {
+              unsubscribe: vi.fn(),
+            },
+          },
+        }),
+        signOut: vi.fn().mockResolvedValue({ error: null }),
+      },
+    } as any;
+  });
+
+  const renderWithAuth = (ui: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        <AuthProvider supabaseClient={mockSupabaseClient as SupabaseClient}>
+          {ui}
+        </AuthProvider>
+      </BrowserRouter>
+    );
+  };
+
+  it('renders dashboard page', () => {
+    renderWithAuth(<DashboardPage />);
+    
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Welcome to your Dashboard!')).toBeInTheDocument();
+  });
+
+  it('displays user email when authenticated', async () => {
+    renderWithAuth(<DashboardPage />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('test@example.com')).toBeInTheDocument();
+    });
+  });
+
+  it('shows sign out button', () => {
+    renderWithAuth(<DashboardPage />);
+    
+    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
+  });
+
+  it('shows home link', () => {
+    renderWithAuth(<DashboardPage />);
+    
+    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
+  });
+
+  it('calls signOut and navigates to home when sign out button is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithAuth(<DashboardPage />);
+    
+    const signOutButton = screen.getByRole('button', { name: /sign out/i });
+    await user.click(signOutButton);
+    
+    await waitFor(() => {
+      expect(mockSupabaseClient.auth!.signOut).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('shows loading state while signing out', async () => {
+    const user = userEvent.setup();
+    
+    // Make signOut take some time
+    mockSupabaseClient.auth!.signOut = vi.fn().mockImplementation(
+      () => new Promise(resolve => setTimeout(() => resolve({ error: null }), 100))
+    );
+    
+    renderWithAuth(<DashboardPage />);
+    
+    const signOutButton = screen.getByRole('button', { name: /sign out/i });
+    await user.click(signOutButton);
+    
+    // Should show loading text
+    expect(screen.getByText('Signing out...')).toBeInTheDocument();
+    expect(signOutButton).toBeDisabled();
+    
+    // Wait for sign out to complete
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('displays error message if sign out fails', async () => {
+    const user = userEvent.setup();
+    const errorMessage = 'Failed to sign out';
+    
+    mockSupabaseClient.auth!.signOut = vi.fn().mockResolvedValue({
+      error: { message: errorMessage },
+    });
+    
+    renderWithAuth(<DashboardPage />);
+    
+    const signOutButton = screen.getByRole('button', { name: /sign out/i });
+    await user.click(signOutButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
+    
+    // Button should be re-enabled after error
+    expect(signOutButton).not.toBeDisabled();
+  });
+
+  it('does not navigate if sign out fails', async () => {
+    const user = userEvent.setup();
+    
+    mockSupabaseClient.auth!.signOut = vi.fn().mockResolvedValue({
+      error: { message: 'Sign out failed' },
+    });
+    
+    renderWithAuth(<DashboardPage />);
+    
+    const signOutButton = screen.getByRole('button', { name: /sign out/i });
+    await user.click(signOutButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Sign out failed')).toBeInTheDocument();
+    });
+    
+    // Should NOT navigate
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+});
+

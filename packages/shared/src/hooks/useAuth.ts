@@ -86,8 +86,16 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     setLoading(true);
     setError(null);
     
+    // Determine redirect URL based on environment
+    const redirectTo = typeof window !== 'undefined' 
+      ? `${window.location.origin}/auth/callback`
+      : undefined;
+    
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider,
+      options: {
+        redirectTo,
+      },
     });
     
     setLoading(false);

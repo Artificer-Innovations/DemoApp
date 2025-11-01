@@ -153,7 +153,7 @@ git
 
 ---
 
-### Task 3.2: Create Auth Context Provider
+### DONE - Task 3.2: Create Auth Context Provider
 **Goal**: Provide authentication context to both apps
 **Scope**: React context for auth state, provider component
 **Tests**:
@@ -172,14 +172,23 @@ git
 **Goal**: Add Google/Apple sign-in to web app
 **Scope**: OAuth integration, redirect handling, session management
 **Tests**:
-- Unit: Auth functions should handle OAuth flow correctly
-- Manual: Can sign in with Google/Apple on web app
+- Unit: Auth functions should handle OAuth flow correctly ✅
+- Manual: Can sign in with Google/Apple on web app (requires OAuth credentials)
 
 **Deliverables**:
-- `apps/web/src/pages/LoginPage.tsx`
-- `apps/web/src/components/auth/SocialLoginButton.tsx`
-- OAuth configuration
-- Redirect handling after authentication
+- `apps/web/src/pages/LoginPage.tsx` ✅ (with email/password + OAuth)
+- `apps/web/src/pages/SignupPage.tsx` ✅ (with email/password + OAuth)
+- `apps/web/src/components/SocialLoginButton.tsx` ✅
+- `apps/web/src/components/__tests__/SocialLoginButton.test.tsx` ✅
+- `apps/web/src/pages/AuthCallbackPage.tsx` ✅ (OAuth redirect handler)
+- `packages/shared/src/hooks/useAuth.ts` ✅ (updated with OAuth redirect URL)
+- `OAUTH_SETUP.md` ✅ (production OAuth setup guide)
+
+**Notes**:
+- OAuth UI is fully implemented and tested
+- OAuth will show error until credentials are configured in Supabase
+- See `OAUTH_SETUP.md` for detailed setup instructions
+- Email/password authentication is fully functional
 
 ---
 
@@ -210,6 +219,12 @@ git
 - `packages/shared/__tests__/components/auth/ProtectedRoute.test.tsx`
 - Route protection logic
 - Loading and redirect states
+
+### Task 3.6: Verify proper OAUTH production settings
+**Goal**: Verify that if OAUTH settings for google and apple OAuth are properly configured 
+that the web and mobile apps are able to sign up and login with Google and Apple social signins
+**Tests**:
+- Manual: Full signup and login flows with google and apple
 
 ---
 

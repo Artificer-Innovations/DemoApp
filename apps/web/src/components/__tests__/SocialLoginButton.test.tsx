@@ -1,0 +1,156 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { SocialLoginButton } from '../SocialLoginButton';
+
+describe('SocialLoginButton', () => {
+  it('renders Google button with correct text for signin', () => {
+    const mockOnPress = vi.fn();
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} mode="signin" />);
+    
+    expect(screen.getByText('Sign in with Google')).toBeInTheDocument();
+  });
+
+  it('renders Google button with correct text for signup', () => {
+    const mockOnPress = vi.fn();
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} mode="signup" />);
+    
+    expect(screen.getByText('Sign up with Google')).toBeInTheDocument();
+  });
+
+  it('renders Apple button with correct text', () => {
+    const mockOnPress = vi.fn();
+    render(<SocialLoginButton provider="apple" onPress={mockOnPress} mode="signin" />);
+    
+    expect(screen.getByText('Sign in with Apple')).toBeInTheDocument();
+  });
+
+  it('defaults to signin mode when mode is not provided', () => {
+    const mockOnPress = vi.fn();
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} />);
+    
+    expect(screen.getByText('Sign in with Google')).toBeInTheDocument();
+  });
+
+  it('calls onPress with correct provider when clicked', async () => {
+    const user = userEvent.setup();
+    const mockOnPress = vi.fn().mockResolvedValue(undefined);
+    
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    expect(mockOnPress).toHaveBeenCalledWith('google');
+    expect(mockOnPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows loading state while onPress is executing', async () => {
+    const user = userEvent.setup();
+    const mockOnPress = vi.fn().mockImplementation(() => 
+      new Promise(resolve => setTimeout(resolve, 100))
+    );
+    
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    // Should show loading text immediately
+    expect(screen.getByText('Connecting...')).toBeInTheDocument();
+    
+    // Button should be disabled
+    expect(button).toBeDisabled();
+    
+    // Wait for the promise to resolve
+    await waitFor(() => {
+      expect(screen.getByText('Sign in with Google')).toBeInTheDocument();
+    });
+  });
+
+  it('disables button during loading', async () => {
+    const user = userEvent.setup();
+    const mockOnPress = vi.fn().mockImplementation(() => 
+      new Promise(resolve => setTimeout(resolve, 100))
+    );
+    
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    expect(button).toBeDisabled();
+    
+    await waitFor(() => {
+      expect(button).not.toBeDisabled();
+    });
+  });
+
+  it('handles onPress errors gracefully', async () => {
+    const user = userEvent.setup();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const mockOnPress = vi.fn().mockRejectedValue(new Error('OAuth failed'));
+    
+    render(<SocialLoginButton provider="apple" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    await user.click(button);
+    
+    // Should log error
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'apple OAuth error:',
+        expect.any(Error)
+      );
+    });
+    
+    // Button should be re-enabled after error
+    await waitFor(() => {
+      expect(button).not.toBeDisabled();
+    });
+    
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('applies correct styling for Google button', () => {
+    const mockOnPress = vi.fn();
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    
+    // Google should have white background
+    expect(button).toHaveClass('bg-white');
+    expect(button).toHaveClass('text-gray-700');
+  });
+
+  it('applies correct styling for Apple button', () => {
+    const mockOnPress = vi.fn();
+    render(<SocialLoginButton provider="apple" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    
+    // Apple should have black background
+    expect(button).toHaveClass('bg-black');
+    expect(button).toHaveClass('text-white');
+  });
+
+  it('prevents multiple simultaneous clicks', async () => {
+    const user = userEvent.setup();
+    const mockOnPress = vi.fn().mockImplementation(() => 
+      new Promise(resolve => setTimeout(resolve, 100))
+    );
+    
+    render(<SocialLoginButton provider="google" onPress={mockOnPress} />);
+    
+    const button = screen.getByRole('button');
+    
+    // Click multiple times rapidly
+    await user.click(button);
+    await user.click(button);
+    await user.click(button);
+    
+    // Should only call once because button is disabled after first click
+    expect(mockOnPress).toHaveBeenCalledTimes(1);
+  });
+});
+

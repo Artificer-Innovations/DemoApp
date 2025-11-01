@@ -141,6 +141,9 @@ describe('useAuth', () => {
 
     expect(mockClient.auth.signInWithOAuth).toHaveBeenCalledWith({
       provider: 'google',
+      options: {
+        redirectTo: 'http://localhost/auth/callback',
+      },
     });
   });
 

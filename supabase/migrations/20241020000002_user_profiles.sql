@@ -57,12 +57,12 @@ BEGIN
     INSERT INTO public.user_profiles (user_id, username, display_name)
     VALUES (
         NEW.id,
-        generate_username(),
+        public.generate_username(),
         COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
     );
     RETURN NEW;
 END;
-$$ language 'plpgsql' SECURITY DEFINER;
+$$ language 'plpgsql' SECURITY DEFINER SET search_path = public;
 
 -- Create trigger to automatically create profile on user signup
 CREATE TRIGGER on_auth_user_created
