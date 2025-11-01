@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HOME_TITLE, HOME_SUBTITLE } from '@shared/utils/strings';
+import { useAuth } from '@shared/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 
 export default function HomePage() {
   const [testResult, setTestResult] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Manual test: useAuth hook should return loading/user/session states
+  const auth = useAuth(supabase);
 
   const handleTestDatabase = async () => {
     setIsLoading(true);
@@ -69,6 +73,17 @@ export default function HomePage() {
               {testResult}
             </div>
           )}
+
+          {/* Manual test display for useAuth hook */}
+          <div className="mt-4 p-4 rounded-md bg-blue-50 border border-blue-200">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">🧪 useAuth Hook Test</h3>
+            <div className="space-y-1 text-xs text-blue-800">
+              <div>Loading: <span className="font-mono">{auth.loading ? 'true' : 'false'}</span></div>
+              <div>User: <span className="font-mono">{auth.user ? auth.user.email : 'null'}</span></div>
+              <div>Session: <span className="font-mono">{auth.session ? 'active' : 'null'}</span></div>
+              <div>Error: <span className="font-mono">{auth.error ? auth.error.message : 'null'}</span></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

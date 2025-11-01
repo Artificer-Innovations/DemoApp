@@ -18,3 +18,7 @@ export * from './utils/strings';
 
 // Database types
 export * from './types/database';
+
+// Auth types and hooks
+export * from './types/auth';
+export * from './hooks/useAuth';

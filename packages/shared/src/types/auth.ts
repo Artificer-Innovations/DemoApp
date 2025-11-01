@@ -1,0 +1,18 @@
+import { User, Session } from '@supabase/supabase-js';
+
+export interface AuthState {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  error: Error | null;
+}
+
+export interface AuthActions {
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  signInWithOAuth: (provider: 'google' | 'apple') => Promise<void>;
+}
+
+export type AuthHookReturn = AuthState & AuthActions;
+
