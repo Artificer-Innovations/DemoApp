@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,44 @@ interface Props {
 }
 
 export default function DashboardScreen({ navigation }: Props) {
+  const auth = useAuthContext();
+
+  // Handle route protection - redirect if not authenticated
+  useEffect(() => {
+    if (!auth.loading && !auth.user) {
+      // Small delay to ensure navigation is ready
+      const timer = setTimeout(() => {
+        navigation.replace('Login');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [auth.loading, auth.user, navigation]);
+
+  // Show loading state while checking authentication
+  if (auth.loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4F46E5" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  // Show loading state while redirecting (to avoid blank screen)
+  if (!auth.user) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4F46E5" />
+        <Text style={styles.loadingText}>Redirecting...</Text>
+      </View>
+    );
+  }
+
+  // Render protected content if authenticated
+  return <DashboardScreenContent navigation={navigation} />;
+}
+
+function DashboardScreenContent({ navigation }: Props) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const auth = useAuthContext();
 
@@ -167,5 +205,16 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6B7280',
   },
 });

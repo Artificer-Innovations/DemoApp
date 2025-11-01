@@ -1,3 +1,4 @@
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
@@ -8,8 +9,17 @@ import DashboardScreen from '../screens/DashboardScreen';
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator = () => {
+  const navigationRef = React.useRef<any>(null);
+
+  // Expose navigation to global scope for debugging (dev only)
+  if (__DEV__ && typeof global !== 'undefined') {
+    React.useEffect(() => {
+      global.navigationRef = navigationRef;
+    }, []);
+  }
+
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{
           gestureEnabled: false,  // Disable swipe-back gestures

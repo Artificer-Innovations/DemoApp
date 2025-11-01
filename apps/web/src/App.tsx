@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { ProtectedRoute } from '@shared/components/auth/ProtectedRoute.web';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -12,7 +13,14 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
       </Routes>
     </div>

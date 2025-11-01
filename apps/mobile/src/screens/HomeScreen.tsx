@@ -113,6 +113,16 @@ export default function HomeScreen({ navigation }: Props) {
             </Text>
           </TouchableOpacity>
 
+          {/* Dev-only: Test Dashboard Navigation (for testing protected routes) */}
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.testButton}
+              onPress={() => navigation.navigate('Dashboard')}
+            >
+              <Text style={styles.testButtonText}>🔒 Test Dashboard (Force Nav)</Text>
+            </TouchableOpacity>
+          )}
+
           {testResult ? (
             <View style={styles.resultContainer}>
               <Text style={styles.resultText}>{testResult}</Text>
