@@ -28,6 +28,42 @@ jest.mock('@shared/contexts/AuthContext', () => ({
   }),
 }));
 
+// Mock React Navigation
+jest.mock('@react-navigation/native', () => ({
+  NavigationContainer: ({ children }: any) => children,
+  useNavigation: () => ({
+    navigate: jest.fn(),
+    replace: jest.fn(),
+    goBack: jest.fn(),
+  }),
+}));
+
+jest.mock('@react-navigation/native-stack', () => {
+  const React = require('react');
+  return {
+    createNativeStackNavigator: () => ({
+      Navigator: ({ children }: any) => children,
+      Screen: ({ component: Component, ...props }: any) => {
+        if (Component) {
+          // Create a mock navigation prop for screens that need it
+          const mockNavigation = {
+            navigate: jest.fn(),
+            replace: jest.fn(),
+            goBack: jest.fn(),
+          };
+          return <Component navigation={mockNavigation} {...props} />;
+        }
+        return null;
+      },
+    }),
+  };
+});
+
+// Mock ProtectedRoute to avoid React Native component issues in tests
+jest.mock('@shared/components/auth/ProtectedRoute', () => ({
+  ProtectedRoute: ({ children }: any) => children,
+}));
+
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { describe, it, expect } from '@jest/globals';

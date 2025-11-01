@@ -192,7 +192,7 @@ git
 
 ---
 
-### Task 3.4: Implement Mobile Authentication
+### DONE - Task 3.4: Implement Mobile Authentication
 **Goal**: Add Google/Apple sign-in to mobile app
 **Scope**: Native auth libraries, token handling, session storage
 **Tests**:
