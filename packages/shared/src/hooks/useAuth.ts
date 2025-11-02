@@ -87,7 +87,8 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     setError(null);
     
     // Determine redirect URL based on environment
-    const redirectTo = typeof window !== 'undefined' 
+    // Check if we're in a browser environment (web only)
+    const redirectTo = typeof window !== 'undefined' && window.location 
       ? `${window.location.origin}/auth/callback`
       : undefined;
     

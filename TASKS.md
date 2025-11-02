@@ -207,7 +207,7 @@ git
 
 ---
 
-### Task 3.5: Create Protected Route Components
+### DONE - Task 3.5: Create Protected Route Components
 **Goal**: Build components to protect authenticated routes
 **Scope**: Route protection, loading states, redirect logic
 **Tests**:
