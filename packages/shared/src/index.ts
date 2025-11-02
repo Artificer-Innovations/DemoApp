@@ -27,3 +27,6 @@ export * from './contexts/AuthContext';
 // Profile types and hooks
 export * from './types/profile';
 export * from './hooks/useProfile';
+
+// Validation schemas
+export * from './validation/profileSchema';

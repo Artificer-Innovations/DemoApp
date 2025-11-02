@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@shared/contexts/AuthContext';
 import { useProfile } from '@shared/hooks/useProfile';
 import { supabase } from '@/lib/supabase';
+import { profileFormSchema, type ProfileFormInput } from '@shared/validation/profileSchema';
+import { ZodError } from 'zod';
 
 export default function DashboardPage() {
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -85,6 +87,18 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Manual test display for validation schema - Task 4.2 */}
+          <div className="p-6 rounded-md bg-blue-50 border border-blue-200">
+            <h3 className="text-lg font-semibold text-blue-900 mb-4">🧪 Profile Validation Schema Test (Task 4.2)</h3>
+            <p className="text-sm text-blue-700 mb-4">
+              Test the validation schema by entering invalid data and seeing error messages appear.
+            </p>
+            <ValidationTestForm />
+            <div className="mt-3 text-xs text-blue-600 italic">
+              ✓ Try: username too short, display name too long, invalid website URL, etc.
+            </div>
+          </div>
+
           {/* Manual test display for useProfile hook - Task 4.1 */}
           <div className="p-6 rounded-md bg-purple-50 border border-purple-200">
             <h3 className="text-lg font-semibold text-purple-900 mb-4">🧪 useProfile Hook Test (Task 4.1)</h3>
@@ -151,6 +165,194 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Validation test form component
+function ValidationTestForm() {
+  const [formData, setFormData] = useState<ProfileFormInput>({
+    username: '',
+    display_name: '',
+    bio: '',
+    website: '',
+    location: '',
+    avatar_url: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [lastValidationResult, setLastValidationResult] = useState<string | null>(null);
+
+  const handleFieldChange = (field: keyof ProfileFormInput, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+    setLastValidationResult(null);
+  };
+
+  const validateField = (field: keyof ProfileFormInput, value: string) => {
+    try {
+      profileFormSchema.parse({ ...formData, [field]: value });
+      // Clear error if validation passes
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const fieldError = err.errors.find((e) => e.path.includes(field));
+        if (fieldError) {
+          setErrors((prev) => ({ ...prev, [field]: fieldError.message }));
+        }
+      }
+    }
+  };
+
+  const handleValidateAll = () => {
+    try {
+      profileFormSchema.parse(formData);
+      setErrors({});
+      setLastValidationResult('✅ All fields are valid!');
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const newErrors: Record<string, string> = {};
+        err.errors.forEach((error) => {
+          const field = error.path[0] as string;
+          if (field) {
+            newErrors[field] = error.message;
+          }
+        });
+        setErrors(newErrors);
+        setLastValidationResult(`❌ Validation failed: ${err.errors.length} error(s)`);
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-blue-900 mb-1">Username</label>
+          <input
+            type="text"
+            value={formData.username}
+            onChange={(e) => handleFieldChange('username', e.target.value)}
+            onBlur={(e) => validateField('username', e.target.value)}
+            placeholder="3-30 chars, alphanumeric + underscore"
+            className={`w-full px-3 py-2 border rounded-md text-sm ${
+              errors.username ? 'border-red-500 bg-red-50' : 'border-blue-300'
+            }`}
+          />
+          {errors.username && (
+            <p className="mt-1 text-xs text-red-600 font-medium">{errors.username}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-blue-900 mb-1">Display Name</label>
+          <input
+            type="text"
+            value={formData.display_name}
+            onChange={(e) => handleFieldChange('display_name', e.target.value)}
+            onBlur={(e) => validateField('display_name', e.target.value)}
+            placeholder="Max 100 characters"
+            className={`w-full px-3 py-2 border rounded-md text-sm ${
+              errors.display_name ? 'border-red-500 bg-red-50' : 'border-blue-300'
+            }`}
+          />
+          {errors.display_name && (
+            <p className="mt-1 text-xs text-red-600 font-medium">{errors.display_name}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-blue-900 mb-1">Bio</label>
+          <textarea
+            value={formData.bio}
+            onChange={(e) => handleFieldChange('bio', e.target.value)}
+            onBlur={(e) => validateField('bio', e.target.value)}
+            placeholder="Max 500 characters"
+            rows={3}
+            className={`w-full px-3 py-2 border rounded-md text-sm ${
+              errors.bio ? 'border-red-500 bg-red-50' : 'border-blue-300'
+            }`}
+          />
+          <div className="flex justify-between mt-1">
+            {errors.bio && (
+              <p className="text-xs text-red-600 font-medium">{errors.bio}</p>
+            )}
+            <p className="text-xs text-blue-600 ml-auto">{formData.bio?.length || 0}/500</p>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-blue-900 mb-1">Website</label>
+          <input
+            type="text"
+            value={formData.website}
+            onChange={(e) => handleFieldChange('website', e.target.value)}
+            onBlur={(e) => validateField('website', e.target.value)}
+            placeholder="https://example.com"
+            className={`w-full px-3 py-2 border rounded-md text-sm ${
+              errors.website ? 'border-red-500 bg-red-50' : 'border-blue-300'
+            }`}
+          />
+          {errors.website && (
+            <p className="mt-1 text-xs text-red-600 font-medium">{errors.website}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-blue-900 mb-1">Location</label>
+          <input
+            type="text"
+            value={formData.location}
+            onChange={(e) => handleFieldChange('location', e.target.value)}
+            placeholder="Any text"
+            className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-blue-900 mb-1">Avatar URL</label>
+          <input
+            type="text"
+            value={formData.avatar_url}
+            onChange={(e) => handleFieldChange('avatar_url', e.target.value)}
+            onBlur={(e) => validateField('avatar_url', e.target.value)}
+            placeholder="https://example.com/avatar.jpg"
+            className={`w-full px-3 py-2 border rounded-md text-sm ${
+              errors.avatar_url ? 'border-red-500 bg-red-50' : 'border-blue-300'
+            }`}
+          />
+          {errors.avatar_url && (
+            <p className="mt-1 text-xs text-red-600 font-medium">{errors.avatar_url}</p>
+          )}
+        </div>
+      </div>
+
+      <button
+        onClick={handleValidateAll}
+        className="w-full py-2 px-4 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded border border-blue-300 transition-colors"
+      >
+        Validate All Fields
+      </button>
+
+      {lastValidationResult && (
+        <div className={`p-3 rounded border text-sm font-medium ${
+          lastValidationResult.startsWith('✅')
+            ? 'bg-green-50 border-green-300 text-green-800'
+            : 'bg-red-50 border-red-300 text-red-800'
+        }`}>
+          {lastValidationResult}
+        </div>
+      )}
     </div>
   );
 }
