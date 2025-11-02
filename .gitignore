@@ -265,3 +265,4 @@ supabase/logs
 
 # Maestro
 maestro.log
+apps/mobile/google-services.json

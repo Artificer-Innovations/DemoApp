@@ -24,7 +24,7 @@ jest.mock('@shared/contexts/AuthContext', () => ({
     signIn: jest.fn(),
     signUp: jest.fn(),
     signOut: jest.fn(),
-    signInWithOAuth: jest.fn(),
+    signInWithGoogle: jest.fn(),
   }),
 }));
 

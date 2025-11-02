@@ -5,17 +5,14 @@ import {
   View,
   StyleSheet,
   ActivityIndicator,
-  Image,
 } from 'react-native';
 
 interface SocialLoginButtonProps {
-  provider: 'google' | 'apple';
-  onPress: (provider: 'google' | 'apple') => Promise<void>;
+  onPress: () => Promise<void>;
   mode?: 'signin' | 'signup';
 }
 
 export function SocialLoginButton({
-  provider,
   onPress,
   mode = 'signin',
 }: SocialLoginButtonProps) {
@@ -24,59 +21,34 @@ export function SocialLoginButton({
   const handlePress = async () => {
     setIsLoading(true);
     try {
-      await onPress(provider);
+      await onPress();
     } catch (error) {
-      console.warn(`${provider} OAuth error:`, error);
+      console.warn('Google sign-in error:', error);
       // Error is already handled by useAuth hook
     } finally {
       setIsLoading(false);
     }
   };
 
-  const providerConfig = {
-    google: {
-      name: 'Google',
-      backgroundColor: '#ffffff',
-      textColor: '#374151',
-      borderColor: '#d1d5db',
-      // Using emoji as placeholder for icon
-      icon: '🔍',
-    },
-    apple: {
-      name: 'Apple',
-      backgroundColor: '#000000',
-      textColor: '#ffffff',
-      borderColor: '#000000',
-      // Using emoji as placeholder for icon
-      icon: '',
-    },
-  };
-
-  const config = providerConfig[provider];
   const actionText = mode === 'signin' ? 'Sign in' : 'Sign up';
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        {
-          backgroundColor: config.backgroundColor,
-          borderColor: config.borderColor,
-        },
+        styles.googleButton,
         isLoading && styles.buttonDisabled,
       ]}
       onPress={handlePress}
       disabled={isLoading}
     >
       {isLoading ? (
-        <ActivityIndicator color={config.textColor} />
+        <ActivityIndicator color="#374151" />
       ) : (
         <View style={styles.content}>
-          <Text style={[styles.icon, { color: config.textColor }]}>
-            {config.icon}
-          </Text>
-          <Text style={[styles.text, { color: config.textColor }]}>
-            {actionText} with {config.name}
+          <Text style={[styles.icon, styles.googleText]}>🔍</Text>
+          <Text style={[styles.text, styles.googleText]}>
+            {actionText} with Google
           </Text>
         </View>
       )}
@@ -96,6 +68,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     minHeight: 48,
   },
+  googleButton: {
+    backgroundColor: '#ffffff',
+    borderColor: '#d1d5db',
+  },
   buttonDisabled: {
     opacity: 0.5,
   },
@@ -110,6 +86,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  googleText: {
+    color: '#374151',
   },
 });
 

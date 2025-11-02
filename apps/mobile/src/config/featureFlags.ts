@@ -1,6 +1,5 @@
 export const featureFlags = {
-  oauthGoogle: false,
-  oauthApple: false,
+  oauthGoogle: true,
 } as const;
 
 export type FeatureFlags = typeof featureFlags;

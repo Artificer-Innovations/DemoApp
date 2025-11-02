@@ -32,13 +32,12 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuthLogin = async (provider: 'google' | 'apple') => {
+  const handleGoogleLogin = async () => {
     setError(null);
     try {
-      await auth.signInWithOAuth(provider);
-      // OAuth will redirect, so no need to navigate manually
+      await auth.signInWithGoogle();
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to sign in with ${provider}`);
+      setError(err instanceof Error ? err.message : 'Failed to sign in with Google');
     }
   };
 
@@ -53,16 +52,7 @@ export default function LoginPage() {
 
         {/* OAuth Buttons */}
         <div className="space-y-3">
-          <SocialLoginButton 
-            provider="google" 
-            onPress={handleOAuthLogin}
-            mode="signin"
-          />
-          <SocialLoginButton 
-            provider="apple" 
-            onPress={handleOAuthLogin}
-            mode="signin"
-          />
+          <SocialLoginButton onPress={handleGoogleLogin} mode="signin" />
         </div>
 
         {/* Divider */}

@@ -3,6 +3,9 @@ import { User, Session } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AuthHookReturn } from '../types/auth';
 
+// Web platform does not require native Google configuration
+export function configureGoogleSignIn() {}
+
 export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -80,27 +83,28 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     }
   };
 
-  const signInWithOAuth = async (
-    provider: 'google' | 'apple'
-  ): Promise<void> => {
+  const signInWithGoogle = async (): Promise<void> => {
     setLoading(true);
     setError(null);
-    
-    // Determine redirect URL based on environment
-    // Check if we're in a browser environment (web only)
-    const redirectTo = typeof window !== 'undefined' && window.location 
-      ? `${window.location.origin}/auth/callback`
-      : undefined;
-    
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo,
-      },
-    });
-    
+
+    const redirectTo =
+      typeof window !== 'undefined' && window.location
+        ? `${window.location.origin}/auth/callback`
+        : undefined;
+
+    const authArgs = redirectTo
+      ? {
+          provider: 'google' as const,
+          options: { redirectTo },
+        }
+      : {
+          provider: 'google' as const,
+        };
+
+    const { error } = await supabaseClient.auth.signInWithOAuth(authArgs);
+
     setLoading(false);
-    
+
     if (error) {
       const errorObj = new Error(error.message);
       setError(errorObj);
@@ -116,7 +120,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     signIn,
     signUp,
     signOut,
-    signInWithOAuth,
+    signInWithGoogle,
   };
 }
 

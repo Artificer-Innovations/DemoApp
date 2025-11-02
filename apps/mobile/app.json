@@ -14,7 +14,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.demoapp"
+      "bundleIdentifier": "com.anonymous.demoapp",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,8 +28,16 @@
       "permissions": [
         "android.permission.DETECT_SCREEN_CAPTURE"
       ],
-      "package": "com.anonymous.demoapp"
+      "package": "com.anonymous.demoapp",
+      "googleServicesFile": "./google-services.json"
     },
-    "plugins": []
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf"
+        }
+      ]
+    ]
   }
 }

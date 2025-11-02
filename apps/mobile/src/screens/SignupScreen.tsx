@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -28,12 +28,21 @@ interface Props {
 }
 
 export default function SignupScreen({ navigation }: Props) {
-  const { oauthApple, oauthGoogle } = useFeatureFlags();
+  const { oauthGoogle } = useFeatureFlags();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuthContext();
+
+  useEffect(() => {
+    if (!auth.loading && auth.user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Dashboard' }],
+      });
+    }
+  }, [auth.loading, auth.user, navigation]);
 
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
@@ -61,14 +70,13 @@ export default function SignupScreen({ navigation }: Props) {
     }
   };
 
-  const handleOAuthSignup = async (provider: 'google' | 'apple') => {
+  const handleGoogleSignup = async () => {
     try {
-      await auth.signInWithOAuth(provider);
-      // OAuth will redirect, so no need to navigate manually
+      await auth.signInWithGoogle();
     } catch (error) {
       Alert.alert(
-        'OAuth Sign Up Failed',
-        error instanceof Error ? error.message : `Failed to sign up with ${provider}`
+        'Google Sign Up Failed',
+        error instanceof Error ? error.message : 'Failed to sign up with Google'
       );
     }
   };
@@ -82,23 +90,12 @@ export default function SignupScreen({ navigation }: Props) {
           {/* OAuth Buttons */}
           <View style={styles.oauthContainer}>
             {oauthGoogle && (
-              <SocialLoginButton
-                provider="google"
-                onPress={handleOAuthSignup}
-                mode="signup"
-              />
-            )}
-            {oauthApple && (
-              <SocialLoginButton
-                provider="apple"
-                onPress={handleOAuthSignup}
-                mode="signup"
-              />
+              <SocialLoginButton onPress={handleGoogleSignup} mode="signup" />
             )}
           </View>
 
           {/* Divider */}
-          {(oauthGoogle || oauthApple) && (
+          {oauthGoogle && (
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>Or continue with email</Text>

@@ -127,7 +127,7 @@ describe('useAuth', () => {
     expect(mockClient.auth.signOut).toHaveBeenCalled();
   });
 
-  it('should handle OAuth sign in', async () => {
+  it('should handle Google sign in', async () => {
     const { mockClient } = createMockSupabaseClient();
     const { result } = renderHook(() => useAuth(mockClient));
 
@@ -136,7 +136,7 @@ describe('useAuth', () => {
     });
 
     await act(async () => {
-      await result.current.signInWithOAuth('google');
+      await result.current.signInWithGoogle();
     });
 
     expect(mockClient.auth.signInWithOAuth).toHaveBeenCalledWith({

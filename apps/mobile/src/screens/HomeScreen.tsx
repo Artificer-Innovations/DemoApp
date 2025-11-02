@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,15 @@ export default function HomeScreen({ navigation }: Props) {
   
   // Manual test: useAuthContext hook should provide auth state from context
   const auth = useAuthContext();
+
+  useEffect(() => {
+    if (!auth.loading && auth.user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Dashboard' }],
+      });
+    }
+  }, [auth.loading, auth.user, navigation]);
 
   const handleTestDatabase = async () => {
     setIsLoading(true);

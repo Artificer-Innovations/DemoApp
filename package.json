@@ -8,6 +8,10 @@
     "packages/*"
   ],
   "overrides": {
+    "expo": "50.0.21",
+    "expo-constants": "15.4.6",
+    "expo-modules-core": "1.11.14",
+    "expo-asset": "9.0.2",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
@@ -64,6 +68,9 @@
     "setup": "./scripts/setup-local.sh",
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist apps/*/build",
     "clean:all": "npm run clean && supabase stop && docker system prune -f"
+  },
+  "dependencies": {
+    "expo": "50.0.21"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.28.3",
