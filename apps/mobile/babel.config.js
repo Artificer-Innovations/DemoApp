@@ -11,7 +11,7 @@ module.exports = function(api) {
             '@': './src',
             '@shared': '../../packages/shared/src',
           },
-          extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json']
+          extensions: ['.native.tsx', '.native.ts', '.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json']
         }
       ]
     ]

@@ -30,3 +30,8 @@ export * from './hooks/useProfile';
 
 // Validation schemas
 export * from './validation/profileSchema';
+
+// Form components - platform-specific files
+// Metro (mobile) and Vite (web) will automatically resolve to .native.tsx or .web.tsx
+// Do not export here - apps should import directly from './components/forms/FormInput' etc.
+// Exporting both would cause conflicts, so let the bundlers handle platform resolution

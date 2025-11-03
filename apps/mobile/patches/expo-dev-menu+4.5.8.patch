@@ -7,12 +7,12 @@ index 50ae661..3df6d7f 100644
  
    private func initialProps() -> [String: Any] {
 -    let isSimulator = TARGET_IPHONE_SIMULATOR > 0
-+    let isSimulator: Bool
 +    #if targetEnvironment(simulator)
-+      isSimulator = true
++    let isSimulator = true
 +    #else
-+      isSimulator = false
++    let isSimulator = false
 +    #endif
      
      return [
        "showOnboardingView": manager.shouldShowOnboarding(),
+

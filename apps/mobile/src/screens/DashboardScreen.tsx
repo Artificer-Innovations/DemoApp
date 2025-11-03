@@ -16,6 +16,8 @@ import { supabase } from '../lib/supabase';
 import { profileFormSchema, type ProfileFormInput } from '@shared/validation/profileSchema';
 import { ZodError } from 'zod';
 import { TextInput } from 'react-native';
+// Form components imported lazily to avoid StyleSheet.create() native bridge errors during app initialization
+// Import happens only when FormComponentsTestMobile is actually rendered
 
 type RootStackParamList = {
   Home: undefined;
@@ -159,6 +161,18 @@ function DashboardScreenContent({ navigation }: Props) {
           <Text style={styles.cardText}>• User profile information</Text>
           <Text style={styles.cardText}>• Data visualization</Text>
           <Text style={styles.cardText}>• Navigation to other features</Text>
+        </View>
+
+        {/* Manual test display for form components - Task 4.3 */}
+        <View style={styles.formComponentsTestCard}>
+          <Text style={styles.formComponentsTestCardTitle}>🧪 Form Components Test (Task 4.3)</Text>
+          <Text style={styles.formComponentsTestCardDescription}>
+            Test the shared form components to verify they work identically on web and mobile.
+          </Text>
+          <FormComponentsTestMobile />
+          <Text style={styles.formComponentsTestNote}>
+            ✓ Test all component states: normal, error, disabled, loading
+          </Text>
         </View>
 
         {/* Manual test display for validation schema - Task 4.2 */}
@@ -429,6 +443,169 @@ function ValidationTestFormMobile() {
   );
 }
 
+// Form components test component for mobile
+// Uses lazy imports to avoid StyleSheet.create() native bridge errors during app initialization
+function FormComponentsTestMobile() {
+  const [inputValue, setInputValue] = useState('');
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [componentsLoaded, setComponentsLoaded] = useState(false);
+  const [FormComponents, setFormComponents] = useState<{
+    FormInput: any;
+    FormButton: any;
+    FormError: any;
+  } | null>(null);
+
+  // Lazy load form components only when this component mounts
+  // This ensures the native bridge is ready before StyleSheet.create() is called
+  useEffect(() => {
+    if (!componentsLoaded) {
+      Promise.all([
+        import('@shared/components/forms/FormInput.native'),
+        import('@shared/components/forms/FormButton.native'),
+        import('@shared/components/forms/FormError.native'),
+      ])
+        .then(([FormInputModule, FormButtonModule, FormErrorModule]) => {
+          setFormComponents({
+            FormInput: FormInputModule.FormInput,
+            FormButton: FormButtonModule.FormButton,
+            FormError: FormErrorModule.FormError,
+          });
+          setComponentsLoaded(true);
+        })
+        .catch((err) => {
+          console.warn('[FormComponentsTest] Failed to load form components:', err);
+        });
+    }
+  }, [componentsLoaded]);
+
+  const handleButtonClick = () => {
+    setButtonLoading(true);
+    setTimeout(() => {
+      setButtonLoading(false);
+      setShowError(!showError);
+      Alert.alert('Button Clicked', 'Loading state completed!');
+    }, 1500);
+  };
+
+  // Show loading state while components are being loaded
+  if (!componentsLoaded || !FormComponents) {
+    return (
+      <View style={styles.formTestSection}>
+        <ActivityIndicator size="small" color="#166534" />
+        <Text style={styles.formTestSectionTitle}>Loading form components...</Text>
+      </View>
+    );
+  }
+
+  const { FormInput, FormButton, FormError } = FormComponents;
+
+  return (
+    <View>
+      <View style={styles.formTestSection}>
+        <Text style={styles.formTestSectionTitle}>FormInput Examples:</Text>
+        
+        <FormInput
+          label="Normal Input"
+          value={inputValue}
+          onChange={setInputValue}
+          placeholder="Type something here..."
+        />
+
+        <FormInput
+          label="Input with Error"
+          value="invalid value"
+          onChange={() => {}}
+          error="This field has an error message"
+        />
+
+        <FormInput
+          label="Disabled Input"
+          value="Cannot edit this"
+          onChange={() => {}}
+          disabled
+        />
+
+        <FormInput
+          label="Multiline Input (Textarea)"
+          value="This is a multiline text input that supports multiple lines of text."
+          onChange={() => {}}
+          multiline
+          numberOfLines={4}
+          placeholder="Enter multiple lines..."
+        />
+      </View>
+
+      <View style={styles.formTestSection}>
+        <Text style={styles.formTestSectionTitle}>FormButton Examples:</Text>
+        
+        <FormButton
+          title="Normal Button"
+          onPress={() => Alert.alert('Button Clicked', 'Normal button works!')}
+        />
+
+        <FormButton
+          title="Loading Button"
+          onPress={handleButtonClick}
+          loading={buttonLoading}
+        />
+
+        <FormButton
+          title="Disabled Button"
+          onPress={() => {}}
+          disabled
+        />
+
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonRowItem}>
+            <FormButton
+              title="Primary"
+              onPress={() => {}}
+              variant="primary"
+              fullWidth={false}
+            />
+          </View>
+          <View style={styles.buttonRowItem}>
+            <FormButton
+              title="Secondary"
+              onPress={() => {}}
+              variant="secondary"
+              fullWidth={false}
+            />
+          </View>
+          <View style={styles.buttonRowItem}>
+            <FormButton
+              title="Danger"
+              onPress={() => {}}
+              variant="danger"
+              fullWidth={false}
+            />
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.formTestSection}>
+        <Text style={styles.formTestSectionTitle}>FormError Examples:</Text>
+        
+        <FormError message="This is an error message displayed using FormError component" />
+        
+        <TouchableOpacity
+          onPress={() => setShowError(!showError)}
+          style={styles.toggleButton}
+        >
+          <Text style={styles.toggleButtonText}>
+            {showError ? 'Hide' : 'Show'} Dynamic Error
+          </Text>
+        </TouchableOpacity>
+        
+        {showError && (
+          <FormError message="This error was triggered dynamically!" />
+        )}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -695,5 +872,60 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  formComponentsTestCard: {
+    backgroundColor: '#dcfce7',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#86efac',
+  },
+  formComponentsTestCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#166534',
+    marginBottom: 8,
+  },
+  formComponentsTestCardDescription: {
+    fontSize: 12,
+    color: '#166534',
+    marginBottom: 12,
+  },
+  formComponentsTestNote: {
+    fontSize: 11,
+    color: '#16a34a',
+    fontStyle: 'italic',
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  formTestSection: {
+    marginBottom: 24,
+  },
+  formTestSectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#166534',
+    marginBottom: 12,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
+  buttonRowItem: {
+    flex: 1,
+  },
+  toggleButton: {
+    padding: 12,
+    backgroundColor: '#86efac',
+    borderRadius: 8,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  toggleButtonText: {
+    fontSize: 12,
+    color: '#166534',
+    fontWeight: '500',
   },
 });

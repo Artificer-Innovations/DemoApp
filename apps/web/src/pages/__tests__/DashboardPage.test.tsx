@@ -158,12 +158,12 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('displays error message if sign out fails', async () => {
+  it('navigates even if sign out API call fails (graceful degradation)', async () => {
     const user = userEvent.setup();
-    const errorMessage = 'Failed to sign out';
     
+    // Make signOut API call fail with 403, but signOut function will still clear local state
     mockSupabaseClient.auth!.signOut = vi.fn().mockResolvedValue({
-      error: { message: errorMessage },
+      error: { message: 'Forbidden', status: 403 },
     });
     
     await renderWithAuth(<DashboardPage />);
@@ -171,32 +171,11 @@ describe('DashboardPage', () => {
     const signOutButton = screen.getByRole('button', { name: /sign out/i });
     await user.click(signOutButton);
     
+    // Should still navigate even though API call failed
+    // The signOut function gracefully handles the error and clears local state
     await waitFor(() => {
-      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
-    
-    // Button should be re-enabled after error
-    expect(signOutButton).not.toBeDisabled();
-  });
-
-  it('does not navigate if sign out fails', async () => {
-    const user = userEvent.setup();
-    
-    mockSupabaseClient.auth!.signOut = vi.fn().mockResolvedValue({
-      error: { message: 'Sign out failed' },
-    });
-    
-    await renderWithAuth(<DashboardPage />);
-    
-    const signOutButton = screen.getByRole('button', { name: /sign out/i });
-    await user.click(signOutButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Sign out failed')).toBeInTheDocument();
-    });
-    
-    // Should NOT navigate
-    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });
 

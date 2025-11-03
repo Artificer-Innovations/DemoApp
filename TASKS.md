@@ -246,7 +246,7 @@ did not work. We did however remove the stubs for apple login; and will have to 
 
 ---
 
-### Task 4.2: Create Profile Validation Schema
+### DONE - Task 4.2: Create Profile Validation Schema
 **Goal**: Set up Zod validation for profile data
 **Scope**: Validation rules, error messages, type inference
 **Tests**:

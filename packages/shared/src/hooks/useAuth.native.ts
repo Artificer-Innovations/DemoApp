@@ -1,15 +1,38 @@
 import { useState, useEffect } from 'react';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import type { AuthHookReturn } from '../types/auth';
 
+// Lazy import to prevent native module from loading during bundle initialization
+let GoogleSignin: any = null;
+let statusCodes: any = null;
+
+async function getGoogleSignIn() {
+  if (!GoogleSignin) {
+    try {
+      const module = await import('@react-native-google-signin/google-signin');
+      GoogleSignin = module.GoogleSignin;
+      statusCodes = module.statusCodes;
+    } catch (err) {
+      console.warn('[useAuth] Google Sign-In module not available:', err);
+    }
+  }
+  return { GoogleSignin, statusCodes };
+}
+
 // Export this function to be called on app startup
 export function configureGoogleSignIn() {
-  GoogleSignin.configure({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    offlineAccess: true,
-  });
+  // Lazy configure - only import when actually called
+  import('@react-native-google-signin/google-signin')
+    .then((module) => {
+      module.GoogleSignin.configure({
+        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+        offlineAccess: true,
+      });
+    })
+    .catch((err) => {
+      console.warn('[useAuth] Failed to configure Google Sign-In:', err);
+    });
 }
 
 export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
@@ -76,14 +99,60 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     setLoading(true);
     setError(null);
 
-    const { error: signOutError } = await supabaseClient.auth.signOut();
+    try {
+      // Try to sign out with local scope first
+      const { error: signOutError } = await supabaseClient.auth.signOut({ scope: 'local' });
 
-    setLoading(false);
+      // If signOut API call fails (e.g., 403), manually clear the session storage
+      // This handles cases where the session is invalid/expired on the server
+      if (signOutError) {
+        console.warn('[useAuth] signOut API call failed, manually clearing session storage:', signOutError.message);
+        // Directly clear Supabase's AsyncStorage entries
+        // Access the storage adapter from the client's internal config
+        const storage = (supabaseClient.auth as any).storage;
+        if (storage && typeof storage.removeItem === 'function') {
+          // Clear all Supabase auth-related keys from AsyncStorage
+          // Supabase uses keys like 'sb-<project-ref>-auth-token'
+          try {
+            const allKeys = await storage.getAllKeys();
+            if (Array.isArray(allKeys)) {
+              const supabaseKeys = allKeys.filter((key: string) => 
+                key.startsWith('sb-') || key.includes('supabase.auth.token')
+              );
+              await Promise.all(supabaseKeys.map((key: string) => storage.removeItem(key)));
+            }
+          } catch (storageErr) {
+            console.warn('[useAuth] Failed to clear AsyncStorage:', storageErr);
+          }
+        }
+        // Clear state directly
+        setSession(null);
+        setUser(null);
+      }
 
-    if (signOutError) {
-      const errorObj = new Error(signOutError.message);
-      setError(errorObj);
-      throw errorObj;
+      setLoading(false);
+    } catch (err) {
+      // If signOut throws an error, still clear the session storage
+      console.warn('[useAuth] signOut threw error, manually clearing session storage:', err);
+      // Try to clear AsyncStorage
+      try {
+        const storage = (supabaseClient.auth as any).storage;
+        if (storage && typeof storage.getAllKeys === 'function') {
+          const allKeys = await storage.getAllKeys();
+          if (Array.isArray(allKeys)) {
+            const supabaseKeys = allKeys.filter((key: string) => 
+              key.startsWith('sb-') || key.includes('supabase.auth.token')
+            );
+            await Promise.all(supabaseKeys.map((key: string) => storage.removeItem(key)));
+          }
+        }
+      } catch (storageErr) {
+        console.warn('[useAuth] Failed to clear AsyncStorage:', storageErr);
+      }
+      setSession(null);
+      setUser(null);
+      setLoading(false);
+      // Don't throw - we've cleared the session storage, which is what we wanted
     }
   };
 
@@ -92,10 +161,16 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     setError(null);
 
     try {
-      await GoogleSignin.hasPlayServices();
-      await GoogleSignin.signIn();
+      const { GoogleSignin: GSI, statusCodes: codes } = await getGoogleSignIn();
+      
+      if (!GSI || !codes) {
+        throw new Error('Google Sign-In module not available');
+      }
 
-      const tokens = await GoogleSignin.getTokens();
+      await GSI.hasPlayServices();
+      await GSI.signIn();
+
+      const tokens = await GSI.getTokens();
 
       if (!tokens.idToken) {
         throw new Error('No ID token received from Google');
@@ -119,24 +194,27 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       }
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'code' in err) {
-        const code = (err as { code?: string }).code;
+        const { statusCodes: codes } = await getGoogleSignIn();
+        if (codes) {
+          const code = (err as { code?: string }).code;
 
-        if (code === statusCodes.SIGN_IN_CANCELLED) {
-          const cancelError = new Error('Google sign-in was cancelled');
-          setError(cancelError);
-          throw cancelError;
-        }
+          if (code === codes.SIGN_IN_CANCELLED) {
+            const cancelError = new Error('Google sign-in was cancelled');
+            setError(cancelError);
+            throw cancelError;
+          }
 
-        if (code === statusCodes.IN_PROGRESS) {
-          const progressError = new Error('Google sign-in already in progress');
-          setError(progressError);
-          throw progressError;
-        }
+          if (code === codes.IN_PROGRESS) {
+            const progressError = new Error('Google sign-in already in progress');
+            setError(progressError);
+            throw progressError;
+          }
 
-        if (code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-          const servicesError = new Error('Google Play Services not available');
-          setError(servicesError);
-          throw servicesError;
+          if (code === codes.PLAY_SERVICES_NOT_AVAILABLE) {
+            const servicesError = new Error('Google Play Services not available');
+            setError(servicesError);
+            throw servicesError;
+          }
         }
       }
 

@@ -64,6 +64,40 @@ jest.mock('@shared/components/auth/ProtectedRoute', () => ({
   ProtectedRoute: ({ children }: any) => children,
 }));
 
+// Mock form components to avoid StyleSheet.create() native bridge issues in tests
+jest.mock('@shared/components/forms/FormInput.native', () => ({
+  FormInput: ({ label, value, onChange, ...props }: any) => {
+    const React = require('react');
+    const { TextInput, View, Text } = require('react-native');
+    return (
+      <View>
+        <Text>{label}</Text>
+        <TextInput value={value} onChangeText={onChange} {...props} />
+      </View>
+    );
+  },
+}));
+
+jest.mock('@shared/components/forms/FormButton.native', () => ({
+  FormButton: ({ title, onPress, ...props }: any) => {
+    const React = require('react');
+    const { TouchableOpacity, Text } = require('react-native');
+    return (
+      <TouchableOpacity onPress={onPress} {...props}>
+        <Text>{title}</Text>
+      </TouchableOpacity>
+    );
+  },
+}));
+
+jest.mock('@shared/components/forms/FormError.native', () => ({
+  FormError: ({ message }: any) => {
+    const React = require('react');
+    const { Text } = require('react-native');
+    return message ? <Text>{message}</Text> : null;
+  },
+}));
+
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { describe, it, expect } from '@jest/globals';

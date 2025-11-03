@@ -5,6 +5,10 @@ import { useProfile } from '@shared/hooks/useProfile';
 import { supabase } from '@/lib/supabase';
 import { profileFormSchema, type ProfileFormInput } from '@shared/validation/profileSchema';
 import { ZodError } from 'zod';
+// Import form components - Vite will automatically resolve .web.tsx files
+import { FormInput } from '@shared/components/forms/FormInput.web';
+import { FormButton } from '@shared/components/forms/FormButton.web';
+import { FormError } from '@shared/components/forms/FormError.web';
 
 export default function DashboardPage() {
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -19,13 +23,11 @@ export default function DashboardPage() {
     setIsSigningOut(true);
     setError(null);
 
-    try {
-      await auth.signOut();
-      navigate('/');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign out');
-      setIsSigningOut(false);
-    }
+    // signOut no longer throws - it gracefully handles API errors and clears local state
+    await auth.signOut();
+    // Navigate immediately - the auth state will update via onAuthStateChange listener
+    navigate('/');
+    setIsSigningOut(false);
   };
 
   return (
@@ -84,6 +86,18 @@ export default function DashboardPage() {
               <p className="text-gray-600">
                 This is where your main application content will go.
               </p>
+            </div>
+          </div>
+
+          {/* Manual test display for form components - Task 4.3 */}
+          <div className="p-6 rounded-md bg-green-50 border border-green-200">
+            <h3 className="text-lg font-semibold text-green-900 mb-4">🧪 Form Components Test (Task 4.3)</h3>
+            <p className="text-sm text-green-700 mb-4">
+              Test the shared form components (FormInput, FormButton, FormError) to verify they work identically on web and mobile.
+            </p>
+            <FormComponentsTest />
+            <div className="mt-3 text-xs text-green-600 italic">
+              ✓ Test all component states: normal, error, disabled, loading
             </div>
           </div>
 
@@ -164,6 +178,118 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Form components test component
+function FormComponentsTest() {
+  const [inputValue, setInputValue] = useState('');
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [showError, setShowError] = useState(false);
+
+  const handleButtonClick = () => {
+    setButtonLoading(true);
+    setTimeout(() => {
+      setButtonLoading(false);
+      setShowError(!showError);
+    }, 1500);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-green-800">FormInput Examples:</h4>
+        
+        <FormInput
+          label="Normal Input"
+          value={inputValue}
+          onChange={setInputValue}
+          placeholder="Type something here..."
+        />
+
+        <FormInput
+          label="Input with Error"
+          value="invalid value"
+          onChange={() => {}}
+          error="This field has an error message"
+        />
+
+        <FormInput
+          label="Disabled Input"
+          value="Cannot edit this"
+          onChange={() => {}}
+          disabled
+        />
+
+        <FormInput
+          label="Multiline Input (Textarea)"
+          value="This is a multiline text input that supports multiple lines of text."
+          onChange={() => {}}
+          multiline
+          rows={4}
+          placeholder="Enter multiple lines..."
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-green-800">FormButton Examples:</h4>
+        
+        <FormButton
+          title="Normal Button"
+          onPress={() => alert('Button clicked!')}
+        />
+
+        <FormButton
+          title="Loading Button"
+          onPress={handleButtonClick}
+          loading={buttonLoading}
+        />
+
+        <FormButton
+          title="Disabled Button"
+          onPress={() => {}}
+          disabled
+        />
+
+        <div className="flex gap-2">
+          <FormButton
+            title="Primary"
+            onPress={() => {}}
+            variant="primary"
+            fullWidth={false}
+          />
+          <FormButton
+            title="Secondary"
+            onPress={() => {}}
+            variant="secondary"
+            fullWidth={false}
+          />
+          <FormButton
+            title="Danger"
+            onPress={() => {}}
+            variant="danger"
+            fullWidth={false}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h4 className="text-sm font-semibold text-green-800">FormError Examples:</h4>
+        
+        <FormError message="This is an error message displayed using FormError component" />
+        
+        <button
+          onClick={() => setShowError(!showError)}
+          className="text-sm text-green-700 underline"
+        >
+          {showError ? 'Hide' : 'Show'} Dynamic Error
+        </button>
+        
+        {showError && (
+          <FormError message="This error was triggered dynamically!" />
+        )}
       </div>
     </div>
   );
