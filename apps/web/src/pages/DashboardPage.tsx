@@ -53,6 +53,12 @@ export default function DashboardPage() {
                 </span>
               )}
               <Link
+                to="/profile"
+                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Profile
+              </Link>
+              <Link
                 to="/"
                 className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
