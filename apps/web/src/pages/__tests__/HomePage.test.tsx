@@ -62,20 +62,26 @@ describe('HomePage', () => {
     it('renders home page with title and subtitle', async () => {
       await renderWithAuth(<HomePage />, false);
       
-      expect(screen.getByText('Welcome to Demo App')).toBeInTheDocument();
+      // Title appears in both header and main content, check that it exists
+      const titles = screen.getAllByText('Welcome to Demo App');
+      expect(titles.length).toBeGreaterThan(0);
       expect(screen.getByText(/A modern full-stack application/i)).toBeInTheDocument();
     });
 
     it('shows sign in button', async () => {
       await renderWithAuth(<HomePage />, false);
       
-      expect(screen.getByRole('link', { name: /sign in/i })).toBeInTheDocument();
+      // Sign In appears in both header and main content
+      const signInLinks = screen.getAllByRole('link', { name: /sign in/i });
+      expect(signInLinks.length).toBeGreaterThan(0);
     });
 
     it('shows sign up button', async () => {
       await renderWithAuth(<HomePage />, false);
       
-      expect(screen.getByRole('link', { name: /sign up/i })).toBeInTheDocument();
+      // Sign Up appears in both header and main content
+      const signUpLinks = screen.getAllByRole('link', { name: /sign up/i });
+      expect(signUpLinks.length).toBeGreaterThan(0);
     });
 
     it('does not show dashboard link', async () => {
@@ -100,7 +106,7 @@ describe('HomePage', () => {
       });
     });
 
-    it('shows dashboard link', async () => {
+    it('shows dashboard link in main content', async () => {
       await renderWithAuth(<HomePage />, true);
       
       await waitFor(() => {
@@ -108,19 +114,44 @@ describe('HomePage', () => {
       });
     });
 
-    it('does not show sign in button', async () => {
+    it('shows profile link in main content', async () => {
       await renderWithAuth(<HomePage />, true);
       
       await waitFor(() => {
-        expect(screen.queryByRole('link', { name: /^sign in$/i })).not.toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /view profile/i })).toBeInTheDocument();
       });
     });
 
-    it('does not show sign up button', async () => {
+    it('shows navigation menu with dashboard and profile links', async () => {
       await renderWithAuth(<HomePage />, true);
       
       await waitFor(() => {
-        expect(screen.queryByRole('link', { name: /sign up/i })).not.toBeInTheDocument();
+        // Check navigation header has Dashboard and Profile links
+        const dashboardNavLinks = screen.getAllByRole('link', { name: /dashboard/i });
+        const profileNavLinks = screen.getAllByRole('link', { name: /profile/i });
+        expect(dashboardNavLinks.length).toBeGreaterThan(0);
+        expect(profileNavLinks.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('does not show sign in button in main content', async () => {
+      await renderWithAuth(<HomePage />, true);
+      
+      await waitFor(() => {
+        // Sign In may appear in header navigation, but not in main content area
+        // Check that main content area doesn't have sign in
+        const mainContent = screen.getByText(/Go to Dashboard/i).closest('div[class*="max-w-md"]');
+        expect(mainContent).not.toHaveTextContent(/sign in/i);
+      });
+    });
+
+    it('does not show sign up button in main content', async () => {
+      await renderWithAuth(<HomePage />, true);
+      
+      await waitFor(() => {
+        // Sign Up may appear in header navigation, but not in main content area
+        const mainContent = screen.getByText(/Go to Dashboard/i).closest('div[class*="max-w-md"]');
+        expect(mainContent).not.toHaveTextContent(/sign up/i);
       });
     });
 

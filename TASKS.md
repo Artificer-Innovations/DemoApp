@@ -323,7 +323,7 @@ did not work. We did however remove the stubs for apple login; and will have to 
 
 ---
 
-### Task 5.2: Create Mobile Profile Screen
+### DONE - Task 5.2: Create Mobile Profile Screen
 **Goal**: Build profile screen for mobile app using shared components
 **Scope**: Screen layout, navigation, component integration
 **Tests**:
