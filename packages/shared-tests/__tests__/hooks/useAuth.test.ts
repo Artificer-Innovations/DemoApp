@@ -22,7 +22,9 @@ const createMockSupabaseClient = () => {
     user: mockUser,
   };
 
-  let authStateCallback: ((event: string, session: Session | null) => void) | null = null;
+  let authStateCallback:
+    | ((event: string, session: Session | null) => void)
+    | null = null;
 
   const mockClient = {
     auth: {
@@ -46,7 +48,7 @@ const createMockSupabaseClient = () => {
         data: { url: 'https://oauth-url.com' },
         error: null,
       }),
-      onAuthStateChange: jest.fn((callback) => {
+      onAuthStateChange: jest.fn(callback => {
         authStateCallback = callback;
         return {
           data: {
@@ -59,7 +61,12 @@ const createMockSupabaseClient = () => {
     },
   } as unknown as SupabaseClient;
 
-  return { mockClient, mockUser, mockSession, getAuthStateCallback: () => authStateCallback };
+  return {
+    mockClient,
+    mockUser,
+    mockSession,
+    getAuthStateCallback: () => authStateCallback,
+  };
 };
 
 describe('useAuth', () => {
@@ -148,7 +155,8 @@ describe('useAuth', () => {
   });
 
   it('should handle auth state changes', async () => {
-    const { mockClient, mockUser, mockSession, getAuthStateCallback } = createMockSupabaseClient();
+    const { mockClient, mockUser, mockSession, getAuthStateCallback } =
+      createMockSupabaseClient();
     const { result } = renderHook(() => useAuth(mockClient));
 
     await waitFor(() => {
@@ -200,7 +208,7 @@ describe('useAuth', () => {
   it('should unsubscribe from auth state changes on unmount', async () => {
     const { mockClient } = createMockSupabaseClient();
     const unsubscribeMock = jest.fn();
-    
+
     mockClient.auth.onAuthStateChange = jest.fn(() => ({
       data: {
         subscription: {
@@ -216,4 +224,3 @@ describe('useAuth', () => {
     expect(unsubscribeMock).toHaveBeenCalled();
   });
 });
-

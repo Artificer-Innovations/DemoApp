@@ -1,4 +1,11 @@
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 
 export interface FormButtonProps {
   title: string;
@@ -72,7 +79,9 @@ export function FormButton({
       {loading ? (
         <ActivityIndicator color={variantStyles.textColor} />
       ) : (
-        <Text style={[styles.text, { color: variantStyles.textColor }, textStyle]}>
+        <Text
+          style={[styles.text, { color: variantStyles.textColor }, textStyle]}
+        >
           {title}
         </Text>
       )}
@@ -94,4 +103,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

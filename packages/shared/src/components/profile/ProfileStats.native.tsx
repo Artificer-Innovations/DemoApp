@@ -25,7 +25,10 @@ export function ProfileStats({ profile, style }: ProfileStatsProps) {
       if (isNaN(date.getTime())) {
         return null;
       }
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+      });
     } catch {
       return null;
     }
@@ -40,7 +43,9 @@ export function ProfileStats({ profile, style }: ProfileStatsProps) {
       profile.location,
       profile.website,
     ];
-    const filledFields = fields.filter((field) => field !== null && field !== '').length;
+    const filledFields = fields.filter(
+      field => field !== null && field !== ''
+    ).length;
     return Math.round((filledFields / fields.length) * 100);
   };
 
@@ -81,4 +86,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

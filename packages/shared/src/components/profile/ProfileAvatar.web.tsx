@@ -10,7 +10,11 @@ export interface ProfileAvatarProps {
  * ProfileAvatar component for web
  * Displays user avatar with fallback to initials
  */
-export function ProfileAvatar({ profile, size = 'medium', className = '' }: ProfileAvatarProps) {
+export function ProfileAvatar({
+  profile,
+  size = 'medium',
+  className = '',
+}: ProfileAvatarProps) {
   const sizeClasses = {
     small: 'w-12 h-12 text-sm',
     medium: 'w-20 h-20 text-lg',
@@ -36,17 +40,17 @@ export function ProfileAvatar({ profile, size = 'medium', className = '' }: Prof
   if (avatarUrl) {
     // Add cache-busting parameter for display to prevent browser caching issues
     // The database stores the clean URL, we add cache-busting only when displaying
-    const displayUrl = avatarUrl.includes('?') 
+    const displayUrl = avatarUrl.includes('?')
       ? avatarUrl // Already has params, use as-is
       : `${avatarUrl}?t=${Date.now()}`; // Add timestamp for cache-busting
-    
+
     return (
       <img
         key={avatarUrl} // Key ensures React re-renders when URL changes
         src={displayUrl}
         alt={profile?.display_name || profile?.username || 'User avatar'}
         className={`${sizeClasses[size]} rounded-full object-cover ${className}`}
-        onError={(e) => {
+        onError={e => {
           // Fallback to initials if image fails to load
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
@@ -62,11 +66,10 @@ export function ProfileAvatar({ profile, size = 'medium', className = '' }: Prof
   return (
     <div
       className={`${sizeClasses[size]} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold ${className}`}
-      role="img"
+      role='img'
       aria-label={`Avatar for ${profile?.display_name || profile?.username || 'user'}`}
     >
       {getInitials()}
     </div>
   );
 }
-

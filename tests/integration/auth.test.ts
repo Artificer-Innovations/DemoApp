@@ -119,7 +119,9 @@ describe('Authentication Integration Tests', () => {
       await signOutUser(supabase);
 
       // Verify session is cleared
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       expect(session).toBeNull();
     });
   });
@@ -133,7 +135,9 @@ describe('Authentication Integration Tests', () => {
       expect(signInData.session).toBeDefined();
 
       // Get session again
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       expect(session).toBeDefined();
       expect(session?.user.email).toBe(testEmail);
@@ -176,7 +180,7 @@ describe('Authentication Integration Tests', () => {
       expect(data?.bio).toBe(newBio);
     });
 
-    it('should not allow updating another user\'s profile', async () => {
+    it("should not allow updating another user's profile", async () => {
       // Sign in as test user
       await signInTestUser(supabase, testEmail, testPassword);
 
@@ -196,4 +200,3 @@ describe('Authentication Integration Tests', () => {
     });
   });
 });
-

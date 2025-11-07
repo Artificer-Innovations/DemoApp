@@ -35,14 +35,14 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
   const signIn = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     setError(null);
-    
+
     const { error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     });
-    
+
     setLoading(false);
-    
+
     if (error) {
       const errorObj = new Error(error.message);
       setError(errorObj);
@@ -53,14 +53,14 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
   const signUp = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     setError(null);
-    
+
     const { error } = await supabaseClient.auth.signUp({
       email,
       password,
     });
-    
+
     setLoading(false);
-    
+
     if (error) {
       const errorObj = new Error(error.message);
       setError(errorObj);
@@ -71,15 +71,18 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
   const signOut = async (): Promise<void> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       // Try to sign out with local scope first
       const { error } = await supabaseClient.auth.signOut({ scope: 'local' });
-      
+
       // If signOut API call fails (e.g., 403), manually clear the session storage
       // This handles cases where the session is invalid/expired on the server
       if (error) {
-        console.warn('[useAuth] signOut API call failed, manually clearing session storage:', error.message);
+        console.warn(
+          '[useAuth] signOut API call failed, manually clearing session storage:',
+          error.message
+        );
         // Directly clear Supabase's localStorage entries
         // Supabase stores session data with keys based on the URL
         if (typeof window !== 'undefined' && window.localStorage) {
@@ -88,7 +91,10 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
           const keysToRemove: string[] = [];
           for (let i = 0; i < window.localStorage.length; i++) {
             const key = window.localStorage.key(i);
-            if (key && (key.startsWith('sb-') || key.includes('supabase.auth.token'))) {
+            if (
+              key &&
+              (key.startsWith('sb-') || key.includes('supabase.auth.token'))
+            ) {
               keysToRemove.push(key);
             }
           }
@@ -98,17 +104,23 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
         setSession(null);
         setUser(null);
       }
-      
+
       setLoading(false);
     } catch (err) {
       // If signOut throws an error, still clear the session storage
-      console.warn('[useAuth] signOut threw error, manually clearing session storage:', err);
+      console.warn(
+        '[useAuth] signOut threw error, manually clearing session storage:',
+        err
+      );
       // Directly clear Supabase's localStorage entries
       if (typeof window !== 'undefined' && window.localStorage) {
         const keysToRemove: string[] = [];
         for (let i = 0; i < window.localStorage.length; i++) {
           const key = window.localStorage.key(i);
-          if (key && (key.startsWith('sb-') || key.includes('supabase.auth.token'))) {
+          if (
+            key &&
+            (key.startsWith('sb-') || key.includes('supabase.auth.token'))
+          ) {
             keysToRemove.push(key);
           }
         }
@@ -161,4 +173,3 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
     signInWithGoogle,
   };
 }
-

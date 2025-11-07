@@ -66,4 +66,3 @@ async function generateFavicons() {
 }
 
 generateFavicons();
-

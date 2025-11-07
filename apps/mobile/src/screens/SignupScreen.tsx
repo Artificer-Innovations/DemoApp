@@ -24,7 +24,10 @@ type RootStackParamList = {
   Dashboard: undefined;
 };
 
-type SignupScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Signup'>;
+type SignupScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Signup'
+>;
 
 interface Props {
   navigation: SignupScreenNavigationProp;
@@ -52,14 +55,14 @@ export default function SignupScreen({ navigation }: Props) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await auth.signUp(email, password);
       navigation.navigate('Dashboard');
@@ -87,14 +90,17 @@ export default function SignupScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader supabaseClient={supabase} />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.form}>
           <Text style={styles.title}>Create your account</Text>
-          
+
           {/* OAuth Buttons */}
           <View style={styles.oauthContainer}>
             {oauthGoogle && (
-              <SocialLoginButton onPress={handleGoogleSignup} mode="signup" />
+              <SocialLoginButton onPress={handleGoogleSignup} mode='signup' />
             )}
           </View>
 
@@ -108,46 +114,49 @@ export default function SignupScreen({ navigation }: Props) {
           )}
           <TextInput
             style={styles.input}
-            placeholder="Email address"
+            placeholder='Email address'
             value={email}
             onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
+            keyboardType='email-address'
+            autoCapitalize='none'
             autoCorrect={false}
           />
-          
+
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder='Password'
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            autoCapitalize="none"
+            autoCapitalize='none'
             autoCorrect={false}
           />
-          
+
           <TextInput
             style={styles.input}
-            placeholder="Confirm password"
+            placeholder='Confirm password'
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
-            autoCapitalize="none"
+            autoCapitalize='none'
             autoCorrect={false}
           />
-          
-          <TouchableOpacity 
-            style={[styles.signupButton, isLoading && styles.signupButtonDisabled]} 
+
+          <TouchableOpacity
+            style={[
+              styles.signupButton,
+              isLoading && styles.signupButtonDisabled,
+            ]}
             onPress={handleSignup}
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color='#ffffff' />
             ) : (
               <Text style={styles.signupButtonText}>Create Account</Text>
             )}
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => navigation.navigate('Login')}

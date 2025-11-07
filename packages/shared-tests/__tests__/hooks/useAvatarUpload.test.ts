@@ -11,7 +11,10 @@ const createMockSupabaseClient = () => {
       error: null,
     }),
     getPublicUrl: jest.fn().mockReturnValue({
-      data: { publicUrl: 'https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg' },
+      data: {
+        publicUrl:
+          'https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg',
+      },
     }),
     remove: jest.fn().mockResolvedValue({
       data: null,
@@ -41,7 +44,9 @@ describe('useAvatarUpload', () => {
 
   it('should initialize with default state', () => {
     const { mockClient } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     expect(result.current.uploading).toBe(false);
     expect(result.current.progress).toBe(0);
@@ -51,10 +56,14 @@ describe('useAvatarUpload', () => {
 
   it('should validate file size', async () => {
     const { mockClient } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Create a file larger than 2MB
-    const largeFile = new File(['x'.repeat(3 * 1024 * 1024)], 'large.jpg', { type: 'image/jpeg' });
+    const largeFile = new File(['x'.repeat(3 * 1024 * 1024)], 'large.jpg', {
+      type: 'image/jpeg',
+    });
 
     await act(async () => {
       try {
@@ -72,10 +81,14 @@ describe('useAvatarUpload', () => {
 
   it('should validate file type', async () => {
     const { mockClient } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Create a file with invalid type
-    const invalidFile = new File(['content'], 'file.pdf', { type: 'application/pdf' });
+    const invalidFile = new File(['content'], 'file.pdf', {
+      type: 'application/pdf',
+    });
 
     await act(async () => {
       try {
@@ -93,9 +106,13 @@ describe('useAvatarUpload', () => {
 
   it('should upload valid file successfully', async () => {
     const { mockClient, mockStorage, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     let returnedUrl: string;
     await act(async () => {
@@ -110,9 +127,11 @@ describe('useAvatarUpload', () => {
       );
       expect(result.current.error).toBeNull();
     });
-    
+
     // The returned URL from uploadAvatar should be clean (for database storage)
-    expect(returnedUrl).toBe('https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg');
+    expect(returnedUrl).toBe(
+      'https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg'
+    );
     expect(returnedUrl).not.toMatch(/\?/); // No query params
 
     expect(mockStorage.from).toHaveBeenCalledWith('avatars');
@@ -128,10 +147,16 @@ describe('useAvatarUpload', () => {
 
   it('should generate unique URLs for each upload to prevent browser caching', async () => {
     const { mockClient } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
-    const firstFile = new File(['content1'], 'avatar1.jpg', { type: 'image/jpeg' });
-    const secondFile = new File(['content2'], 'avatar2.jpg', { type: 'image/jpeg' });
+    const firstFile = new File(['content1'], 'avatar1.jpg', {
+      type: 'image/jpeg',
+    });
+    const secondFile = new File(['content2'], 'avatar2.jpg', {
+      type: 'image/jpeg',
+    });
 
     // First upload
     let firstUrl: string;
@@ -144,7 +169,7 @@ describe('useAvatarUpload', () => {
     });
 
     // Wait a bit to ensure different timestamp
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 10));
 
     // Second upload
     let secondUrl: string;
@@ -157,10 +182,14 @@ describe('useAvatarUpload', () => {
     });
 
     // Returned URLs should be clean (no cache-busting) - for database storage
-    expect(firstUrl).toBe('https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg');
-    expect(secondUrl).toBe('https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg');
+    expect(firstUrl).toBe(
+      'https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg'
+    );
+    expect(secondUrl).toBe(
+      'https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg'
+    );
     expect(firstUrl).toBe(secondUrl); // Same clean URL
-    
+
     // But uploadedUrl state should have cache-busting for display
     expect(result.current.uploadedUrl).toMatch(
       /^https:\/\/example\.com\/storage\/v1\/object\/public\/avatars\/user-id-1\/avatar\.jpg\?t=\d+&v=[a-z0-9]+$/
@@ -169,7 +198,9 @@ describe('useAvatarUpload', () => {
 
   it('should handle upload errors', async () => {
     const { mockClient, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Mock upload error
     mockBucket.upload = jest.fn().mockResolvedValue({
@@ -177,7 +208,9 @@ describe('useAvatarUpload', () => {
       error: { message: 'Upload failed' },
     });
 
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     await act(async () => {
       try {
@@ -196,7 +229,9 @@ describe('useAvatarUpload', () => {
 
   it('should generate correct file path for different extensions', async () => {
     const { mockClient, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     const pngFile = new File(['content'], 'avatar.png', { type: 'image/png' });
 
@@ -217,7 +252,9 @@ describe('useAvatarUpload', () => {
 
   it('should remove avatar successfully', async () => {
     const { mockClient, mockStorage, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     await act(async () => {
       await result.current.removeAvatar();
@@ -236,7 +273,9 @@ describe('useAvatarUpload', () => {
 
   it('should handle remove avatar errors', async () => {
     const { mockClient, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Mock list to succeed but return files
     mockBucket.list = jest.fn().mockResolvedValue({
@@ -266,10 +305,14 @@ describe('useAvatarUpload', () => {
 
   it('should reset state', async () => {
     const { mockClient } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Upload a file to set state
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     await act(async () => {
       await result.current.uploadAvatar(validFile);
@@ -292,9 +335,13 @@ describe('useAvatarUpload', () => {
 
   it('should delete old avatar before uploading new one', async () => {
     const { mockClient, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     await act(async () => {
       await result.current.uploadAvatar(validFile);
@@ -310,14 +357,21 @@ describe('useAvatarUpload', () => {
 
   it('should normalize Android emulator URLs (10.0.2.2 -> 127.0.0.1) before returning', async () => {
     const { mockClient, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Mock getPublicUrl to return Android emulator URL
     mockBucket.getPublicUrl = jest.fn().mockReturnValue({
-      data: { publicUrl: 'http://10.0.2.2:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg' },
+      data: {
+        publicUrl:
+          'http://10.0.2.2:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg',
+      },
     });
 
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     let returnedUrl: string;
     await act(async () => {
@@ -329,23 +383,32 @@ describe('useAvatarUpload', () => {
     });
 
     // Returned URL should be normalized to 127.0.0.1 (for cross-platform compatibility)
-    expect(returnedUrl).toBe('http://127.0.0.1:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg');
+    expect(returnedUrl).toBe(
+      'http://127.0.0.1:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg'
+    );
     expect(returnedUrl).not.toContain('10.0.2.2');
-    
+
     // But uploadedUrl state can have 10.0.2.2 (for display on Android)
     // The component will handle the normalization for display
   });
 
   it('should normalize localhost to 127.0.0.1 before returning', async () => {
     const { mockClient, mockBucket } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
     // Mock getPublicUrl to return localhost URL
     mockBucket.getPublicUrl = jest.fn().mockReturnValue({
-      data: { publicUrl: 'http://localhost:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg' },
+      data: {
+        publicUrl:
+          'http://localhost:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg',
+      },
     });
 
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     let returnedUrl: string;
     await act(async () => {
@@ -357,15 +420,21 @@ describe('useAvatarUpload', () => {
     });
 
     // Returned URL should be normalized to 127.0.0.1
-    expect(returnedUrl).toBe('http://127.0.0.1:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg');
+    expect(returnedUrl).toBe(
+      'http://127.0.0.1:54321/storage/v1/object/public/avatars/user-id-1/avatar.jpg'
+    );
     expect(returnedUrl).not.toContain('localhost');
   });
 
   it('should return clean URL without cache-busting for database storage', async () => {
     const { mockClient } = createMockSupabaseClient();
-    const { result } = renderHook(() => useAvatarUpload(mockClient, 'user-id-1'));
+    const { result } = renderHook(() =>
+      useAvatarUpload(mockClient, 'user-id-1')
+    );
 
-    const validFile = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
+    const validFile = new File(['content'], 'avatar.jpg', {
+      type: 'image/jpeg',
+    });
 
     let returnedUrl: string;
     await act(async () => {
@@ -373,13 +442,14 @@ describe('useAvatarUpload', () => {
     });
 
     // Returned URL should be clean (no query params) for database storage
-    expect(returnedUrl).toBe('https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg');
+    expect(returnedUrl).toBe(
+      'https://example.com/storage/v1/object/public/avatars/user-id-1/avatar.jpg'
+    );
     expect(returnedUrl).not.toMatch(/\?/);
-    
+
     // But uploadedUrl state should have cache-busting for immediate display
     await waitFor(() => {
       expect(result.current.uploadedUrl).toMatch(/\?t=\d+&v=/);
     });
   });
 });
-

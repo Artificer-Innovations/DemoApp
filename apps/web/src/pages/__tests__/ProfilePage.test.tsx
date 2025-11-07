@@ -19,7 +19,7 @@ vi.mock('@/lib/supabase', () => {
       })),
     })),
   }));
-  
+
   return {
     supabase: {
       from: mockFrom,
@@ -38,23 +38,22 @@ vi.mock('react-router-dom', async () => {
 // Mock the profile display components
 vi.mock('@shared/components/profile/ProfileHeader.web', () => ({
   ProfileHeader: ({ profile }: any) => (
-    <div data-testid="profile-header">
-      {profile ? `Profile: ${profile.display_name || profile.username}` : 'No profile'}
+    <div data-testid='profile-header'>
+      {profile
+        ? `Profile: ${profile.display_name || profile.username}`
+        : 'No profile'}
     </div>
   ),
 }));
 
 vi.mock('@shared/components/profile/ProfileStats.web', () => ({
-  ProfileStats: ({ profile }: any) => (
-    profile ? <div data-testid="profile-stats">Stats</div> : null
-  ),
+  ProfileStats: ({ profile }: any) =>
+    profile ? <div data-testid='profile-stats'>Stats</div> : null,
 }));
 
 vi.mock('@shared/components/profile/ProfileEditor.web', () => ({
   ProfileEditor: ({ user }: any) => (
-    <div data-testid="profile-editor">
-      {user ? 'Editor' : 'No user'}
-    </div>
+    <div data-testid='profile-editor'>{user ? 'Editor' : 'No user'}</div>
   ),
 }));
 
@@ -63,7 +62,7 @@ describe('ProfilePage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock database query for useProfile hook
     const mockFrom = vi.fn(() => ({
       select: vi.fn(() => ({
@@ -75,7 +74,7 @@ describe('ProfilePage', () => {
         })),
       })),
     }));
-    
+
     mockSupabaseClient = {
       auth: {
         getSession: vi.fn().mockResolvedValue({
@@ -119,7 +118,7 @@ describe('ProfilePage', () => {
 
   it('renders profile page', async () => {
     await renderWithAuth(<ProfilePage />);
-    
+
     // Profile page should render with header
     expect(screen.getByText('Demo App')).toBeInTheDocument();
     // Profile content should render
@@ -130,7 +129,7 @@ describe('ProfilePage', () => {
 
   it('displays navigation links', async () => {
     await renderWithAuth(<ProfilePage />);
-    
+
     // Navigation links are in the header - check for home link (Demo App)
     await waitFor(() => {
       const homeLinks = screen.getAllByRole('link', { name: /demo app/i });
@@ -140,7 +139,7 @@ describe('ProfilePage', () => {
 
   it('displays user email when authenticated', async () => {
     await renderWithAuth(<ProfilePage />);
-    
+
     // Email is in the header's UserMenu dropdown, not directly visible
     // Check that the header is rendered instead
     await waitFor(() => {
@@ -151,7 +150,7 @@ describe('ProfilePage', () => {
   it('shows loading state while profile is loading', async () => {
     // The loading state is brief, so we just verify the page renders
     await renderWithAuth(<ProfilePage />);
-    
+
     // The page should render even during loading
     expect(screen.getByText('Demo App')).toBeInTheDocument();
   });
@@ -185,10 +184,10 @@ describe('ProfilePage', () => {
     mockSupabaseClient.from = mockFrom;
 
     await renderWithAuth(<ProfilePage />);
-    
+
     // Verify page renders - components will render once profile loads
     expect(screen.getByText('Demo App')).toBeInTheDocument();
-    
+
     // Wait for profile to load
     await waitFor(() => {
       expect(screen.getByTestId('profile-header')).toBeInTheDocument();
@@ -197,10 +196,10 @@ describe('ProfilePage', () => {
 
   it('shows profile editor when no profile exists', async () => {
     await renderWithAuth(<ProfilePage />);
-    
+
     // Verify page renders
     expect(screen.getByText('Demo App')).toBeInTheDocument();
-    
+
     // Wait for profile header to render (shows "No profile")
     await waitFor(() => {
       expect(screen.getByTestId('profile-header')).toBeInTheDocument();
@@ -209,11 +208,10 @@ describe('ProfilePage', () => {
 
   it('renders page even when profile loading encounters issues', async () => {
     await renderWithAuth(<ProfilePage />);
-    
+
     // The page should render regardless of profile loading state
     await waitFor(() => {
       expect(screen.getByText('Demo App')).toBeInTheDocument();
     });
   });
 });
-

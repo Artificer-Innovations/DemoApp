@@ -10,8 +10,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
  * Falls back to local defaults if not set
  */
 export function getTestSupabaseConfig() {
-  const supabaseUrl =
-    process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
+  const supabaseUrl = process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
   const supabaseAnonKey =
     process.env.SUPABASE_ANON_KEY ||
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
@@ -73,7 +72,7 @@ export async function waitFor(
     if (await condition()) {
       return;
     }
-    await new Promise((resolve) => setTimeout(resolve, interval));
+    await new Promise(resolve => setTimeout(resolve, interval));
   }
 
   throw new Error(`Condition not met within ${timeout}ms`);
@@ -88,17 +87,14 @@ export async function waitForRecord(
   filter: Record<string, unknown>,
   timeout = 5000
 ): Promise<void> {
-  await waitFor(
-    async () => {
-      const query = supabase.from(table).select('*').limit(1);
-      Object.entries(filter).forEach(([key, value]) => {
-        query.eq(key, value);
-      });
-      const { data, error } = await query;
-      return !error && data && data.length > 0;
-    },
-    timeout
-  );
+  await waitFor(async () => {
+    const query = supabase.from(table).select('*').limit(1);
+    Object.entries(filter).forEach(([key, value]) => {
+      query.eq(key, value);
+    });
+    const { data, error } = await query;
+    return !error && data && data.length > 0;
+  }, timeout);
 }
 
 /**
@@ -117,11 +113,10 @@ export async function retry<T>(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       if (i < maxRetries - 1) {
-        await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)));
+        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
       }
     }
   }
 
   throw lastError || new Error('Retry failed');
 }
-

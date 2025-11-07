@@ -322,7 +322,7 @@ describe('useProfile', () => {
 
     expect(thrownError).not.toBeNull();
     expect(thrownError?.message).toBe('Duplicate key violation');
-    
+
     // Wait for loading to finish
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -375,7 +375,7 @@ describe('useProfile', () => {
 
     expect(thrownError).not.toBeNull();
     expect(thrownError?.message).toBe('Update failed');
-    
+
     // Wait for loading to finish
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -416,4 +416,3 @@ describe('useProfile', () => {
     expect(mockClient.from).not.toHaveBeenCalled();
   });
 });
-

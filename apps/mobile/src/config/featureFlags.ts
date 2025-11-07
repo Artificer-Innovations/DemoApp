@@ -8,4 +8,3 @@ export type FeatureFlags = typeof featureFlags;
 export function useFeatureFlags(): FeatureFlags {
   return featureFlags;
 }
-

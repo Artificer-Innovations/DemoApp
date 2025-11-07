@@ -15,7 +15,7 @@ export function FormError({ message, style }: FormErrorProps) {
   }
 
   return (
-    <View style={[styles.container, style]} accessibilityRole="alert">
+    <View style={[styles.container, style]} accessibilityRole='alert'>
       <Text style={styles.icon}>⚠</Text>
       <Text style={styles.text}>{message}</Text>
     </View>
@@ -44,4 +44,3 @@ const styles = StyleSheet.create({
     color: '#991B1B',
   },
 });
-

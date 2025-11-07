@@ -25,21 +25,21 @@ export const AppNavigator = () => {
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{
-          gestureEnabled: false,  // Disable swipe-back gestures
-          animation: 'none',       // Disable screen transition animations
+          gestureEnabled: false, // Disable swipe-back gestures
+          animation: 'none', // Disable screen transition animations
           headerShown: showNativeHeader, // Control native header visibility via feature flag
           headerBackVisible: showNativeHeader, // Control back button visibility
         }}
       >
         <Stack.Screen
-          name="Home"
+          name='Home'
           component={HomeScreen}
           options={{ headerShown: false }} // Home always uses custom header
         />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name='Login' component={LoginScreen} />
+        <Stack.Screen name='Signup' component={SignupScreen} />
+        <Stack.Screen name='Dashboard' component={DashboardScreen} />
+        <Stack.Screen name='Profile' component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

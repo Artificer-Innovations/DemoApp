@@ -24,7 +24,10 @@ export function ProfileStats({ profile, className = '' }: ProfileStatsProps) {
       if (isNaN(date.getTime())) {
         return null;
       }
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+      });
     } catch {
       return null;
     }
@@ -39,7 +42,9 @@ export function ProfileStats({ profile, className = '' }: ProfileStatsProps) {
       profile.location,
       profile.website,
     ];
-    const filledFields = fields.filter((field) => field !== null && field !== '').length;
+    const filledFields = fields.filter(
+      field => field !== null && field !== ''
+    ).length;
     return Math.round((filledFields / fields.length) * 100);
   };
 
@@ -53,16 +58,15 @@ export function ProfileStats({ profile, className = '' }: ProfileStatsProps) {
   return (
     <div className={`space-y-2 ${className}`}>
       {memberSince && (
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Member since:</span> {memberSince}
+        <div className='text-sm text-gray-600'>
+          <span className='font-medium'>Member since:</span> {memberSince}
         </div>
       )}
       {completion > 0 && (
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Profile completion:</span> {completion}%
+        <div className='text-sm text-gray-600'>
+          <span className='font-medium'>Profile completion:</span> {completion}%
         </div>
       )}
     </div>
   );
 }
-

@@ -1,5 +1,3 @@
-import type { InputHTMLAttributes } from 'react';
-
 export interface FormInputProps {
   label: string;
   value: string;
@@ -49,16 +47,16 @@ export function FormInput({
   }`;
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <label htmlFor={inputId} className={labelClasses}>
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className='text-red-500 ml-1'>*</span>}
       </label>
       {multiline ? (
         <textarea
           id={inputId}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           onBlur={onBlur}
           placeholder={placeholder}
           rows={rows}
@@ -74,7 +72,7 @@ export function FormInput({
           id={inputId}
           type={type}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           onBlur={onBlur}
           placeholder={placeholder}
           disabled={disabled}
@@ -86,11 +84,14 @@ export function FormInput({
         />
       )}
       {hasError && (
-        <p id={`${inputId}-error`} className="mt-1 text-xs text-red-600 font-medium" role="alert">
+        <p
+          id={`${inputId}-error`}
+          className='mt-1 text-xs text-red-600 font-medium'
+          role='alert'
+        >
           {error}
         </p>
       )}
     </div>
   );
 }
-

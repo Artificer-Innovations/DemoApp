@@ -56,4 +56,3 @@ export const TestProfile = {
   website: 'https://example.com',
   location: 'Test Location',
 };
-

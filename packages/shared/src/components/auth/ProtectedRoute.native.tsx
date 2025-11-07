@@ -13,7 +13,10 @@ interface ProtectedRouteProps {
  * ProtectedRoute component for mobile (React Navigation)
  * Redirects unauthenticated users to the login screen
  */
-export function ProtectedRoute({ children, redirectTo = 'Login' }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  redirectTo = 'Login',
+}: ProtectedRouteProps) {
   const auth = useAuthContext();
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
@@ -28,7 +31,7 @@ export function ProtectedRoute({ children, redirectTo = 'Login' }: ProtectedRout
           console.warn('[ProtectedRoute] Navigation error:', error);
         }
       }, 100); // Small delay to ensure navigation is ready
-      
+
       return () => clearTimeout(timer);
     }
   }, [auth.loading, auth.user, navigation, redirectTo]);
@@ -37,7 +40,7 @@ export function ProtectedRoute({ children, redirectTo = 'Login' }: ProtectedRout
   if (auth.loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size='large' color='#4F46E5' />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
@@ -47,7 +50,7 @@ export function ProtectedRoute({ children, redirectTo = 'Login' }: ProtectedRout
   if (!auth.user) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size='large' color='#4F46E5' />
         <Text style={styles.loadingText}>Redirecting...</Text>
       </View>
     );

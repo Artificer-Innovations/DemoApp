@@ -36,51 +36,80 @@ let coveredFunctions = 0;
 let coveredLines = 0;
 
 coverageDirs.forEach(({ name, path: coveragePath }) => {
-  const coverageFile = path.join(__dirname, '..', coveragePath, 'coverage-final.json');
-  
+  const coverageFile = path.join(
+    __dirname,
+    '..',
+    coveragePath,
+    'coverage-final.json'
+  );
+
   if (fs.existsSync(coverageFile)) {
     try {
       const data = JSON.parse(fs.readFileSync(coverageFile, 'utf8'));
       coverageData[name] = data;
-      
+
       // Calculate totals
-      Object.values(data).forEach((file) => {
+      Object.values(data).forEach(file => {
         if (file && typeof file === 'object' && file.s) {
           totalStatements += Object.keys(file.s).length;
           totalBranches += Object.keys(file.b || {}).length;
           totalFunctions += Object.keys(file.f || {}).length;
           totalLines += Object.keys(file.statementMap || {}).length;
-          
+
           coveredStatements += Object.values(file.s).filter(v => v > 0).length;
-          coveredBranches += Object.values(file.b || {}).filter(v => v > 0).length;
-          coveredFunctions += Object.values(file.f || {}).filter(v => v > 0).length;
+          coveredBranches += Object.values(file.b || {}).filter(
+            v => v > 0
+          ).length;
+          coveredFunctions += Object.values(file.f || {}).filter(
+            v => v > 0
+          ).length;
           coveredLines += Object.values(file.statementMap || {})
-            .map((_, i) => file.s[i] > 0 ? 1 : 0)
+            .map((_, i) => (file.s[i] > 0 ? 1 : 0))
             .filter(v => v > 0).length;
         }
       });
-      
+
       console.log(`✓ Loaded coverage from ${name}`);
     } catch (error) {
-      console.warn(`⚠ Warning: Could not load coverage from ${name}:`, error.message);
+      console.warn(
+        `⚠ Warning: Could not load coverage from ${name}:`,
+        error.message
+      );
     }
   } else {
-    console.warn(`⚠ Warning: Coverage file not found for ${name}: ${coverageFile}`);
+    console.warn(
+      `⚠ Warning: Coverage file not found for ${name}: ${coverageFile}`
+    );
   }
 });
 
 // Calculate percentages
-const statementsPct = totalStatements > 0 ? (coveredStatements / totalStatements) * 100 : 0;
-const branchesPct = totalBranches > 0 ? (coveredBranches / totalBranches) * 100 : 0;
-const functionsPct = totalFunctions > 0 ? (coveredFunctions / totalFunctions) * 100 : 0;
+const statementsPct =
+  totalStatements > 0 ? (coveredStatements / totalStatements) * 100 : 0;
+const branchesPct =
+  totalBranches > 0 ? (coveredBranches / totalBranches) * 100 : 0;
+const functionsPct =
+  totalFunctions > 0 ? (coveredFunctions / totalFunctions) * 100 : 0;
 const linesPct = totalLines > 0 ? (coveredLines / totalLines) * 100 : 0;
 
 // Create summary
 const summary = {
   total: {
-    statements: { total: totalStatements, covered: coveredStatements, pct: statementsPct },
-    branches: { total: totalBranches, covered: coveredBranches, pct: branchesPct },
-    functions: { total: totalFunctions, covered: coveredFunctions, pct: functionsPct },
+    statements: {
+      total: totalStatements,
+      covered: coveredStatements,
+      pct: statementsPct,
+    },
+    branches: {
+      total: totalBranches,
+      covered: coveredBranches,
+      pct: branchesPct,
+    },
+    functions: {
+      total: totalFunctions,
+      covered: coveredFunctions,
+      pct: functionsPct,
+    },
     lines: { total: totalLines, covered: coveredLines, pct: linesPct },
   },
   byPackage: {},
@@ -96,23 +125,27 @@ Object.entries(coverageData).forEach(([name, data]) => {
   let pkgCoveredBranches = 0;
   let pkgCoveredFunctions = 0;
   let pkgCoveredLines = 0;
-  
-  Object.values(data).forEach((file) => {
+
+  Object.values(data).forEach(file => {
     if (file && typeof file === 'object' && file.s) {
       pkgStatements += Object.keys(file.s).length;
       pkgBranches += Object.keys(file.b || {}).length;
       pkgFunctions += Object.keys(file.f || {}).length;
       pkgLines += Object.keys(file.statementMap || {}).length;
-      
+
       pkgCoveredStatements += Object.values(file.s).filter(v => v > 0).length;
-      pkgCoveredBranches += Object.values(file.b || {}).filter(v => v > 0).length;
-      pkgCoveredFunctions += Object.values(file.f || {}).filter(v => v > 0).length;
+      pkgCoveredBranches += Object.values(file.b || {}).filter(
+        v => v > 0
+      ).length;
+      pkgCoveredFunctions += Object.values(file.f || {}).filter(
+        v => v > 0
+      ).length;
       pkgCoveredLines += Object.values(file.statementMap || {})
-        .map((_, i) => file.s[i] > 0 ? 1 : 0)
+        .map((_, i) => (file.s[i] > 0 ? 1 : 0))
         .filter(v => v > 0).length;
     }
   });
-  
+
   summary.byPackage[name] = {
     statements: {
       total: pkgStatements,
@@ -143,18 +176,34 @@ fs.writeFileSync(outputFile, JSON.stringify(summary, null, 2));
 // Print summary
 console.log('\n📊 Integrated Coverage Summary\n');
 console.log('Overall Coverage:');
-console.log(`  Statements: ${coveredStatements}/${totalStatements} (${statementsPct.toFixed(2)}%)`);
-console.log(`  Branches:    ${coveredBranches}/${totalBranches} (${branchesPct.toFixed(2)}%)`);
-console.log(`  Functions:   ${coveredFunctions}/${totalFunctions} (${functionsPct.toFixed(2)}%)`);
-console.log(`  Lines:       ${coveredLines}/${totalLines} (${linesPct.toFixed(2)}%)`);
+console.log(
+  `  Statements: ${coveredStatements}/${totalStatements} (${statementsPct.toFixed(2)}%)`
+);
+console.log(
+  `  Branches:    ${coveredBranches}/${totalBranches} (${branchesPct.toFixed(2)}%)`
+);
+console.log(
+  `  Functions:   ${coveredFunctions}/${totalFunctions} (${functionsPct.toFixed(2)}%)`
+);
+console.log(
+  `  Lines:       ${coveredLines}/${totalLines} (${linesPct.toFixed(2)}%)`
+);
 
 console.log('\nBy Package:');
 Object.entries(summary.byPackage).forEach(([name, stats]) => {
   console.log(`\n  ${name}:`);
-  console.log(`    Statements: ${stats.statements.covered}/${stats.statements.total} (${stats.statements.pct.toFixed(2)}%)`);
-  console.log(`    Branches:    ${stats.branches.covered}/${stats.branches.total} (${stats.branches.pct.toFixed(2)}%)`);
-  console.log(`    Functions:   ${stats.functions.covered}/${stats.functions.total} (${stats.functions.pct.toFixed(2)}%)`);
-  console.log(`    Lines:       ${stats.lines.covered}/${stats.lines.total} (${stats.lines.pct.toFixed(2)}%)`);
+  console.log(
+    `    Statements: ${stats.statements.covered}/${stats.statements.total} (${stats.statements.pct.toFixed(2)}%)`
+  );
+  console.log(
+    `    Branches:    ${stats.branches.covered}/${stats.branches.total} (${stats.branches.pct.toFixed(2)}%)`
+  );
+  console.log(
+    `    Functions:   ${stats.functions.covered}/${stats.functions.total} (${stats.functions.pct.toFixed(2)}%)`
+  );
+  console.log(
+    `    Lines:       ${stats.lines.covered}/${stats.lines.total} (${stats.lines.pct.toFixed(2)}%)`
+  );
 });
 
 console.log(`\n✅ Coverage summary saved to: ${outputFile}`);
@@ -166,4 +215,3 @@ coverageDirs.forEach(({ name, path: coveragePath }) => {
     console.log(`   - ${indexPath}`);
   }
 });
-

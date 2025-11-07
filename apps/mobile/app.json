@@ -5,13 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-  "splash": {
-    "resizeMode": "contain",
-    "backgroundColor": "#ffffff"
-  },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.demoapp",
@@ -25,9 +23,7 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "android.permission.DETECT_SCREEN_CAPTURE"
-      ],
+      "permissions": ["android.permission.DETECT_SCREEN_CAPTURE"],
       "package": "com.anonymous.demoapp",
       "googleServicesFile": "./google-services.json"
     },

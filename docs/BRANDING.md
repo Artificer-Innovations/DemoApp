@@ -7,9 +7,11 @@ This document describes how to customize the branding for the Demo App, includin
 ### Source File
 
 The app icon source is a **single SVG file** located at:
+
 - **Source**: `assets/demo-flask-icon.svg` (root of the repository)
 
 This is the single source of truth for the app icon. The icon is automatically copied to the required locations:
+
 - **Web**: `apps/web/public/demo-flask-icon.svg` (served by Vite)
 - **Mobile**: `apps/mobile/assets/demo-flask-icon.svg` (used by Expo)
 
@@ -35,6 +37,7 @@ For mobile apps, Expo requires a PNG file. The PNG is generated from the SVG sou
 If you update the source SVG file:
 
 1. **Sync the icon to all locations:**
+
    ```bash
    npm run sync-icons
    ```
@@ -46,6 +49,7 @@ If you update the source SVG file:
    ```
 
 The `generate-icon` script will:
+
 - Copy the source SVG to mobile assets (if needed)
 - Convert the SVG to a 1024x1024 PNG that Expo uses to generate all required icon sizes for iOS and Android
 
@@ -70,6 +74,7 @@ npm run android:clean # For Android
 ```
 
 **Important**: The icon changes only appear after:
+
 1. Running `expo prebuild --clean` to regenerate native projects
 2. Completely rebuilding the app (not just hot reload)
 3. Uninstalling the old app from the device/simulator if needed
@@ -79,6 +84,7 @@ npm run android:clean # For Android
 The web app uses the SVG directly in the header component. After syncing with `npm run sync-icons`, changes to the source SVG will appear immediately after refreshing the browser (no rebuild needed).
 
 The icon is referenced in:
+
 - `packages/shared/src/components/navigation/AppHeader.web.tsx` (as `/demo-flask-icon.svg`)
 
 **Note**: The web app reads from `apps/web/public/demo-flask-icon.svg`, which is a copy of the source. Always update the source at `assets/demo-flask-icon.svg` and run `npm run sync-icons` to propagate changes.
@@ -117,6 +123,7 @@ The favicon files are referenced in `apps/web/index.html` with appropriate link 
 ### Display Name
 
 The app name "Demo App" appears in:
+
 - **Web header**: `packages/shared/src/components/navigation/AppHeader.web.tsx`
 - **Mobile header**: `packages/shared/src/components/navigation/AppHeader.native.tsx`
 
@@ -130,6 +137,7 @@ To change the app name, update the text in both header components.
 ## Display Strings
 
 All user-facing strings are centralized in:
+
 - `packages/shared/src/utils/strings.ts`
 
 ### Available String Constants
@@ -153,6 +161,7 @@ import { HOME_TITLE } from '@shared/utils/strings';
 ### Primary Color
 
 The primary brand color is `#4F46E5` (indigo-600 in Tailwind). This is used for:
+
 - Primary buttons
 - App icon background circle
 - Links and interactive elements
@@ -163,6 +172,7 @@ The primary brand color is `#4F46E5` (indigo-600 in Tailwind). This is used for:
 - **Mobile**: Colors are defined in component StyleSheets using hex values
 
 The primary color appears in:
+
 - `packages/shared/src/components/navigation/AppHeader.native.tsx` (SVG icon)
 - Various button and link styles throughout the app
 
@@ -228,4 +238,3 @@ When updating branding:
 
 - **Web**: Restart the dev server
 - **Mobile**: Rebuild the app (colors are compiled into native code)
-

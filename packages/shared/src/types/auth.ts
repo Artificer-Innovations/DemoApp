@@ -15,4 +15,3 @@ export interface AuthActions {
 }
 
 export type AuthHookReturn = AuthState & AuthActions;
-

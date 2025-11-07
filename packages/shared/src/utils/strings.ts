@@ -2,7 +2,8 @@
 
 export const HOME_STRINGS = {
   title: 'Welcome to Demo App',
-  subtitle: 'A modern full-stack application with React, React Native, and Supabase',
+  subtitle:
+    'A modern full-stack application with React, React Native, and Supabase',
 } as const;
 
 export const DASHBOARD_STRINGS = {

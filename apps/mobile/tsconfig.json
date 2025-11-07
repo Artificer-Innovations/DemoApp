@@ -6,16 +6,14 @@
     "noEmit": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@shared/*": [
-        "../../packages/shared/src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../../packages/shared/src/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
+  "include": ["**/*.ts", "**/*.tsx"],
+  "references": [
+    {
+      "path": "../../packages/shared"
+    }
   ]
 }

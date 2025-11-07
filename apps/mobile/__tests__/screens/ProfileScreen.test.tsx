@@ -17,7 +17,7 @@ jest.mock('../../src/lib/supabase', () => {
       })),
     })),
   }));
-  
+
   return {
     supabase: {
       from: mockFrom,
@@ -36,23 +36,22 @@ const mockNavigation = {
 // Mock the profile display components
 jest.mock('@shared/components/profile/ProfileHeader.native', () => ({
   ProfileHeader: ({ profile }: any) => (
-    <div testID="profile-header">
-      {profile ? `Profile: ${profile.display_name || profile.username}` : 'No profile'}
+    <div testID='profile-header'>
+      {profile
+        ? `Profile: ${profile.display_name || profile.username}`
+        : 'No profile'}
     </div>
   ),
 }));
 
 jest.mock('@shared/components/profile/ProfileStats.native', () => ({
-  ProfileStats: ({ profile }: any) => (
-    profile ? <div testID="profile-stats">Stats</div> : null
-  ),
+  ProfileStats: ({ profile }: any) =>
+    profile ? <div testID='profile-stats'>Stats</div> : null,
 }));
 
 jest.mock('@shared/components/profile/ProfileEditor.native', () => ({
   ProfileEditor: ({ user }: any) => (
-    <div testID="profile-editor">
-      {user ? 'Editor' : 'No user'}
-    </div>
+    <div testID='profile-editor'>{user ? 'Editor' : 'No user'}</div>
   ),
 }));
 
@@ -61,7 +60,7 @@ describe('ProfileScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Mock database query for useProfile hook
     const mockFrom = jest.fn(() => ({
       select: jest.fn(() => ({
@@ -73,7 +72,7 @@ describe('ProfileScreen', () => {
         })),
       })),
     }));
-    
+
     mockSupabaseClient = {
       auth: {
         getSession: jest.fn().mockResolvedValue({
@@ -113,39 +112,48 @@ describe('ProfileScreen', () => {
     const { getAllByText } = renderWithAuth(
       <ProfileScreen navigation={mockNavigation} />
     );
-    
+
     // Profile screen should render with header
-    await waitFor(() => {
-      // The header should be visible with "Demo App" text
-      const demoAppText = getAllByText('Demo App');
-      expect(demoAppText.length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // The header should be visible with "Demo App" text
+        const demoAppText = getAllByText('Demo App');
+        expect(demoAppText.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('displays user email when authenticated', async () => {
     const { getAllByText } = renderWithAuth(
       <ProfileScreen navigation={mockNavigation} />
     );
-    
+
     // The screen should render - check for header or profile content
-    await waitFor(() => {
-      // The header should be visible
-      const demoAppText = getAllByText('Demo App');
-      expect(demoAppText.length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // The header should be visible
+        const demoAppText = getAllByText('Demo App');
+        expect(demoAppText.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('shows dashboard navigation button', async () => {
     const { getAllByText } = renderWithAuth(
       <ProfileScreen navigation={mockNavigation} />
     );
-    
+
     // Dashboard should appear in the header menu
-    await waitFor(() => {
-      // The header should be rendered with "Demo App" text
-      const demoAppText = getAllByText('Demo App');
-      expect(demoAppText.length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // The header should be rendered with "Demo App" text
+        const demoAppText = getAllByText('Demo App');
+        expect(demoAppText.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('redirects to home when not authenticated', async () => {
@@ -155,13 +163,14 @@ describe('ProfileScreen', () => {
       },
     });
 
-    renderWithAuth(
-      <ProfileScreen navigation={mockNavigation} />
+    renderWithAuth(<ProfileScreen navigation={mockNavigation} />);
+
+    await waitFor(
+      () => {
+        expect(mockReplace).toHaveBeenCalledWith('Home');
+      },
+      { timeout: 2000 }
     );
-    
-    await waitFor(() => {
-      expect(mockReplace).toHaveBeenCalledWith('Home');
-    }, { timeout: 2000 });
   });
 
   it('shows loading state while checking authentication', () => {
@@ -172,8 +181,7 @@ describe('ProfileScreen', () => {
     const { getByText } = renderWithAuth(
       <ProfileScreen navigation={mockNavigation} />
     );
-    
+
     expect(getByText('Loading...')).toBeTruthy();
   });
 });
-

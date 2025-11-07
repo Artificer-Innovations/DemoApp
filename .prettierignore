@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Coverage
+coverage/
+*.lcov
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Generated files
+**/types/database.ts
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Android/iOS build artifacts
+android/
+ios/
+*.apk
+*.ipa
+
+# Metro bundler cache
+.metro/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Test artifacts
+coverage/
+.nyc_output/
+

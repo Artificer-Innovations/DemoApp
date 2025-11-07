@@ -32,7 +32,9 @@ jest.mock('../src/lib/supabase', () => ({
       select: jest.fn().mockResolvedValue({ data: [], error: null }),
     })),
     auth: {
-      getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getSession: jest
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },
       })),
@@ -133,7 +135,7 @@ import App from '../App';
 describe('Mobile App', () => {
   it('renders without crashing', () => {
     const { getAllByText } = render(<App />);
-    
+
     // Check if the app content is rendered
     // Title appears in both header and main content
     const titles = getAllByText('Welcome to Demo App');
@@ -142,8 +144,12 @@ describe('Mobile App', () => {
 
   it('renders subtitle text', () => {
     const { getByText } = render(<App />);
-    
+
     // Check if subtitle is present
-    expect(getByText('A modern full-stack application with React, React Native, and Supabase')).toBeTruthy();
+    expect(
+      getByText(
+        'A modern full-stack application with React, React Native, and Supabase'
+      )
+    ).toBeTruthy();
   });
 });

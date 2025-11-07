@@ -35,7 +35,9 @@ export function useAvatarUpload(
   const validateFile = useCallback((file: File | Blob): void => {
     // Check file size
     if (file.size > MAX_FILE_SIZE) {
-      throw new Error(`File size must be less than ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+      throw new Error(
+        `File size must be less than ${MAX_FILE_SIZE / 1024 / 1024}MB`
+      );
     }
 
     // Check MIME type
@@ -58,16 +60,16 @@ export function useAvatarUpload(
       'image/png': 'png',
       'image/webp': 'webp',
     };
-    
+
     if (file instanceof File) {
       return mimeToExt[file.type] || 'jpg';
     }
-    
+
     // For Blob, check if type is set (we set it when creating from base64)
     if (file.type && mimeToExt[file.type]) {
       return mimeToExt[file.type];
     }
-    
+
     // Default to jpg for Blob without type
     return 'jpg';
   }, []);
@@ -87,8 +89,11 @@ export function useAvatarUpload(
         let uploadFile: File | Blob | ArrayBuffer;
         let contentType: string;
         let extension: string;
-        
-        if (file instanceof ArrayBuffer || (file as any).constructor === ArrayBuffer) {
+
+        if (
+          file instanceof ArrayBuffer ||
+          (file as any).constructor === ArrayBuffer
+        ) {
           // ArrayBuffer from React Native (may have type property attached)
           uploadFile = file as ArrayBuffer;
           // Check if type was attached as a property
@@ -104,9 +109,8 @@ export function useAvatarUpload(
           // File or Blob (web)
           validateFile(file);
           uploadFile = file;
-          contentType = file instanceof File 
-            ? file.type 
-            : (file.type || 'image/jpeg');
+          contentType =
+            file instanceof File ? file.type : file.type || 'image/jpeg';
           extension = getFileExtension(file);
         }
 
@@ -121,12 +125,13 @@ export function useAvatarUpload(
         }
 
         // Upload file with upsert option
-        const { data: uploadData, error: uploadError } = await supabaseClient.storage
-          .from(BUCKET_NAME)
-          .upload(filePath, uploadFile, {
-            upsert: true,
-            contentType: contentType,
-          });
+        const { data: uploadData, error: uploadError } =
+          await supabaseClient.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, uploadFile, {
+              upsert: true,
+              contentType: contentType,
+            });
 
         if (uploadError) {
           throw new Error(`Upload failed: ${uploadError.message}`);
@@ -141,7 +146,7 @@ export function useAvatarUpload(
         const {
           data: { publicUrl },
         } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-        
+
         // Normalize URL: Replace Android emulator-specific IP (10.0.2.2) with 127.0.0.1
         // This ensures the URL works across all platforms (web, iOS, Android)
         // The Android emulator uses 10.0.2.2 to reach the host, but we store 127.0.0.1
@@ -154,7 +159,7 @@ export function useAvatarUpload(
         if (cleanUrl.includes('localhost')) {
           cleanUrl = cleanUrl.replace('localhost', '127.0.0.1');
         }
-        
+
         // For immediate display, add cache-busting to uploadedUrl state
         // This ensures the new image shows immediately in the upload component
         const cacheBustedUrl = `${cleanUrl}?t=${Date.now()}&v=${Math.random().toString(36).substring(7)}`;
@@ -201,7 +206,7 @@ export function useAvatarUpload(
       }
 
       if (files && files.length > 0) {
-        const filePaths = files.map((file) => `${userId}/${file.name}`);
+        const filePaths = files.map(file => `${userId}/${file.name}`);
         const { error: deleteError } = await supabaseClient.storage
           .from(BUCKET_NAME)
           .remove(filePaths);
@@ -239,4 +244,3 @@ export function useAvatarUpload(
     reset,
   };
 }
-

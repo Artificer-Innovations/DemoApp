@@ -1,4 +1,11 @@
-import { View, Text, Image, StyleSheet, ImageStyle, ViewStyle, TextStyle, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ViewStyle,
+  Platform,
+} from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import type { UserProfile } from '../../types/profile';
 
@@ -18,7 +25,11 @@ const sizeMap = {
  * ProfileAvatar component for React Native
  * Displays user avatar with fallback to initials
  */
-export function ProfileAvatar({ profile, size = 'medium', style }: ProfileAvatarProps) {
+export function ProfileAvatar({
+  profile,
+  size = 'medium',
+  style,
+}: ProfileAvatarProps) {
   const { size: avatarSize, fontSize } = sizeMap[size];
   const [imageError, setImageError] = useState(false);
   const cacheBusterRef = useRef<string>('');
@@ -52,20 +63,20 @@ export function ProfileAvatar({ profile, size = 'medium', style }: ProfileAvatar
     // Fix URL for Android emulator - replace 127.0.0.1 with 10.0.2.2
     // Android emulators can't access host machine via 127.0.0.1
     let displayUrl = avatarUrl;
-    
+
     // Extract base URL and query params separately
     const [baseUrl, existingParams] = displayUrl.split('?');
-    
+
     if (Platform.OS === 'android' && __DEV__) {
       // Replace localhost with Android emulator's host machine IP
       displayUrl = baseUrl.replace('http://127.0.0.1:', 'http://10.0.2.2:');
       displayUrl = displayUrl.replace('http://localhost:', 'http://10.0.2.2:');
     }
-    
+
     // Add cache-busting parameter to force refresh when URL changes
     // Use the ref value which only updates when avatarUrl changes
     const cacheBuster = cacheBusterRef.current || `t=${Date.now()}`;
-    const finalUrl = existingParams 
+    const finalUrl = existingParams
       ? `${displayUrl}?${existingParams}&${cacheBuster}`
       : `${displayUrl}?${cacheBuster}`;
 
@@ -85,11 +96,11 @@ export function ProfileAvatar({ profile, size = 'medium', style }: ProfileAvatar
       >
         <Image
           key={finalUrl} // Force image reload when URL changes
-          source={{ 
+          source={{
             uri: finalUrl,
             // Add headers for better compatibility
             headers: {
-              'Accept': 'image/*',
+              Accept: 'image/*',
             },
           }}
           style={[
@@ -99,10 +110,14 @@ export function ProfileAvatar({ profile, size = 'medium', style }: ProfileAvatar
               height: avatarSize,
             },
           ]}
-          resizeMode="cover"
-          onError={(error) => {
+          resizeMode='cover'
+          onError={error => {
             // Image failed to load - log for debugging and show fallback
-            console.warn('[ProfileAvatar] Failed to load image:', finalUrl, error.nativeEvent?.error || error);
+            console.warn(
+              '[ProfileAvatar] Failed to load image:',
+              finalUrl,
+              error.nativeEvent?.error || error
+            );
             setImageError(true);
           }}
           onLoad={() => {
@@ -145,4 +160,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

@@ -30,11 +30,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": [
-    "apps/*/src/**/*",
-    "packages/*/src/**/*",
-    "tests/**/*"
-  ],
+  "include": ["apps/*/src/**/*", "packages/*/src/**/*", "tests/**/*"],
   "exclude": [
     "node_modules",
     "dist",

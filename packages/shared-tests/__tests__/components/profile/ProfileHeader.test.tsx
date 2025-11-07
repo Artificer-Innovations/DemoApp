@@ -6,7 +6,7 @@ import type { UserProfile } from '@shared/src/types/profile';
 // Mock ProfileAvatar
 jest.mock('@shared/src/components/profile/ProfileAvatar.web', () => ({
   ProfileAvatar: ({ profile }: any) => (
-    <div data-testid="profile-avatar">
+    <div data-testid='profile-avatar'>
       {profile?.avatar_url ? 'Avatar' : 'No Avatar'}
     </div>
   ),
@@ -28,7 +28,7 @@ describe('ProfileHeader', () => {
 
   it('renders profile header with all information', () => {
     render(<ProfileHeader profile={mockProfile} />);
-    
+
     expect(screen.getByText('Test User')).toBeInTheDocument();
     expect(screen.getByText('@testuser')).toBeInTheDocument();
     expect(screen.getByText('This is a test bio')).toBeInTheDocument();
@@ -132,4 +132,3 @@ describe('ProfileHeader', () => {
     expect(screen.getByText(/^example\.com$/)).toBeInTheDocument();
   });
 });
-

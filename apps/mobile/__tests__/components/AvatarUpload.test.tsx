@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react-native';
 import { AvatarUpload } from '@shared/components/profile/AvatarUpload.native';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import * as ImagePicker from 'expo-image-picker';
@@ -44,17 +49,19 @@ describe('AvatarUpload.native', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUploadAvatar.mockResolvedValue('https://example.com/avatar.jpg?t=1234567890&v=abc123');
+    mockUploadAvatar.mockResolvedValue(
+      'https://example.com/avatar.jpg?t=1234567890&v=abc123'
+    );
     mockRemoveAvatar.mockResolvedValue(undefined);
   });
 
   it('renders with current avatar URL', () => {
     const { UNSAFE_getByType } = render(
       <AvatarUpload
-        currentAvatarUrl="https://example.com/avatar.jpg"
+        currentAvatarUrl='https://example.com/avatar.jpg'
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -71,7 +78,7 @@ describe('AvatarUpload.native', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -82,23 +89,28 @@ describe('AvatarUpload.native', () => {
 
   it('handles image picker and converts base64 to ArrayBuffer', async () => {
     // Mock image picker to return a test image
-    const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='; // 1x1 red PNG
+    const mockBase64 =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='; // 1x1 red PNG
     const mockUri = 'file:///test/image.png';
-    
-    (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+
+    (
+      ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock
+    ).mockResolvedValue({
       status: 'granted',
     });
-    
+
     (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
       canceled: false,
-      assets: [{
-        uri: mockUri,
-        mimeType: 'image/png',
-        width: 1,
-        height: 1,
-      }],
+      assets: [
+        {
+          uri: mockUri,
+          mimeType: 'image/png',
+          width: 1,
+          height: 1,
+        },
+      ],
     });
-    
+
     (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue(mockBase64);
 
     render(
@@ -106,7 +118,7 @@ describe('AvatarUpload.native', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -117,23 +129,24 @@ describe('AvatarUpload.native', () => {
 
     // Wait for image picker to be called
     await waitFor(() => {
-      expect(ImagePicker.requestMediaLibraryPermissionsAsync).toHaveBeenCalled();
+      expect(
+        ImagePicker.requestMediaLibraryPermissionsAsync
+      ).toHaveBeenCalled();
       expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
     });
 
     // Wait for file system read
     await waitFor(() => {
-      expect(FileSystem.readAsStringAsync).toHaveBeenCalledWith(
-        mockUri,
-        { encoding: 'base64' }
-      );
+      expect(FileSystem.readAsStringAsync).toHaveBeenCalledWith(mockUri, {
+        encoding: 'base64',
+      });
     });
 
     // Verify upload was called with ArrayBuffer (not Blob with arrayBuffer method)
     await waitFor(() => {
       expect(mockUploadAvatar).toHaveBeenCalled();
       const uploadArg = mockUploadAvatar.mock.calls[0][0];
-      
+
       // Should be ArrayBuffer or have type property attached
       expect(uploadArg).toBeDefined();
       // Verify it's not trying to call arrayBuffer() method (React Native doesn't have it)
@@ -146,21 +159,26 @@ describe('AvatarUpload.native', () => {
     const originalAtob = (global as any).atob;
     delete (global as any).atob;
 
-    const mockBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    const mockBase64 =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
     const mockUri = 'file:///test/image.png';
-    
-    (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+
+    (
+      ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock
+    ).mockResolvedValue({
       status: 'granted',
     });
-    
+
     (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
       canceled: false,
-      assets: [{
-        uri: mockUri,
-        mimeType: 'image/png',
-      }],
+      assets: [
+        {
+          uri: mockUri,
+          mimeType: 'image/png',
+        },
+      ],
     });
-    
+
     (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue(mockBase64);
 
     render(
@@ -168,7 +186,7 @@ describe('AvatarUpload.native', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -178,9 +196,12 @@ describe('AvatarUpload.native', () => {
 
     // Should not throw error about atob not existing
     // The component should handle base64 decoding manually
-    await waitFor(() => {
-      expect(mockUploadAvatar).toHaveBeenCalled();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(mockUploadAvatar).toHaveBeenCalled();
+      },
+      { timeout: 3000 }
+    );
 
     // Restore atob if it existed
     if (originalAtob) {
@@ -189,7 +210,9 @@ describe('AvatarUpload.native', () => {
   });
 
   it('handles permission denial', async () => {
-    (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+    (
+      ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock
+    ).mockResolvedValue({
       status: 'denied',
     });
 
@@ -201,7 +224,7 @@ describe('AvatarUpload.native', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -210,7 +233,9 @@ describe('AvatarUpload.native', () => {
     fireEvent.press(uploadButton);
 
     await waitFor(() => {
-      expect(ImagePicker.requestMediaLibraryPermissionsAsync).toHaveBeenCalled();
+      expect(
+        ImagePicker.requestMediaLibraryPermissionsAsync
+      ).toHaveBeenCalled();
       expect(alertSpy).toHaveBeenCalledWith(
         'Permission Denied',
         'Permission to access photos is required to upload an avatar. Please grant permission in Settings.',
@@ -225,10 +250,12 @@ describe('AvatarUpload.native', () => {
   });
 
   it('handles image picker cancellation', async () => {
-    (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+    (
+      ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock
+    ).mockResolvedValue({
       status: 'granted',
     });
-    
+
     (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
       canceled: true,
       assets: [],
@@ -239,7 +266,7 @@ describe('AvatarUpload.native', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -258,19 +285,21 @@ describe('AvatarUpload.native', () => {
 
   it('handles remove avatar', async () => {
     const { Alert } = require('react-native');
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
-      // Simulate user pressing "Remove" button
-      if (buttons && buttons[1] && buttons[1].onPress) {
-        buttons[1].onPress();
-      }
-    });
+    const alertSpy = jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((title, message, buttons) => {
+        // Simulate user pressing "Remove" button
+        if (buttons && buttons[1] && buttons[1].onPress) {
+          buttons[1].onPress();
+        }
+      });
 
     render(
       <AvatarUpload
-        currentAvatarUrl="https://example.com/avatar.jpg"
+        currentAvatarUrl='https://example.com/avatar.jpg'
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -287,4 +316,3 @@ describe('AvatarUpload.native', () => {
     alertSpy.mockRestore();
   });
 });
-

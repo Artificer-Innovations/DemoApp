@@ -7,7 +7,9 @@ import App from '../src/App';
 // Mock Supabase client
 const mockSupabaseClient = {
   auth: {
-    getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+    getSession: vi
+      .fn()
+      .mockResolvedValue({ data: { session: null }, error: null }),
     onAuthStateChange: vi.fn(() => ({
       data: { subscription: { unsubscribe: vi.fn() } },
     })),
@@ -26,7 +28,7 @@ describe('App', () => {
         </BrowserRouter>
       </AuthProvider>
     );
-    
+
     // Check if the home page content is rendered
     // Title appears in both header and main content
     const titles = screen.getAllByText('Welcome to Demo App');
@@ -41,7 +43,7 @@ describe('App', () => {
         </BrowserRouter>
       </AuthProvider>
     );
-    
+
     // Check if sign in and sign up links are present
     // These appear in both header and main content
     const signInLinks = screen.getAllByText('Sign In');

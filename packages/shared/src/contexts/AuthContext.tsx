@@ -30,11 +30,10 @@ export function AuthProvider({ children, supabaseClient }: AuthProviderProps) {
  */
 export function useAuthContext(): AuthHookReturn {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuthContext must be used within an AuthProvider');
   }
-  
+
   return context;
 }
-

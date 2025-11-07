@@ -5,8 +5,14 @@ const path = require('path');
 const sourceIconPath = path.join(__dirname, '../assets/demo-flask-icon.svg');
 
 // Destination locations
-const webIconPath = path.join(__dirname, '../apps/web/public/demo-flask-icon.svg');
-const mobileIconPath = path.join(__dirname, '../apps/mobile/assets/demo-flask-icon.svg');
+const webIconPath = path.join(
+  __dirname,
+  '../apps/web/public/demo-flask-icon.svg'
+);
+const mobileIconPath = path.join(
+  __dirname,
+  '../apps/mobile/assets/demo-flask-icon.svg'
+);
 
 function syncIconAssets() {
   if (!fs.existsSync(sourceIconPath)) {
@@ -33,4 +39,3 @@ function syncIconAssets() {
 }
 
 syncIconAssets();
-

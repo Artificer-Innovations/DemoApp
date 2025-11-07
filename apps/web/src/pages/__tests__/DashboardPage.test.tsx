@@ -20,7 +20,7 @@ vi.mock('@/lib/supabase', () => {
       })),
     })),
   }));
-  
+
   return {
     supabase: {
       from: mockFrom,
@@ -41,7 +41,7 @@ describe('DashboardPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock database query for useProfile hook (returns profile not found, which is valid)
     const mockFrom = vi.fn(() => ({
       select: vi.fn(() => ({
@@ -53,7 +53,7 @@ describe('DashboardPage', () => {
         })),
       })),
     }));
-    
+
     mockSupabaseClient = {
       auth: {
         getSession: vi.fn().mockResolvedValue({
@@ -97,7 +97,7 @@ describe('DashboardPage', () => {
 
   it('renders dashboard page', async () => {
     await renderWithAuth(<DashboardPage />);
-    
+
     // Dashboard title should be visible
     expect(screen.getByText('Welcome to your dashboard!')).toBeInTheDocument();
     // Header should be visible
@@ -106,7 +106,7 @@ describe('DashboardPage', () => {
 
   it('displays user email when authenticated', async () => {
     await renderWithAuth(<DashboardPage />);
-    
+
     // Email is in the header's UserMenu dropdown, not directly visible
     // Check that the header is rendered instead
     await waitFor(() => {
@@ -116,7 +116,7 @@ describe('DashboardPage', () => {
 
   it('shows sign out button', async () => {
     await renderWithAuth(<DashboardPage />);
-    
+
     // Sign out is in the UserMenu dropdown, need to click avatar to see it
     // For now, just verify the header is rendered
     expect(screen.getByText('Demo App')).toBeInTheDocument();
@@ -124,7 +124,7 @@ describe('DashboardPage', () => {
 
   it('shows home link', async () => {
     await renderWithAuth(<DashboardPage />);
-    
+
     // Home link is the "Demo App" text/icon in the header
     const homeLinks = screen.getAllByRole('link', { name: /demo app/i });
     expect(homeLinks.length).toBeGreaterThan(0);
@@ -133,21 +133,22 @@ describe('DashboardPage', () => {
   it('calls signOut and navigates to home when sign out button is clicked', async () => {
     const user = userEvent.setup();
     await renderWithAuth(<DashboardPage />);
-    
+
     // Click on the avatar to open the menu
-    const avatar = screen.getByRole('button', { name: /user menu/i }) || 
-                   screen.getByRole('img', { name: /avatar/i }) ||
-                   screen.getByTestId('profile-avatar');
-    
+    const avatar =
+      screen.getByRole('button', { name: /user menu/i }) ||
+      screen.getByRole('img', { name: /avatar/i }) ||
+      screen.getByTestId('profile-avatar');
+
     if (avatar) {
       await user.click(avatar);
-      
+
       // Then click sign out
       await waitFor(async () => {
         const signOutButton = screen.getByRole('button', { name: /sign out/i });
         await user.click(signOutButton);
       });
-      
+
       await waitFor(() => {
         expect(mockSupabaseClient.auth!.signOut).toHaveBeenCalled();
       });
@@ -171,4 +172,3 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Demo App')).toBeInTheDocument();
   });
 });
-

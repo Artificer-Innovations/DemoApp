@@ -6,7 +6,7 @@ import { FormInput } from '@shared/src/components/forms/FormInput.web';
 describe('FormInput (Web)', () => {
   it('renders with label', () => {
     const mockOnChange = jest.fn();
-    render(<FormInput label="Username" value="" onChange={mockOnChange} />);
+    render(<FormInput label='Username' value='' onChange={mockOnChange} />);
 
     expect(screen.getByText('Username')).toBeInTheDocument();
     expect(screen.getByLabelText('Username')).toBeInTheDocument();
@@ -14,7 +14,9 @@ describe('FormInput (Web)', () => {
 
   it('displays the value', () => {
     const mockOnChange = jest.fn();
-    render(<FormInput label="Username" value="testuser" onChange={mockOnChange} />);
+    render(
+      <FormInput label='Username' value='testuser' onChange={mockOnChange} />
+    );
 
     const input = screen.getByLabelText('Username') as HTMLInputElement;
     expect(input.value).toBe('testuser');
@@ -22,7 +24,7 @@ describe('FormInput (Web)', () => {
 
   it('calls onChange when input value changes', () => {
     const mockOnChange = jest.fn();
-    render(<FormInput label="Username" value="" onChange={mockOnChange} />);
+    render(<FormInput label='Username' value='' onChange={mockOnChange} />);
 
     const input = screen.getByLabelText('Username');
     fireEvent.change(input, { target: { value: 'newvalue' } });
@@ -33,7 +35,14 @@ describe('FormInput (Web)', () => {
   it('calls onBlur when input loses focus', () => {
     const mockOnChange = jest.fn();
     const mockOnBlur = jest.fn();
-    render(<FormInput label="Username" value="" onChange={mockOnChange} onBlur={mockOnBlur} />);
+    render(
+      <FormInput
+        label='Username'
+        value=''
+        onChange={mockOnChange}
+        onBlur={mockOnBlur}
+      />
+    );
 
     const input = screen.getByLabelText('Username');
     fireEvent.blur(input);
@@ -45,20 +54,22 @@ describe('FormInput (Web)', () => {
     const mockOnChange = jest.fn();
     render(
       <FormInput
-        label="Username"
-        value=""
+        label='Username'
+        value=''
         onChange={mockOnChange}
-        error="Username is required"
+        error='Username is required'
       />
     );
 
     expect(screen.getByText('Username is required')).toBeInTheDocument();
-    expect(screen.getByText('Username is required').closest('p')).toHaveAttribute('role', 'alert');
+    expect(
+      screen.getByText('Username is required').closest('p')
+    ).toHaveAttribute('role', 'alert');
   });
 
   it('does not display error message when error is not provided', () => {
     const mockOnChange = jest.fn();
-    render(<FormInput label="Username" value="" onChange={mockOnChange} />);
+    render(<FormInput label='Username' value='' onChange={mockOnChange} />);
 
     expect(screen.queryByText(/required/i)).not.toBeInTheDocument();
   });
@@ -67,14 +78,16 @@ describe('FormInput (Web)', () => {
     const mockOnChange = jest.fn();
     render(
       <FormInput
-        label="Username"
-        value=""
+        label='Username'
+        value=''
         onChange={mockOnChange}
-        placeholder="Enter username"
+        placeholder='Enter username'
       />
     );
 
-    const input = screen.getByPlaceholderText('Enter username') as HTMLInputElement;
+    const input = screen.getByPlaceholderText(
+      'Enter username'
+    ) as HTMLInputElement;
     expect(input.placeholder).toBe('Enter username');
   });
 
@@ -82,10 +95,10 @@ describe('FormInput (Web)', () => {
     const mockOnChange = jest.fn();
     render(
       <FormInput
-        label="Username"
-        value=""
+        label='Username'
+        value=''
         onChange={mockOnChange}
-        error="Error message"
+        error='Error message'
       />
     );
 
@@ -95,12 +108,15 @@ describe('FormInput (Web)', () => {
 
   it('does not set aria-invalid when no error', () => {
     const mockOnChange = jest.fn();
-    render(<FormInput label="Username" value="" onChange={mockOnChange} />);
+    render(<FormInput label='Username' value='' onChange={mockOnChange} />);
 
     const input = screen.getByLabelText('Username');
     // aria-invalid may be false (string) or not set (null/undefined)
     const ariaInvalid = input.getAttribute('aria-invalid');
-    expect(ariaInvalid === 'false' || ariaInvalid === null || ariaInvalid === undefined).toBe(true);
+    expect(
+      ariaInvalid === 'false' ||
+        ariaInvalid === null ||
+        ariaInvalid === undefined
+    ).toBe(true);
   });
 });
-

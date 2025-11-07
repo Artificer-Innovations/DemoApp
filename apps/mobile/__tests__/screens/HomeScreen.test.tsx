@@ -16,11 +16,11 @@ jest.mock('../../src/lib/supabase', () => {
     data: null,
     error: null,
   });
-  
+
   const mockEq = jest.fn(() => ({
     single: mockSingle,
   }));
-  
+
   const mockSelect = jest.fn(() => ({
     eq: mockEq,
     limit: jest.fn().mockResolvedValue({
@@ -28,11 +28,11 @@ jest.mock('../../src/lib/supabase', () => {
       error: null,
     }),
   }));
-  
+
   const mockFrom = jest.fn(() => ({
     select: mockSelect,
   }));
-  
+
   return {
     supabase: {
       from: mockFrom,
@@ -60,17 +60,17 @@ describe('HomeScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Mock database query with full chain support
     const mockSingle = jest.fn().mockResolvedValue({
       data: null,
       error: null,
     });
-    
+
     const mockEq = jest.fn(() => ({
       single: mockSingle,
     }));
-    
+
     const mockSelect = jest.fn(() => ({
       eq: mockEq,
       limit: jest.fn().mockResolvedValue({
@@ -78,11 +78,11 @@ describe('HomeScreen', () => {
         error: null,
       }),
     }));
-    
+
     const mockFrom = jest.fn(() => ({
       select: mockSelect,
     }));
-    
+
     mockSupabaseClient = {
       auth: {
         getSession: jest.fn().mockResolvedValue({
@@ -116,7 +116,7 @@ describe('HomeScreen', () => {
         },
       });
     }
-    
+
     return render(
       <NavigationContainer>
         <AuthProvider supabaseClient={mockSupabaseClient as SupabaseClient}>
@@ -131,7 +131,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       false
     );
-    
+
     // Title appears in both header and main content
     const titles = getAllByText('Welcome to Demo App');
     expect(titles.length).toBeGreaterThan(0);
@@ -143,7 +143,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       false
     );
-    
+
     // Sign In appears in both header and main content
     const signInButtons = getAllByText('Sign In');
     expect(signInButtons.length).toBeGreaterThan(0);
@@ -154,7 +154,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       false
     );
-    
+
     // Sign Up appears in both header and main content
     const signUpButtons = getAllByText('Sign Up');
     expect(signUpButtons.length).toBeGreaterThan(0);
@@ -165,7 +165,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       true
     );
-    
+
     await waitFor(() => {
       expect(getByText('Go To Dashboard')).toBeTruthy();
     });
@@ -176,7 +176,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       true
     );
-    
+
     await waitFor(() => {
       expect(getByText('View Profile')).toBeTruthy();
     });
@@ -187,7 +187,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       true
     );
-    
+
     // The header should be visible with "Demo App" text
     // Dashboard and Profile are in the user menu dropdown, not directly visible
     await waitFor(() => {
@@ -201,7 +201,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       false
     );
-    
+
     const signInLinks = getAllByText('Sign In');
     const signUpLinks = getAllByText('Sign Up');
     expect(signInLinks.length).toBeGreaterThan(0);
@@ -213,7 +213,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       true
     );
-    
+
     await waitFor(() => {
       const button = getByText('Go To Dashboard');
       expect(button).toBeTruthy();
@@ -225,7 +225,7 @@ describe('HomeScreen', () => {
       <HomeScreen navigation={mockNavigation} />,
       true
     );
-    
+
     await waitFor(() => {
       const button = getByText('View Profile');
       expect(button).toBeTruthy();
@@ -236,4 +236,3 @@ describe('HomeScreen', () => {
   // which is hidden by default and activated via 4 clicks in bottom left corner.
   // These tests have been removed as the debug components are no longer directly visible.
 });
-

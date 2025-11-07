@@ -1,14 +1,14 @@
 // Load .env.local from apps/mobile directory
 // Using require to ensure it loads synchronously before config is evaluated
-const dotenv = require("dotenv");
-const path = require("path");
+const dotenv = require('dotenv');
+const path = require('path');
 
-const envPath = path.resolve(__dirname, ".env.local");
+const envPath = path.resolve(__dirname, '.env.local');
 const envResult = dotenv.config({ path: envPath });
 
 // Also check for .env in apps/mobile as fallback
 if (envResult.error) {
-  const envFallbackPath = path.resolve(__dirname, ".env");
+  const envFallbackPath = path.resolve(__dirname, '.env');
   dotenv.config({ path: envFallbackPath, override: false });
 }
 
@@ -17,54 +17,57 @@ if (envResult.error) {
 // Use console.warn instead if needed, or check in the app runtime
 
 const config = {
-  name: "demo-app",
-  slug: "demo-app",
-  version: "1.0.0",
-  orientation: "portrait",
-  platforms: ["ios", "android"],
-  icon: "./assets/demo-flask-icon.svg",
+  name: 'demo-app',
+  slug: 'demo-app',
+  version: '1.0.0',
+  orientation: 'portrait',
+  platforms: ['ios', 'android'],
+  icon: './assets/icon.png',
   splash: {
-    resizeMode: "contain",
-    backgroundColor: "#ffffff",
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
   },
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "com.anonymous.demoapp",
+    bundleIdentifier: 'com.anonymous.demoapp',
     infoPlist: {
       LSApplicationQueriesSchemes: [
-        "com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf",
+        'com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf',
       ],
-      NSCameraUsageDescription: "This app needs access to your camera to upload profile pictures.",
-      NSPhotoLibraryUsageDescription: "This app needs access to your photo library to upload profile pictures.",
+      NSCameraUsageDescription:
+        'This app needs access to your camera to upload profile pictures.',
+      NSPhotoLibraryUsageDescription:
+        'This app needs access to your photo library to upload profile pictures.',
     },
   },
   android: {
-    package: "com.anonymous.demoapp",
+    package: 'com.anonymous.demoapp',
     adaptiveIcon: {
-      backgroundColor: "#ffffff",
+      foregroundImage: './assets/icon.png',
+      backgroundColor: '#ffffff',
     },
     splash: {
-      backgroundColor: "#ffffff",
-      resizeMode: "contain",
+      backgroundColor: '#ffffff',
+      resizeMode: 'contain',
     },
     permissions: [
-      "android.permission.DETECT_SCREEN_CAPTURE",
-      "android.permission.CAMERA",
-      "android.permission.READ_MEDIA_IMAGES",
-      "android.permission.READ_EXTERNAL_STORAGE",
+      'android.permission.DETECT_SCREEN_CAPTURE',
+      'android.permission.CAMERA',
+      'android.permission.READ_MEDIA_IMAGES',
+      'android.permission.READ_EXTERNAL_STORAGE',
     ],
-    googleServicesFile: "./google-services.json",
+    googleServicesFile: './google-services.json',
   },
   plugins: [
     [
-      "@react-native-google-signin/google-signin",
+      '@react-native-google-signin/google-signin',
       {
         iosUrlScheme:
-          "com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf",
+          'com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf',
       },
     ],
     // Run our plugin last to ensure it runs after Expo's splash screen plugin
-    ["./plugins/withSplashScreenColor", {}],
+    ['./plugins/withSplashScreenColor', {}],
   ],
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,

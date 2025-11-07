@@ -17,7 +17,7 @@ describe('SocialLoginButton', () => {
 
   it('renders sign-up copy when mode is signup', () => {
     const { getByText } = render(
-      <SocialLoginButton onPress={mockOnPress} mode="signup" />
+      <SocialLoginButton onPress={mockOnPress} mode='signup' />
     );
 
     expect(getByText('Sign up with Google')).toBeTruthy();
@@ -25,7 +25,7 @@ describe('SocialLoginButton', () => {
 
   it('invokes onPress exactly once per tap and shows loading state', async () => {
     let resolvePress: () => void;
-    const pressPromise = new Promise<void>((resolve) => {
+    const pressPromise = new Promise<void>(resolve => {
       resolvePress = resolve;
     });
     mockOnPress.mockReturnValueOnce(pressPromise);
@@ -36,7 +36,9 @@ describe('SocialLoginButton', () => {
 
     await act(async () => {
       fireEvent.press(getByText('Sign in with Google'));
-      await waitFor(() => expect(queryByText('Sign in with Google')).toBeNull());
+      await waitFor(() =>
+        expect(queryByText('Sign in with Google')).toBeNull()
+      );
     });
 
     expect(mockOnPress).toHaveBeenCalledTimes(1);
@@ -79,5 +81,3 @@ describe('SocialLoginButton', () => {
     consoleSpy.mockRestore();
   });
 });
-
-

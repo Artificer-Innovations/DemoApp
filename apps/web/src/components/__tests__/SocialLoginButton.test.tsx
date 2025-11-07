@@ -15,7 +15,7 @@ describe('SocialLoginButton', () => {
   it('renders sign-up copy when mode is signup', () => {
     const mockOnPress = vi.fn();
 
-    render(<SocialLoginButton onPress={mockOnPress} mode="signup" />);
+    render(<SocialLoginButton onPress={mockOnPress} mode='signup' />);
 
     expect(screen.getByText('Sign up with Google')).toBeInTheDocument();
   });
@@ -23,7 +23,7 @@ describe('SocialLoginButton', () => {
   it('calls onPress once per click and displays loading state', async () => {
     const user = userEvent.setup();
     let resolvePress: () => void;
-    const pressPromise = new Promise<void>((resolve) => {
+    const pressPromise = new Promise<void>(resolve => {
       resolvePress = resolve;
     });
     const mockOnPress = vi.fn().mockReturnValueOnce(pressPromise);
@@ -68,7 +68,7 @@ describe('SocialLoginButton', () => {
 
     await act(async () => {
       await user.click(screen.getByRole('button'));
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -79,5 +79,3 @@ describe('SocialLoginButton', () => {
     consoleSpy.mockRestore();
   });
 });
-
-

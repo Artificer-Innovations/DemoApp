@@ -20,13 +20,14 @@ export function ProfileHeader({ profile, style }: ProfileHeaderProps) {
     );
   }
 
-  const displayName = profile.display_name || profile.username || 'Anonymous User';
+  const displayName =
+    profile.display_name || profile.username || 'Anonymous User';
   const username = profile.username ? `@${profile.username}` : null;
   const hasLocationOrWebsite = profile.location || profile.website;
 
   const handleWebsitePress = () => {
     if (profile.website) {
-      Linking.openURL(profile.website).catch((err) => {
+      Linking.openURL(profile.website).catch(err => {
         console.warn('Failed to open website:', err);
       });
     }
@@ -35,7 +36,7 @@ export function ProfileHeader({ profile, style }: ProfileHeaderProps) {
   return (
     <View style={[styles.container, style]}>
       <View style={styles.headerRow}>
-        <ProfileAvatar profile={profile} size="large" />
+        <ProfileAvatar profile={profile} size='large' />
         <View style={styles.infoContainer}>
           <Text style={styles.displayName} numberOfLines={1}>
             {displayName}
@@ -63,7 +64,9 @@ export function ProfileHeader({ profile, style }: ProfileHeaderProps) {
                     onPress={handleWebsitePress}
                     numberOfLines={1}
                   >
-                    {profile.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    {profile.website
+                      .replace(/^https?:\/\//, '')
+                      .replace(/\/$/, '')}
                   </Text>
                 </View>
               )}
@@ -71,9 +74,7 @@ export function ProfileHeader({ profile, style }: ProfileHeaderProps) {
           )}
         </View>
       </View>
-      {profile.bio && (
-        <Text style={styles.bio}>{profile.bio}</Text>
-      )}
+      {profile.bio && <Text style={styles.bio}>{profile.bio}</Text>}
     </View>
   );
 }
@@ -138,4 +139,3 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
 });
-

@@ -36,7 +36,9 @@ config.resolver.nodeModulesPaths = [
 // Note: We must NOT block .expo/metro/ which Metro needs for polyfills
 config.resolver.blockList = exclusionList([
   // web app outputs
-  new RegExp(`${path.sep}apps${path.sep}web${path.sep}(dist|build)${path.sep}.*`),
+  new RegExp(
+    `${path.sep}apps${path.sep}web${path.sep}(dist|build)${path.sep}.*`
+  ),
 
   // typical junk/caches
   /[/\\]coverage[/\\].*/,
@@ -59,12 +61,12 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       type: 'sourceFile',
     };
   }
-  
+
   // Fall back to default Expo resolver for everything else
   if (defaultResolver) {
     return defaultResolver(context, moduleName, platform);
   }
-  
+
   // If no default resolver, use Metro's default
   return context.resolveRequest(context, moduleName, platform);
 };

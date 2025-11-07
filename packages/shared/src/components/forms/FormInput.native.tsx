@@ -1,4 +1,10 @@
-import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TextInputProps,
+} from 'react-native';
 
 export interface FormInputProps {
   label: string;
@@ -7,7 +13,13 @@ export interface FormInputProps {
   onBlur?: () => void;
   error?: string;
   placeholder?: string;
-  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'url' | 'visible-password';
+  keyboardType?:
+    | 'default'
+    | 'email-address'
+    | 'numeric'
+    | 'phone-pad'
+    | 'url'
+    | 'visible-password';
   secureTextEntry?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
@@ -41,9 +53,7 @@ export function FormInput({
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, hasError && styles.labelError]}>
-        {label}
-      </Text>
+      <Text style={[styles.label, hasError && styles.labelError]}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -63,10 +73,10 @@ export function FormInput({
           disabled && styles.inputDisabled,
           style,
         ]}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor='#9CA3AF'
       />
       {hasError && (
-        <Text style={styles.errorText} accessibilityRole="alert">
+        <Text style={styles.errorText} accessibilityRole='alert'>
           {error}
         </Text>
       )}
@@ -116,4 +126,3 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
-

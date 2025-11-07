@@ -7,6 +7,7 @@ This guide explains how to test the OAuth implementation in the web app.
 ## Overview
 
 The web app now supports three authentication methods:
+
 1. **Email/Password** (fully functional)
 2. **Google OAuth** (requires setup)
 3. **Apple OAuth** (requires setup)
@@ -251,12 +252,14 @@ Follow the setup instructions in `OAUTH_SETUP.md` first, then:
 ## Testing Across Browsers
 
 Test the authentication flow in:
+
 - ✅ Chrome
 - ✅ Firefox
 - ✅ Safari
 - ✅ Edge
 
 **Known Issues**:
+
 - OAuth popups may be blocked by default (user must allow)
 - Private/Incognito mode may have different behavior
 - Safari may have stricter cookie policies
@@ -303,6 +306,7 @@ cd apps/web && npm test -- --coverage
 ```
 
 **Expected Coverage**:
+
 - `SocialLoginButton.tsx`: 100%
 - `LoginPage.tsx`: High (>80%)
 - `SignupPage.tsx`: High (>80%)
@@ -317,6 +321,7 @@ cd apps/web && npm test -- --coverage
 **Symptom**: Clicking OAuth buttons does nothing or shows error
 
 **Possible Causes**:
+
 1. OAuth not configured in Supabase
    - **Fix**: Follow `OAUTH_SETUP.md`
 2. Redirect URL mismatch
@@ -329,6 +334,7 @@ cd apps/web && npm test -- --coverage
 **Symptom**: After OAuth, page keeps redirecting
 
 **Possible Causes**:
+
 1. Session not being saved
    - **Fix**: Check browser console for errors
    - **Fix**: Verify Supabase client is configured correctly
@@ -340,6 +346,7 @@ cd apps/web && npm test -- --coverage
 **Symptom**: OAuth fails with redirect URL error
 
 **Possible Causes**:
+
 1. Redirect URL not whitelisted in OAuth provider
    - **Fix**: Add `http://localhost:5173/auth/callback` to allowed URLs
 2. Redirect URL not matching exactly
@@ -350,6 +357,7 @@ cd apps/web && npm test -- --coverage
 **Symptom**: OAuth succeeds but user not in `user_profiles` table
 
 **Possible Causes**:
+
 1. Trigger not firing
    - **Fix**: Check `supabase/migrations/20241020000001_create_user_profiles.sql`
    - **Fix**: Verify trigger exists: `SELECT * FROM pg_trigger WHERE tgname = 'on_auth_user_created';`
@@ -384,8 +392,8 @@ If you encounter issues:
 5. Check `packages/shared/src/hooks/useAuth.ts` for auth logic
 
 **Common Gotchas**:
+
 - Redirect URLs must match EXACTLY (including protocol, port, path)
 - OAuth providers may cache credentials (clear cache if issues persist)
 - Localhost may behave differently than production
 - Some OAuth providers don't work on localhost (use ngrok for testing)
-

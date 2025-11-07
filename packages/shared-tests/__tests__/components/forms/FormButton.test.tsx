@@ -6,14 +6,14 @@ import { FormButton } from '@shared/src/components/forms/FormButton.web';
 describe('FormButton (Web)', () => {
   it('renders with title', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} />);
+    render(<FormButton title='Submit' onPress={mockOnPress} />);
 
     expect(screen.getByText('Submit')).toBeInTheDocument();
   });
 
   it('calls onPress when clicked', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} />);
+    render(<FormButton title='Submit' onPress={mockOnPress} />);
 
     const button = screen.getByRole('button', { name: 'Submit' });
     fireEvent.click(button);
@@ -23,7 +23,7 @@ describe('FormButton (Web)', () => {
 
   it('shows loading state when loading prop is true', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} loading />);
+    render(<FormButton title='Submit' onPress={mockOnPress} loading />);
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
     expect(screen.queryByText('Submit')).not.toBeInTheDocument();
@@ -31,7 +31,7 @@ describe('FormButton (Web)', () => {
 
   it('is disabled when loading', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} loading />);
+    render(<FormButton title='Submit' onPress={mockOnPress} loading />);
 
     const button = screen.getByRole('button') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
@@ -39,7 +39,7 @@ describe('FormButton (Web)', () => {
 
   it('is disabled when disabled prop is true', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} disabled />);
+    render(<FormButton title='Submit' onPress={mockOnPress} disabled />);
 
     const button = screen.getByRole('button') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
@@ -47,7 +47,7 @@ describe('FormButton (Web)', () => {
 
   it('is enabled when not loading and not disabled', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} />);
+    render(<FormButton title='Submit' onPress={mockOnPress} />);
 
     const button = screen.getByRole('button') as HTMLButtonElement;
     expect(button.disabled).toBe(false);
@@ -55,7 +55,7 @@ describe('FormButton (Web)', () => {
 
   it('does not call onPress when disabled', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} disabled />);
+    render(<FormButton title='Submit' onPress={mockOnPress} disabled />);
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
@@ -65,7 +65,7 @@ describe('FormButton (Web)', () => {
 
   it('does not call onPress when loading', () => {
     const mockOnPress = jest.fn();
-    render(<FormButton title="Submit" onPress={mockOnPress} loading />);
+    render(<FormButton title='Submit' onPress={mockOnPress} loading />);
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
@@ -73,4 +73,3 @@ describe('FormButton (Web)', () => {
     expect(mockOnPress).not.toHaveBeenCalled();
   });
 });
-

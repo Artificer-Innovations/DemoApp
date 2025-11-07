@@ -19,9 +19,16 @@ A full-stack monorepo with React Native mobile app, React web app, and Supabase 
 - React Native development environment (Xcode for iOS, Android Studio for Android)
 - Maestro CLI: `curl -Ls https://get.maestro.mobile.dev | bash`
 
+## Documentation
+
+- [Branding Guide](docs/BRANDING.md) - How to customize app icon, colors, and display strings
+- [Testing Guide](docs/TESTING.md) - Testing strategies and best practices
+- [Architecture](ARCHITECTURE.md) - System architecture and design decisions
+
 ## Quick Start
 
 1. **Clone and install dependencies:**
+
    ```bash
    git clone <repository-url>
    cd demo-app
@@ -29,26 +36,30 @@ A full-stack monorepo with React Native mobile app, React web app, and Supabase 
    ```
 
 2. **Setup environment variables:**
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your local Supabase credentials
    ```
 
 3. **Start Supabase local:**
+
    ```bash
    supabase start
    ```
 
 4. **Generate TypeScript types:**
+
    ```bash
    npm run gen:types
    ```
 
 5. **Start development servers:**
+
    ```bash
    # Start all services
    npm run dev:all
-   
+
    # Or individually:
    npm run web      # Web app on http://localhost:5173
    npm run mobile   # Mobile app (Expo)
@@ -117,6 +128,7 @@ The project includes a development helper script to manage processes and port co
 - `npm run prebuild:clean` - Regenerate native Android/iOS folders with clean slate
 
 **When to use each command:**
+
 - **`ios`**: Normal development builds
 - **`ios:clean`**: Quick clean when build artifacts are stale
 - **`rebuild` / `rebuild:ios`**: After deleting apps from simulator, when native code changes, or when experiencing build issues
@@ -131,6 +143,7 @@ The project includes a development helper script to manage processes and port co
 - `npm run prebuild:clean` - Regenerate native Android/iOS folders with clean slate
 
 **When to use each command:**
+
 - **`android`**: Normal development builds
 - **`android:clean`**: Quick clean when build artifacts are stale
 - **`rebuild:android`**: After deleting apps from simulator, when native code changes, or when experiencing build issues

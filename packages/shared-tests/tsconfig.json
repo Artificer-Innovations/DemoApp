@@ -10,4 +10,3 @@
   },
   "include": ["__tests__/**/*", "jest.setup.web.ts"]
 }
-

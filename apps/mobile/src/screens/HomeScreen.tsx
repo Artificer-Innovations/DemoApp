@@ -21,7 +21,10 @@ type RootStackParamList = {
   Profile: undefined;
 };
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Home'
+>;
 
 interface Props {
   navigation: HomeScreenNavigationProp;
@@ -38,11 +41,9 @@ export default function HomeScreen({ navigation }: Props) {
       <View style={styles.content}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>{HOME_TITLE}</Text>
-          <Text style={styles.subtitle}>
-            {HOME_SUBTITLE}
-          </Text>
+          <Text style={styles.subtitle}>{HOME_SUBTITLE}</Text>
         </View>
-        
+
         <View style={styles.buttonContainer}>
           {auth.user ? (
             // Signed in state
@@ -51,14 +52,14 @@ export default function HomeScreen({ navigation }: Props) {
                 <Text style={styles.signedInText}>Logged in as</Text>
                 <Text style={styles.signedInEmail}>{auth.user.email}</Text>
               </View>
-              
+
               <TouchableOpacity
                 style={styles.primaryButton}
                 onPress={() => navigation.navigate('Dashboard')}
               >
                 <Text style={styles.primaryButtonText}>Go To Dashboard</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={() => navigation.navigate('Profile')}
@@ -75,7 +76,7 @@ export default function HomeScreen({ navigation }: Props) {
               >
                 <Text style={styles.primaryButtonText}>Sign In</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={() => navigation.navigate('Signup')}

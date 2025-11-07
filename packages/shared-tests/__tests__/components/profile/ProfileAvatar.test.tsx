@@ -22,7 +22,10 @@ describe('ProfileAvatar', () => {
     const img = screen.getByAltText('Test User');
     expect(img).toBeInTheDocument();
     // Component adds cache-busting to displayed URLs, so check for base URL with query params
-    expect(img).toHaveAttribute('src', expect.stringMatching(/^https:\/\/example\.com\/avatar\.jpg\?t=/));
+    expect(img).toHaveAttribute(
+      'src',
+      expect.stringMatching(/^https:\/\/example\.com\/avatar\.jpg\?t=/)
+    );
   });
 
   it('renders initials when avatar_url is not provided', () => {
@@ -75,15 +78,17 @@ describe('ProfileAvatar', () => {
   });
 
   it('applies size classes correctly', () => {
-    const { rerender } = render(<ProfileAvatar profile={mockProfile} size="small" />);
+    const { rerender } = render(
+      <ProfileAvatar profile={mockProfile} size='small' />
+    );
     let img = screen.getByAltText('Test User');
     expect(img).toHaveClass('w-12', 'h-12');
 
-    rerender(<ProfileAvatar profile={mockProfile} size="medium" />);
+    rerender(<ProfileAvatar profile={mockProfile} size='medium' />);
     img = screen.getByAltText('Test User');
     expect(img).toHaveClass('w-20', 'h-20');
 
-    rerender(<ProfileAvatar profile={mockProfile} size="large" />);
+    rerender(<ProfileAvatar profile={mockProfile} size='large' />);
     img = screen.getByAltText('Test User');
     expect(img).toHaveClass('w-32', 'h-32');
   });
@@ -95,4 +100,3 @@ describe('ProfileAvatar', () => {
     expect(avatar).toHaveTextContent('?');
   });
 });
-

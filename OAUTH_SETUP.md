@@ -96,15 +96,13 @@ This guide walks you through setting up Google and Apple OAuth for your DemoApp 
    https://yourdomain.com
    ```
 6. **Authorized redirect URIs**:
+
    ```
    http://localhost:54321/auth/v1/callback
    https://your-project-ref.supabase.co/auth/v1/callback
    ```
-   
+
    **Important**: Replace `your-project-ref` with your actual Supabase project reference ID (found in Supabase Dashboard → Settings → API)
-
-
-   
 
 7. Click "Create"
 8. **Save these credentials** (you'll need them for Supabase):
@@ -164,10 +162,11 @@ If you want OAuth to work in the mobile app:
    your-project-ref.supabase.co
    ```
 6. **Return URLs**:
+
    ```
    https://your-project-ref.supabase.co/auth/v1/callback
    ```
-   
+
    **Important**: Replace `your-project-ref` with your Supabase project reference
 
 7. Click "Next" → "Done" → "Continue" → "Save"
@@ -192,6 +191,7 @@ If you want OAuth to work in the mobile app:
 ### Step 6: Prepare Credentials for Supabase
 
 You'll need these values:
+
 - **Services ID**: `com.yourcompany.demoapp.web`
 - **Team ID**: From Step 5
 - **Key ID**: From Step 4
@@ -204,6 +204,7 @@ You'll need these values:
 ### For Local Development
 
 1. Open your local Supabase dashboard:
+
    ```bash
    supabase start
    # Opens at http://localhost:54323
@@ -235,6 +236,7 @@ You'll need these values:
 ### Redirect URLs
 
 Supabase automatically handles redirect URLs at:
+
 ```
 Local:      http://localhost:54321/auth/v1/callback
 Production: https://your-project-ref.supabase.co/auth/v1/callback
@@ -249,11 +251,13 @@ Your app will handle the redirect and extract the session.
 ### Local Testing (Web App)
 
 1. Start your local Supabase:
+
    ```bash
    supabase start
    ```
 
 2. Start your web app:
+
    ```bash
    cd apps/web
    npm run dev
@@ -273,6 +277,7 @@ Your app will handle the redirect and extract the session.
 ### Local Testing (Mobile App)
 
 1. Start your mobile app:
+
    ```bash
    cd apps/mobile
    npm start
@@ -308,6 +313,7 @@ After successful OAuth login, verify:
 ### Google OAuth Issues
 
 #### "Error 400: redirect_uri_mismatch"
+
 - **Cause**: Redirect URI not configured in Google Cloud Console
 - **Fix**: Add the exact redirect URI to "Authorized redirect URIs"
   ```
@@ -315,20 +321,24 @@ After successful OAuth login, verify:
   ```
 
 #### "Access blocked: This app's request is invalid"
+
 - **Cause**: OAuth consent screen not configured
 - **Fix**: Complete the OAuth consent screen setup in Step 3
 
 #### "Error 401: invalid_client"
+
 - **Cause**: Client ID or Secret incorrect in Supabase
 - **Fix**: Double-check credentials in Supabase dashboard
 
 ### Apple OAuth Issues
 
 #### "invalid_client"
+
 - **Cause**: Services ID, Team ID, or Key ID incorrect
 - **Fix**: Verify all IDs match exactly (case-sensitive)
 
 #### "Invalid key"
+
 - **Cause**: Private key not formatted correctly
 - **Fix**: Paste the entire contents of the .p8 file, including:
   ```
@@ -338,20 +348,24 @@ After successful OAuth login, verify:
   ```
 
 #### "Redirect URI mismatch"
+
 - **Cause**: Return URL not configured in Apple Developer Portal
 - **Fix**: Add exact URL in Services ID configuration
 
 ### General OAuth Issues
 
 #### "OAuth provider not configured"
+
 - **Cause**: Provider not enabled in Supabase
 - **Fix**: Enable provider in Supabase dashboard
 
 #### "Popup blocked"
+
 - **Cause**: Browser blocking OAuth popup
 - **Fix**: Allow popups for localhost/your domain
 
 #### OAuth works locally but not in production
+
 - **Cause**: Production redirect URLs not configured
 - **Fix**: Add production URLs to both OAuth provider and Supabase
 
@@ -413,4 +427,3 @@ If you encounter issues:
 5. Ensure redirect URLs match exactly
 
 **Common gotcha**: Redirect URLs must match EXACTLY (including protocol, port, and path).
-

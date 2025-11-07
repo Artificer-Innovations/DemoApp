@@ -2,7 +2,12 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { useProfile } from '../../hooks/useProfile';
-import { profileFormSchema, transformFormToUpdate, transformFormToInsert, type ProfileFormInput } from '../../validation/profileSchema';
+import {
+  profileFormSchema,
+  transformFormToUpdate,
+  transformFormToInsert,
+  type ProfileFormInput,
+} from '../../validation/profileSchema';
 // Note: Not importing ZodError directly to avoid React Native prototype issues
 // Will check for ZodError shape manually
 import { FormInput } from '../forms/FormInput.native';
@@ -59,79 +64,85 @@ export function ProfileEditor({
   }, [profile.profile]);
 
   // Clear field error when user starts typing
-  const handleFieldChange = useCallback((field: keyof ProfileFormInput, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-    if (generalError) {
-      setGeneralError(null);
-    }
-  }, [fieldErrors, generalError]);
+  const handleFieldChange = useCallback(
+    (field: keyof ProfileFormInput, value: string) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+      if (fieldErrors[field]) {
+        setFieldErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+      if (generalError) {
+        setGeneralError(null);
+      }
+    },
+    [fieldErrors, generalError]
+  );
 
   // Memoize form inputs BEFORE early returns to comply with Rules of Hooks
   // All hooks must be called in the same order on every render
-  const formInputs = useMemo(() => (
-    <>
-      <FormInput
-        key="username"
-        label="Username"
-        value={formData.username}
-        onChange={handleFieldChange.bind(null, 'username')}
-        error={fieldErrors.username}
-        placeholder="Enter username (optional)"
-        disabled={isSubmitting || profile.loading}
-      />
+  const formInputs = useMemo(
+    () => (
+      <>
+        <FormInput
+          key='username'
+          label='Username'
+          value={formData.username}
+          onChange={handleFieldChange.bind(null, 'username')}
+          error={fieldErrors.username}
+          placeholder='Enter username (optional)'
+          disabled={isSubmitting || profile.loading}
+        />
 
-      <FormInput
-        key="display_name"
-        label="Display Name"
-        value={formData.display_name}
-        onChange={handleFieldChange.bind(null, 'display_name')}
-        error={fieldErrors.display_name}
-        placeholder="Enter display name (optional)"
-        disabled={isSubmitting || profile.loading}
-      />
+        <FormInput
+          key='display_name'
+          label='Display Name'
+          value={formData.display_name}
+          onChange={handleFieldChange.bind(null, 'display_name')}
+          error={fieldErrors.display_name}
+          placeholder='Enter display name (optional)'
+          disabled={isSubmitting || profile.loading}
+        />
 
-      <FormInput
-        key="bio"
-        label="Bio"
-        value={formData.bio}
-        onChange={handleFieldChange.bind(null, 'bio')}
-        error={fieldErrors.bio}
-        placeholder="Tell us about yourself (optional)"
-        multiline
-        numberOfLines={4}
-        disabled={isSubmitting || profile.loading}
-      />
+        <FormInput
+          key='bio'
+          label='Bio'
+          value={formData.bio}
+          onChange={handleFieldChange.bind(null, 'bio')}
+          error={fieldErrors.bio}
+          placeholder='Tell us about yourself (optional)'
+          multiline
+          numberOfLines={4}
+          disabled={isSubmitting || profile.loading}
+        />
 
-      <FormInput
-        key="website"
-        label="Website"
-        value={formData.website}
-        onChange={handleFieldChange.bind(null, 'website')}
-        error={fieldErrors.website}
-        placeholder="https://example.com (optional)"
-        keyboardType="url"
-        autoCapitalize="none"
-        disabled={isSubmitting || profile.loading}
-      />
+        <FormInput
+          key='website'
+          label='Website'
+          value={formData.website}
+          onChange={handleFieldChange.bind(null, 'website')}
+          error={fieldErrors.website}
+          placeholder='https://example.com (optional)'
+          keyboardType='url'
+          autoCapitalize='none'
+          disabled={isSubmitting || profile.loading}
+        />
 
-      <FormInput
-        key="location"
-        label="Location"
-        value={formData.location}
-        onChange={handleFieldChange.bind(null, 'location')}
-        error={fieldErrors.location}
-        placeholder="Enter your location (optional)"
-        disabled={isSubmitting || profile.loading}
-      />
-    </>
-  ), [formData, fieldErrors, isSubmitting, profile.loading, handleFieldChange]);
+        <FormInput
+          key='location'
+          label='Location'
+          value={formData.location}
+          onChange={handleFieldChange.bind(null, 'location')}
+          error={fieldErrors.location}
+          placeholder='Enter your location (optional)'
+          disabled={isSubmitting || profile.loading}
+        />
+      </>
+    ),
+    [formData, fieldErrors, isSubmitting, profile.loading, handleFieldChange]
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!user) {
@@ -148,7 +159,7 @@ export function ProfileEditor({
     try {
       console.log('[ProfileEditor] Starting submit, formData:', formData);
       console.log('[ProfileEditor] Has existing profile:', !!profile.profile);
-      
+
       // Validate form data
       const validatedData = profileFormSchema.parse(formData);
       console.log('[ProfileEditor] Validation passed:', validatedData);
@@ -179,13 +190,20 @@ export function ProfileEditor({
     } catch (err) {
       console.warn('[ProfileEditor] Submit error:', err);
       // Safer ZodError check for React Native (avoids prototype issues)
-      const isZodError = err && typeof err === 'object' && 'errors' in err && Array.isArray((err as any).errors) && 'path' in ((err as any).errors[0] || {});
-      
+      const isZodError =
+        err &&
+        typeof err === 'object' &&
+        'errors' in err &&
+        Array.isArray((err as any).errors) &&
+        'path' in ((err as any).errors[0] || {});
+
       if (isZodError) {
         // Map Zod errors to field errors
         const errors: Record<string, string> = {};
-        const zodError = err as { errors: Array<{ path: (string | number)[]; message: string }> };
-        zodError.errors.forEach((error) => {
+        const zodError = err as {
+          errors: Array<{ path: (string | number)[]; message: string }>;
+        };
+        zodError.errors.forEach(error => {
           const field = error.path[0] as string;
           if (field) {
             errors[field] = error.message;
@@ -195,20 +213,36 @@ export function ProfileEditor({
         setGeneralError('Please correct the errors below');
       } else {
         const error = err instanceof Error ? err : new Error(String(err));
-        console.error('[ProfileEditor] Non-validation error:', error.message, error.stack);
-        setGeneralError(error.message || 'Failed to save profile. Please try again.');
+        console.error(
+          '[ProfileEditor] Non-validation error:',
+          error.message,
+          error.stack
+        );
+        setGeneralError(
+          error.message || 'Failed to save profile. Please try again.'
+        );
         onError?.(error);
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, formData, profile.profile, profile.updateProfile, profile.createProfile, onSuccess, onError]);
+  }, [
+    user,
+    formData,
+    profile.profile,
+    profile.updateProfile,
+    profile.createProfile,
+    onSuccess,
+    onError,
+  ]);
 
   if (!user) {
     return (
       <View style={[styles.container, style]}>
         <View style={styles.warningContainer}>
-          <Text style={styles.warningText}>Please sign in to edit your profile.</Text>
+          <Text style={styles.warningText}>
+            Please sign in to edit your profile.
+          </Text>
         </View>
       </View>
     );
@@ -230,22 +264,25 @@ export function ProfileEditor({
 
       <View style={styles.formContainer} collapsable={false}>
         {formInputs}
-        
+
         {user && (
           <AvatarUpload
             currentAvatarUrl={profile.profile?.avatar_url || null}
-            onUploadComplete={async (url) => {
+            onUploadComplete={async url => {
               console.log('[ProfileEditor] Avatar upload complete, URL:', url);
               // Ensure we're saving the clean URL (without Android-specific modifications)
               // The URL from useAvatarUpload should already be clean, but let's verify
               const cleanUrl = url.split('?')[0]; // Remove any query params just in case
-              console.log('[ProfileEditor] Saving clean URL to database:', cleanUrl);
-              
+              console.log(
+                '[ProfileEditor] Saving clean URL to database:',
+                cleanUrl
+              );
+
               // Update profile with new avatar URL
               await profile.updateProfile(user.id, { avatar_url: cleanUrl });
               // Update form data
               handleFieldChange('avatar_url', cleanUrl);
-              
+
               console.log('[ProfileEditor] Profile updated with avatar URL');
             }}
             onRemove={async () => {
@@ -261,7 +298,9 @@ export function ProfileEditor({
       </View>
 
       {generalError && <FormError message={generalError} />}
-      {profile.error && <FormError message={`Profile error: ${profile.error.message}`} />}
+      {profile.error && (
+        <FormError message={`Profile error: ${profile.error.message}`} />
+      )}
 
       <FormButton
         title={profile.profile ? 'Update Profile' : 'Create Profile'}
@@ -307,4 +346,3 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
 });
-

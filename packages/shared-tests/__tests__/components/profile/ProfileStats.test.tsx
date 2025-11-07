@@ -116,4 +116,3 @@ describe('ProfileStats', () => {
     expect(screen.getByText(/50%/)).toBeInTheDocument();
   });
 });
-

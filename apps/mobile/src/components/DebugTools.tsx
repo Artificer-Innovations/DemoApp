@@ -13,7 +13,10 @@ import {
 import { useAuthContext } from '@shared/contexts/AuthContext';
 import { useProfile } from '@shared/hooks/useProfile';
 import { supabase } from '../lib/supabase';
-import { profileFormSchema, type ProfileFormInput } from '@shared/validation/profileSchema';
+import {
+  profileFormSchema,
+  type ProfileFormInput,
+} from '@shared/validation/profileSchema';
 import { ZodError } from 'zod';
 import { TextInput } from 'react-native';
 
@@ -65,7 +68,7 @@ export function DebugTools() {
   return (
     <Modal
       visible={isVisible}
-      animationType="slide"
+      animationType='slide'
       transparent={false}
       onRequestClose={() => setIsVisible(false)}
     >
@@ -80,10 +83,15 @@ export function DebugTools() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+        >
           {/* Database Test Section - First */}
           <View style={styles.testCard}>
-            <Text style={styles.testCardTitle}>🧪 Database Connection Test</Text>
+            <Text style={styles.testCardTitle}>
+              🧪 Database Connection Test
+            </Text>
             <DatabaseTest />
           </View>
 
@@ -92,16 +100,28 @@ export function DebugTools() {
             <Text style={styles.authContextTitle}>🧪 AuthContext Test</Text>
             <View style={styles.authContextContent}>
               <Text style={styles.authContextItem}>
-                Loading: <Text style={styles.authContextValue}>{auth.loading ? 'true' : 'false'}</Text>
+                Loading:{' '}
+                <Text style={styles.authContextValue}>
+                  {auth.loading ? 'true' : 'false'}
+                </Text>
               </Text>
               <Text style={styles.authContextItem}>
-                User: <Text style={styles.authContextValue}>{auth.user ? auth.user.email : 'null'}</Text>
+                User:{' '}
+                <Text style={styles.authContextValue}>
+                  {auth.user ? auth.user.email : 'null'}
+                </Text>
               </Text>
               <Text style={styles.authContextItem}>
-                Session: <Text style={styles.authContextValue}>{auth.session ? 'active' : 'null'}</Text>
+                Session:{' '}
+                <Text style={styles.authContextValue}>
+                  {auth.session ? 'active' : 'null'}
+                </Text>
               </Text>
               <Text style={styles.authContextItem}>
-                Error: <Text style={styles.authContextValue}>{auth.error ? auth.error.message : 'null'}</Text>
+                Error:{' '}
+                <Text style={styles.authContextValue}>
+                  {auth.error ? auth.error.message : 'null'}
+                </Text>
               </Text>
             </View>
             <Text style={styles.authContextFooter}>
@@ -112,33 +132,46 @@ export function DebugTools() {
           {/* Task 4.1: useProfile Hook Test */}
           {auth.user ? (
             <View style={styles.testCard}>
-              <Text style={styles.testCardTitle}>🧪 useProfile Hook Test (Task 4.1)</Text>
+              <Text style={styles.testCardTitle}>
+                🧪 useProfile Hook Test (Task 4.1)
+              </Text>
               <UseProfileTest profile={profile} auth={auth} />
             </View>
           ) : (
             <View style={styles.disabledCard}>
-              <Text style={styles.disabledCardTitle}>🧪 useProfile Hook Test (Task 4.1)</Text>
-              <Text style={styles.disabledCardText}>Please sign in to test this component.</Text>
+              <Text style={styles.disabledCardTitle}>
+                🧪 useProfile Hook Test (Task 4.1)
+              </Text>
+              <Text style={styles.disabledCardText}>
+                Please sign in to test this component.
+              </Text>
             </View>
           )}
 
           {/* Task 4.2: Profile Validation Schema Test */}
           <View style={styles.validationTestCard}>
-            <Text style={styles.validationTestCardTitle}>🧪 Profile Validation Schema Test (Task 4.2)</Text>
+            <Text style={styles.validationTestCardTitle}>
+              🧪 Profile Validation Schema Test (Task 4.2)
+            </Text>
             <Text style={styles.validationTestCardDescription}>
-              Test the validation schema by entering invalid data and seeing error messages appear.
+              Test the validation schema by entering invalid data and seeing
+              error messages appear.
             </Text>
             <ValidationTestFormMobile />
             <Text style={styles.validationTestNote}>
-              ✓ Try: username too short, display name too long, invalid website URL, etc.
+              ✓ Try: username too short, display name too long, invalid website
+              URL, etc.
             </Text>
           </View>
 
           {/* Task 4.3: Form Components Test */}
           <View style={styles.formComponentsTestCard}>
-            <Text style={styles.formComponentsTestCardTitle}>🧪 Form Components Test (Task 4.3)</Text>
+            <Text style={styles.formComponentsTestCardTitle}>
+              🧪 Form Components Test (Task 4.3)
+            </Text>
             <Text style={styles.formComponentsTestCardDescription}>
-              Test the shared form components to verify they work identically on web and mobile.
+              Test the shared form components to verify they work identically on
+              web and mobile.
             </Text>
             <FormComponentsTestMobile />
             <Text style={styles.formComponentsTestNote}>
@@ -149,38 +182,55 @@ export function DebugTools() {
           {/* Task 4.4: Profile Editor Test */}
           {auth.user ? (
             <View style={styles.testCard}>
-              <Text style={styles.testCardTitle}>🧪 Profile Editor Test (Task 4.4)</Text>
+              <Text style={styles.testCardTitle}>
+                🧪 Profile Editor Test (Task 4.4)
+              </Text>
               <Text style={styles.validationTestCardDescription}>
-                Test the ProfileEditor component - edit your profile and save changes.
+                Test the ProfileEditor component - edit your profile and save
+                changes.
               </Text>
               <ProfileEditorTestMobile supabase={supabase} user={auth.user} />
               <Text style={styles.testNote}>
-                ✓ Edit profile fields and click "Update Profile" or "Create Profile"
+                ✓ Edit profile fields and click "Update Profile" or "Create
+                Profile"
               </Text>
             </View>
           ) : (
             <View style={styles.disabledCard}>
-              <Text style={styles.disabledCardTitle}>🧪 Profile Editor Test (Task 4.4)</Text>
-              <Text style={styles.disabledCardText}>Please sign in to test this component.</Text>
+              <Text style={styles.disabledCardTitle}>
+                🧪 Profile Editor Test (Task 4.4)
+              </Text>
+              <Text style={styles.disabledCardText}>
+                Please sign in to test this component.
+              </Text>
             </View>
           )}
 
           {/* Task 4.5: Profile Display Components Test */}
           {auth.user ? (
             <View style={styles.testCard}>
-              <Text style={styles.testCardTitle}>🧪 Profile Display Components Test (Task 4.5)</Text>
+              <Text style={styles.testCardTitle}>
+                🧪 Profile Display Components Test (Task 4.5)
+              </Text>
               <Text style={styles.validationTestCardDescription}>
-                Test the profile display components (ProfileAvatar, ProfileHeader, ProfileStats) to verify they display user data correctly.
+                Test the profile display components (ProfileAvatar,
+                ProfileHeader, ProfileStats) to verify they display user data
+                correctly.
               </Text>
               <ProfileDisplayTestMobile profile={profile.profile} />
               <Text style={styles.testNote}>
-                ✓ Verify: Avatar shows image or initials, Header displays all profile info, Stats show member since and completion %
+                ✓ Verify: Avatar shows image or initials, Header displays all
+                profile info, Stats show member since and completion %
               </Text>
             </View>
           ) : (
             <View style={styles.disabledCard}>
-              <Text style={styles.disabledCardTitle}>🧪 Profile Display Components Test (Task 4.5)</Text>
-              <Text style={styles.disabledCardText}>Please sign in to test this component.</Text>
+              <Text style={styles.disabledCardTitle}>
+                🧪 Profile Display Components Test (Task 4.5)
+              </Text>
+              <Text style={styles.disabledCardText}>
+                Please sign in to test this component.
+              </Text>
             </View>
           )}
         </ScrollView>
@@ -197,7 +247,7 @@ function DatabaseTest() {
   const handleTestDatabase = async () => {
     setIsLoading(true);
     setTestResult('');
-    
+
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -211,7 +261,10 @@ function DatabaseTest() {
       } else {
         const message = `✅ Success! Found ${data.length} user profiles`;
         setTestResult(message);
-        Alert.alert('Database Test Passed', `Found ${data.length} user profiles`);
+        Alert.alert(
+          'Database Test Passed',
+          `Found ${data.length} user profiles`
+        );
       }
     } catch (err) {
       const message = `❌ Exception: ${err instanceof Error ? err.message : 'Unknown error'}`;
@@ -244,7 +297,13 @@ function DatabaseTest() {
 }
 
 // UseProfile Test Component
-function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfile>; auth: ReturnType<typeof useAuthContext> }) {
+function UseProfileTest({
+  profile,
+  auth,
+}: {
+  profile: ReturnType<typeof useProfile>;
+  auth: ReturnType<typeof useAuthContext>;
+}) {
   const handleCreateProfile = async () => {
     if (!auth.user) return;
     try {
@@ -255,7 +314,10 @@ function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfi
       });
       Alert.alert('Success', '✅ Profile created! Check the display above.');
     } catch (err) {
-      Alert.alert('Error', `❌ ${err instanceof Error ? err.message : 'Unknown error'}`);
+      Alert.alert(
+        'Error',
+        `❌ ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -267,7 +329,10 @@ function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfi
       });
       Alert.alert('Success', '✅ Profile updated! Check the display above.');
     } catch (err) {
-      Alert.alert('Error', `❌ ${err instanceof Error ? err.message : 'Unknown error'}`);
+      Alert.alert(
+        'Error',
+        `❌ ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -276,7 +341,10 @@ function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfi
       await profile.refreshProfile();
       Alert.alert('Success', '✅ Profile refreshed!');
     } catch (err) {
-      Alert.alert('Error', `❌ ${err instanceof Error ? err.message : 'Unknown error'}`);
+      Alert.alert(
+        'Error',
+        `❌ ${err instanceof Error ? err.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -284,17 +352,23 @@ function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfi
     <View>
       <View style={styles.testInfo}>
         <Text style={styles.testLabel}>Loading:</Text>
-        <Text style={styles.testValue}>{profile.loading ? 'true' : 'false'}</Text>
+        <Text style={styles.testValue}>
+          {profile.loading ? 'true' : 'false'}
+        </Text>
       </View>
       <View style={styles.testInfo}>
         <Text style={styles.testLabel}>Profile:</Text>
-        <Text style={styles.testValue}>{profile.profile ? 'exists' : 'null'}</Text>
+        <Text style={styles.testValue}>
+          {profile.profile ? 'exists' : 'null'}
+        </Text>
       </View>
       <View style={styles.testInfo}>
         <Text style={styles.testLabel}>Error:</Text>
-        <Text style={styles.testValue}>{profile.error ? profile.error.message : 'null'}</Text>
+        <Text style={styles.testValue}>
+          {profile.error ? profile.error.message : 'null'}
+        </Text>
       </View>
-      
+
       {profile.profile && (
         <View style={styles.profileDataContainer}>
           <Text style={styles.profileDataTitle}>Profile Data:</Text>
@@ -315,9 +389,12 @@ function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfi
           </Text>
         </View>
       )}
-      
+
       <TouchableOpacity
-        style={[styles.testButton, profile.loading && styles.testButtonDisabled]}
+        style={[
+          styles.testButton,
+          profile.loading && styles.testButtonDisabled,
+        ]}
         onPress={profile.profile ? handleUpdateProfile : handleCreateProfile}
         disabled={profile.loading || !auth.user}
       >
@@ -325,15 +402,18 @@ function UseProfileTest({ profile, auth }: { profile: ReturnType<typeof useProfi
           {profile.profile ? 'Update Profile' : 'Create Profile'}
         </Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity
-        style={[styles.testButton, profile.loading && styles.testButtonDisabled]}
+        style={[
+          styles.testButton,
+          profile.loading && styles.testButtonDisabled,
+        ]}
         onPress={handleRefreshProfile}
         disabled={profile.loading || !auth.user}
       >
         <Text style={styles.testButtonText}>Refresh Profile</Text>
       </TouchableOpacity>
-      
+
       <Text style={styles.testNote}>
         ✓ Test create, read, update operations above
       </Text>
@@ -352,12 +432,14 @@ function ValidationTestFormMobile() {
     avatar_url: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [lastValidationResult, setLastValidationResult] = useState<string | null>(null);
+  const [lastValidationResult, setLastValidationResult] = useState<
+    string | null
+  >(null);
 
   const handleFieldChange = (field: keyof ProfileFormInput, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => {
+      setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
@@ -369,16 +451,16 @@ function ValidationTestFormMobile() {
   const validateField = (field: keyof ProfileFormInput, value: string) => {
     try {
       profileFormSchema.parse({ ...formData, [field]: value });
-      setErrors((prev) => {
+      setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
       });
     } catch (err) {
       if (err instanceof ZodError) {
-        const fieldError = err.errors.find((e) => e.path.includes(field));
+        const fieldError = err.errors.find(e => e.path.includes(field));
         if (fieldError) {
-          setErrors((prev) => ({ ...prev, [field]: fieldError.message }));
+          setErrors(prev => ({ ...prev, [field]: fieldError.message }));
         }
       }
     }
@@ -393,7 +475,7 @@ function ValidationTestFormMobile() {
     } catch (err) {
       if (err instanceof ZodError) {
         const newErrors: Record<string, string> = {};
-        err.errors.forEach((error) => {
+        err.errors.forEach(error => {
           const field = error.path[0] as string;
           if (field) {
             newErrors[field] = error.message;
@@ -401,7 +483,10 @@ function ValidationTestFormMobile() {
         });
         setErrors(newErrors);
         const errorCount = err.errors.length;
-        Alert.alert('Validation Failed', `❌ Validation failed: ${errorCount} error(s)`);
+        Alert.alert(
+          'Validation Failed',
+          `❌ Validation failed: ${errorCount} error(s)`
+        );
         setLastValidationResult(`❌ Validation failed: ${errorCount} error(s)`);
       }
     }
@@ -412,11 +497,14 @@ function ValidationTestFormMobile() {
       <View style={styles.validationField}>
         <Text style={styles.validationLabel}>Username</Text>
         <TextInput
-          style={[styles.validationInput, errors.username && styles.validationInputError]}
+          style={[
+            styles.validationInput,
+            errors.username && styles.validationInputError,
+          ]}
           value={formData.username}
-          onChangeText={(text) => handleFieldChange('username', text)}
+          onChangeText={text => handleFieldChange('username', text)}
           onBlur={() => validateField('username', formData.username || '')}
-          placeholder="3-30 chars, alphanumeric + underscore"
+          placeholder='3-30 chars, alphanumeric + underscore'
         />
         {errors.username && (
           <Text style={styles.validationErrorText}>{errors.username}</Text>
@@ -426,11 +514,16 @@ function ValidationTestFormMobile() {
       <View style={styles.validationField}>
         <Text style={styles.validationLabel}>Display Name</Text>
         <TextInput
-          style={[styles.validationInput, errors.display_name && styles.validationInputError]}
+          style={[
+            styles.validationInput,
+            errors.display_name && styles.validationInputError,
+          ]}
           value={formData.display_name}
-          onChangeText={(text) => handleFieldChange('display_name', text)}
-          onBlur={() => validateField('display_name', formData.display_name || '')}
-          placeholder="Max 100 characters"
+          onChangeText={text => handleFieldChange('display_name', text)}
+          onBlur={() =>
+            validateField('display_name', formData.display_name || '')
+          }
+          placeholder='Max 100 characters'
         />
         {errors.display_name && (
           <Text style={styles.validationErrorText}>{errors.display_name}</Text>
@@ -440,11 +533,15 @@ function ValidationTestFormMobile() {
       <View style={styles.validationField}>
         <Text style={styles.validationLabel}>Bio</Text>
         <TextInput
-          style={[styles.validationInput, styles.validationTextArea, errors.bio && styles.validationInputError]}
+          style={[
+            styles.validationInput,
+            styles.validationTextArea,
+            errors.bio && styles.validationInputError,
+          ]}
           value={formData.bio}
-          onChangeText={(text) => handleFieldChange('bio', text)}
+          onChangeText={text => handleFieldChange('bio', text)}
           onBlur={() => validateField('bio', formData.bio || '')}
-          placeholder="Max 500 characters"
+          placeholder='Max 500 characters'
           multiline
           numberOfLines={3}
         />
@@ -453,7 +550,7 @@ function ValidationTestFormMobile() {
             <Text style={styles.validationErrorText}>{errors.bio}</Text>
           )}
           <Text style={styles.validationCharCount}>
-            {(formData.bio?.length || 0)}/500
+            {formData.bio?.length || 0}/500
           </Text>
         </View>
       </View>
@@ -461,13 +558,16 @@ function ValidationTestFormMobile() {
       <View style={styles.validationField}>
         <Text style={styles.validationLabel}>Website</Text>
         <TextInput
-          style={[styles.validationInput, errors.website && styles.validationInputError]}
+          style={[
+            styles.validationInput,
+            errors.website && styles.validationInputError,
+          ]}
           value={formData.website}
-          onChangeText={(text) => handleFieldChange('website', text)}
+          onChangeText={text => handleFieldChange('website', text)}
           onBlur={() => validateField('website', formData.website || '')}
-          placeholder="https://example.com"
-          keyboardType="url"
-          autoCapitalize="none"
+          placeholder='https://example.com'
+          keyboardType='url'
+          autoCapitalize='none'
         />
         {errors.website && (
           <Text style={styles.validationErrorText}>{errors.website}</Text>
@@ -479,21 +579,24 @@ function ValidationTestFormMobile() {
         <TextInput
           style={styles.validationInput}
           value={formData.location}
-          onChangeText={(text) => handleFieldChange('location', text)}
-          placeholder="Any text"
+          onChangeText={text => handleFieldChange('location', text)}
+          placeholder='Any text'
         />
       </View>
 
       <View style={styles.validationField}>
         <Text style={styles.validationLabel}>Avatar URL</Text>
         <TextInput
-          style={[styles.validationInput, errors.avatar_url && styles.validationInputError]}
+          style={[
+            styles.validationInput,
+            errors.avatar_url && styles.validationInputError,
+          ]}
           value={formData.avatar_url}
-          onChangeText={(text) => handleFieldChange('avatar_url', text)}
+          onChangeText={text => handleFieldChange('avatar_url', text)}
           onBlur={() => validateField('avatar_url', formData.avatar_url || '')}
-          placeholder="https://example.com/avatar.jpg"
-          keyboardType="url"
-          autoCapitalize="none"
+          placeholder='https://example.com/avatar.jpg'
+          keyboardType='url'
+          autoCapitalize='none'
         />
         {errors.avatar_url && (
           <Text style={styles.validationErrorText}>{errors.avatar_url}</Text>
@@ -508,11 +611,17 @@ function ValidationTestFormMobile() {
       </TouchableOpacity>
 
       {lastValidationResult && (
-        <View style={[
-          styles.validationResult,
-          lastValidationResult.startsWith('✅') ? styles.validationResultSuccess : styles.validationResultError
-        ]}>
-          <Text style={styles.validationResultText}>{lastValidationResult}</Text>
+        <View
+          style={[
+            styles.validationResult,
+            lastValidationResult.startsWith('✅')
+              ? styles.validationResultSuccess
+              : styles.validationResultError,
+          ]}
+        >
+          <Text style={styles.validationResultText}>
+            {lastValidationResult}
+          </Text>
         </View>
       )}
     </View>
@@ -546,8 +655,11 @@ function FormComponentsTestMobile() {
           });
           setComponentsLoaded(true);
         })
-        .catch((err) => {
-          console.warn('[FormComponentsTest] Failed to load form components:', err);
+        .catch(err => {
+          console.warn(
+            '[FormComponentsTest] Failed to load form components:',
+            err
+          );
         });
     }
   }, [componentsLoaded]);
@@ -564,8 +676,10 @@ function FormComponentsTestMobile() {
   if (!componentsLoaded || !FormComponents) {
     return (
       <View style={styles.formTestSection}>
-        <ActivityIndicator size="small" color="#166534" />
-        <Text style={styles.formTestSectionTitle}>Loading form components...</Text>
+        <ActivityIndicator size='small' color='#166534' />
+        <Text style={styles.formTestSectionTitle}>
+          Loading form components...
+        </Text>
       </View>
     );
   }
@@ -576,80 +690,76 @@ function FormComponentsTestMobile() {
     <View>
       <View style={styles.formTestSection}>
         <Text style={styles.formTestSectionTitle}>FormInput Examples:</Text>
-        
+
         <FormInput
-          label="Normal Input"
+          label='Normal Input'
           value={inputValue}
           onChange={setInputValue}
-          placeholder="Type something here..."
+          placeholder='Type something here...'
         />
 
         <FormInput
-          label="Input with Error"
-          value="invalid value"
+          label='Input with Error'
+          value='invalid value'
           onChange={() => {}}
-          error="This field has an error message"
+          error='This field has an error message'
         />
 
         <FormInput
-          label="Disabled Input"
-          value="Cannot edit this"
+          label='Disabled Input'
+          value='Cannot edit this'
           onChange={() => {}}
           disabled
         />
 
         <FormInput
-          label="Multiline Input (Textarea)"
-          value="This is a multiline text input that supports multiple lines of text."
+          label='Multiline Input (Textarea)'
+          value='This is a multiline text input that supports multiple lines of text.'
           onChange={() => {}}
           multiline
           numberOfLines={4}
-          placeholder="Enter multiple lines..."
+          placeholder='Enter multiple lines...'
         />
       </View>
 
       <View style={styles.formTestSection}>
         <Text style={styles.formTestSectionTitle}>FormButton Examples:</Text>
-        
+
         <FormButton
-          title="Normal Button"
+          title='Normal Button'
           onPress={() => Alert.alert('Button Clicked', 'Normal button works!')}
         />
 
         <FormButton
-          title="Loading Button"
+          title='Loading Button'
           onPress={handleButtonClick}
           loading={buttonLoading}
         />
 
-        <FormButton
-          title="Disabled Button"
-          onPress={() => {}}
-          disabled
-        />
+        <FormButton title='Disabled Button' onPress={() => {}} disabled />
 
         <View style={styles.buttonRow}>
           <View style={styles.buttonRowItem}>
             <FormButton
-              title="Primary"
+              title='Primary'
               onPress={() => {}}
-              variant="primary"
+              variant='primary'
               fullWidth={false}
             />
           </View>
           <View style={styles.buttonRowItem}>
             <FormButton
-              title="Secondary"
+              title='Secondary'
               onPress={() => {}}
-              variant="secondary"
+              variant='secondary'
               fullWidth={false}
             />
           </View>
           <View style={styles.buttonRowItem}>
             <FormButton
-              title="Danger"
+              title='Danger'
               onPress={() => {}}
-              variant="danger"
+              variant='danger'
               fullWidth={false}
             />
           </View>
@@ -658,9 +768,9 @@ function FormComponentsTestMobile() {
 
       <View style={styles.formTestSection}>
         <Text style={styles.formTestSectionTitle}>FormError Examples:</Text>
-        
-        <FormError message="This is an error message displayed using FormError component" />
-        
+
+        <FormError message='This is an error message displayed using FormError component' />
+
         <TouchableOpacity
           onPress={() => setShowError(!showError)}
           style={styles.toggleButton}
@@ -669,9 +779,9 @@ function FormComponentsTestMobile() {
             {showError ? 'Hide' : 'Show'} Dynamic Error
           </Text>
         </TouchableOpacity>
-        
+
         {showError && (
-          <FormError message="This error was triggered dynamically!" />
+          <FormError message='This error was triggered dynamically!' />
         )}
       </View>
     </View>
@@ -679,19 +789,28 @@ function FormComponentsTestMobile() {
 }
 
 // ProfileEditor test component for mobile
-function ProfileEditorTestMobile({ supabase, user }: { supabase: any; user: any }) {
+function ProfileEditorTestMobile({
+  supabase,
+  user,
+}: {
+  supabase: any;
+  user: any;
+}) {
   const [componentsLoaded, setComponentsLoaded] = useState(false);
   const [ProfileEditor, setProfileEditor] = useState<any>(null);
 
   useEffect(() => {
     if (!componentsLoaded) {
       import('@shared/components/profile/ProfileEditor.native')
-        .then((module) => {
+        .then(module => {
           setProfileEditor(() => module.ProfileEditor);
           setComponentsLoaded(true);
         })
-        .catch((err) => {
-          console.warn('[ProfileEditorTest] Failed to load ProfileEditor:', err);
+        .catch(err => {
+          console.warn(
+            '[ProfileEditorTest] Failed to load ProfileEditor:',
+            err
+          );
         });
     }
   }, [componentsLoaded]);
@@ -699,14 +818,16 @@ function ProfileEditorTestMobile({ supabase, user }: { supabase: any; user: any 
   if (!componentsLoaded || !ProfileEditor) {
     return (
       <View style={styles.formTestSection}>
-        <ActivityIndicator size="small" color="#166534" />
-        <Text style={styles.formTestSectionTitle}>Loading ProfileEditor...</Text>
+        <ActivityIndicator size='small' color='#166534' />
+        <Text style={styles.formTestSectionTitle}>
+          Loading ProfileEditor...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View key="profile-editor-container" style={{ width: '100%' }}>
+    <View key='profile-editor-container' style={{ width: '100%' }}>
       <ProfileEditor
         key={`profile-editor-${user?.id || 'no-user'}`}
         supabaseClient={supabase}
@@ -716,7 +837,11 @@ function ProfileEditorTestMobile({ supabase, user }: { supabase: any; user: any 
           Alert.alert('Success', 'Profile saved successfully!');
         }}
         onError={(error: Error) => {
-          console.error('[ProfileEditorTest] onError callback fired:', error.message, error.stack);
+          console.error(
+            '[ProfileEditorTest] onError callback fired:',
+            error.message,
+            error.stack
+          );
           Alert.alert('Error', `Failed to save profile: ${error.message}`);
         }}
       />
@@ -744,7 +869,7 @@ function ProfileDisplayTestMobile({ profile }: { profile: any }) {
           setProfileStats(() => statsModule.ProfileStats);
           setComponentsLoaded(true);
         })
-        .catch((err) => {
+        .catch(err => {
           console.warn('[ProfileDisplayTest] Failed to load components:', err);
         });
     }
@@ -753,8 +878,10 @@ function ProfileDisplayTestMobile({ profile }: { profile: any }) {
   if (!componentsLoaded || !ProfileAvatar || !ProfileHeader || !ProfileStats) {
     return (
       <View style={styles.formTestSection}>
-        <ActivityIndicator size="small" color="#4f46e5" />
-        <Text style={styles.formTestSectionTitle}>Loading Profile Display Components...</Text>
+        <ActivityIndicator size='small' color='#4f46e5' />
+        <Text style={styles.formTestSectionTitle}>
+          Loading Profile Display Components...
+        </Text>
       </View>
     );
   }
@@ -762,28 +889,47 @@ function ProfileDisplayTestMobile({ profile }: { profile: any }) {
   return (
     <View style={{ width: '100%' }}>
       <View style={[styles.testCard, { marginBottom: 16, padding: 12 }]}>
-        <Text style={[styles.testCardTitle, { fontSize: 14, marginBottom: 8 }]}>ProfileHeader:</Text>
+        <Text style={[styles.testCardTitle, { fontSize: 14, marginBottom: 8 }]}>
+          ProfileHeader:
+        </Text>
         <ProfileHeader profile={profile} />
       </View>
       <View style={[styles.testCard, { marginBottom: 16, padding: 12 }]}>
-        <Text style={[styles.testCardTitle, { fontSize: 14, marginBottom: 8 }]}>ProfileAvatar (different sizes):</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 8 }}>
+        <Text style={[styles.testCardTitle, { fontSize: 14, marginBottom: 8 }]}>
+          ProfileAvatar (different sizes):
+        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 16,
+            marginTop: 8,
+          }}
+        >
           <View style={{ alignItems: 'center' }}>
-            <ProfileAvatar profile={profile} size="small" />
-            <Text style={[styles.testNote, { fontSize: 10, marginTop: 4 }]}>Small</Text>
+            <ProfileAvatar profile={profile} size='small' />
+            <Text style={[styles.testNote, { fontSize: 10, marginTop: 4 }]}>
+              Small
+            </Text>
           </View>
           <View style={{ alignItems: 'center' }}>
-            <ProfileAvatar profile={profile} size="medium" />
-            <Text style={[styles.testNote, { fontSize: 10, marginTop: 4 }]}>Medium</Text>
+            <ProfileAvatar profile={profile} size='medium' />
+            <Text style={[styles.testNote, { fontSize: 10, marginTop: 4 }]}>
+              Medium
+            </Text>
           </View>
           <View style={{ alignItems: 'center' }}>
-            <ProfileAvatar profile={profile} size="large" />
-            <Text style={[styles.testNote, { fontSize: 10, marginTop: 4 }]}>Large</Text>
+            <ProfileAvatar profile={profile} size='large' />
+            <Text style={[styles.testNote, { fontSize: 10, marginTop: 4 }]}>
+              Large
+            </Text>
           </View>
         </View>
       </View>
       <View style={[styles.testCard, { padding: 12 }]}>
-        <Text style={[styles.testCardTitle, { fontSize: 14, marginBottom: 8 }]}>ProfileStats:</Text>
+        <Text style={[styles.testCardTitle, { fontSize: 14, marginBottom: 8 }]}>
+          ProfileStats:
+        </Text>
         <ProfileStats profile={profile} />
       </View>
     </View>
@@ -1136,4 +1282,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

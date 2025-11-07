@@ -12,10 +12,11 @@
    - React DevTools → Components → Find `HomeScreen` or any screen → Inspect props → Find `navigation` prop
 
 3. **Call Navigation Programmatically**:
+
    ```javascript
    // If you can access a screen's navigation prop:
    $r.props.navigation.navigate('Dashboard');
-   
+
    // Or use replace:
    $r.props.navigation.replace('Dashboard');
    ```
@@ -24,7 +25,7 @@
 
 1. **Open Expo Dev Menu**: Shake device or press `Cmd+D` (iOS) / `Cmd+M` (Android)
 
-2. **Enable Remote JS Debugging**: 
+2. **Enable Remote JS Debugging**:
    - Select "Debug Remote JS"
    - This opens Chrome DevTools
 
@@ -55,4 +56,3 @@ If you have React Native Debugger installed:
 ## Recommended: Add Temporary Test Button
 
 The easiest and most reliable way is to add a temporary test button to HomeScreen that always navigates to Dashboard, regardless of auth state. This makes testing protection straightforward.
-

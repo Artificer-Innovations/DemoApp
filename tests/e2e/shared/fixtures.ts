@@ -94,4 +94,3 @@ export const MobileSelectors = {
   profileTab: 'Profile',
   dashboardTab: 'Dashboard',
 };
-

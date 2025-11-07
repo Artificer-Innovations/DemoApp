@@ -33,4 +33,3 @@ describe('supabase client', () => {
     expect(true).toBe(true);
   });
 });
-

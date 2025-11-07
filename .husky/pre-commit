@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Phase 8: Tooling setup - non-blocking enforcement
+# TODO: Make these blocking once codebase is cleaned up
+
+# Run lint with auto-fix (non-blocking)
+npm run lint:fix || echo "⚠️  Lint issues found (non-blocking in Phase 8)"
+
+# Run type check (non-blocking)
+npm run type-check || echo "⚠️  Type errors found (non-blocking in Phase 8)"
+
+# Check formatting (non-blocking)
+npm run format:check || echo "⚠️  Formatting issues found (non-blocking in Phase 8)"
+
+# Always allow commit to proceed
+exit 0
+

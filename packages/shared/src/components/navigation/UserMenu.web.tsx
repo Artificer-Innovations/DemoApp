@@ -43,48 +43,52 @@ export function UserMenu({ user, profile }: UserMenuProps) {
     navigate('/');
   };
 
-  const displayName = profile?.display_name || profile?.username || user.email?.split('@')[0] || 'User';
+  const displayName =
+    profile?.display_name ||
+    profile?.username ||
+    user.email?.split('@')[0] ||
+    'User';
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className='relative' ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-full"
-        aria-label="User menu"
+        className='flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-full'
+        aria-label='User menu'
         aria-expanded={isOpen}
       >
-        <ProfileAvatar profile={profile} size="small" />
+        <ProfileAvatar profile={profile} size='small' />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-          <div className="py-1">
+        <div className='absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50'>
+          <div className='py-1'>
             {/* User name display */}
-            <div className="px-4 py-3 border-b border-gray-200">
-              <p className="text-sm font-medium text-gray-900">{displayName}</p>
+            <div className='px-4 py-3 border-b border-gray-200'>
+              <p className='text-sm font-medium text-gray-900'>{displayName}</p>
               {user.email && (
-                <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                <p className='text-xs text-gray-500 mt-1'>{user.email}</p>
               )}
             </div>
 
             {/* Menu items */}
             <Link
-              to="/profile"
+              to='/profile'
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
             >
               Profile
             </Link>
             <Link
-              to="/dashboard"
+              to='/dashboard'
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
             >
               Dashboard
             </Link>
             <button
               onClick={handleSignOut}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
             >
               Sign Out
             </button>
@@ -94,4 +98,3 @@ export function UserMenu({ user, profile }: UserMenuProps) {
     </div>
   );
 }
-

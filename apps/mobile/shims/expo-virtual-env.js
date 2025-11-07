@@ -12,8 +12,10 @@ const extra = (Constants.expoConfig?.extra ?? Constants.manifest?.extra) || {};
 const env = {};
 
 // Convert extra keys to EXPO_PUBLIC_* format for compatibility
-Object.keys(extra).forEach((key) => {
-  const envKey = key.startsWith('EXPO_PUBLIC_') ? key : `EXPO_PUBLIC_${key.toUpperCase()}`;
+Object.keys(extra).forEach(key => {
+  const envKey = key.startsWith('EXPO_PUBLIC_')
+    ? key
+    : `EXPO_PUBLIC_${key.toUpperCase()}`;
   env[envKey] = extra[key];
 });
 
@@ -21,5 +23,3 @@ Object.keys(extra).forEach((key) => {
 Object.assign(env, extra);
 
 export default env;
-
-

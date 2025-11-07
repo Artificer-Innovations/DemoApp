@@ -101,7 +101,7 @@ describe('ProtectedRoute (Web)', () => {
     render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <AuthProvider supabaseClient={mockSupabaseClient}>
-          <ProtectedRoute redirectTo="/custom-login">
+          <ProtectedRoute redirectTo='/custom-login'>
             <div>Protected Content</div>
           </ProtectedRoute>
         </AuthProvider>
@@ -115,13 +115,13 @@ describe('ProtectedRoute (Web)', () => {
 
   it('should handle auth state changes', async () => {
     let authStateChangeCallback: (event: string, session: any) => void;
-    
+
     mockSupabaseClient.auth.getSession = jest.fn().mockResolvedValue({
       data: { session: null },
       error: null,
     });
 
-    mockSupabaseClient.auth.onAuthStateChange = jest.fn((callback) => {
+    mockSupabaseClient.auth.onAuthStateChange = jest.fn(callback => {
       authStateChangeCallback = callback;
       return {
         data: { subscription: { unsubscribe: jest.fn() } },

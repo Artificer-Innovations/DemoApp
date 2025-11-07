@@ -21,7 +21,10 @@ type RootStackParamList = {
   Profile: undefined;
 };
 
-type DashboardScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Dashboard'>;
+type DashboardScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Dashboard'
+>;
 
 interface Props {
   navigation: DashboardScreenNavigationProp;
@@ -45,7 +48,7 @@ export default function DashboardScreen({ navigation }: Props) {
   if (auth.loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size='large' color='#4F46E5' />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
@@ -55,7 +58,7 @@ export default function DashboardScreen({ navigation }: Props) {
   if (!auth.user) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size='large' color='#4F46E5' />
         <Text style={styles.loadingText}>Redirecting...</Text>
       </View>
     );
@@ -65,16 +68,17 @@ export default function DashboardScreen({ navigation }: Props) {
   return <DashboardScreenContent navigation={navigation} />;
 }
 
-function DashboardScreenContent({ navigation }: Props) {
+function DashboardScreenContent({ navigation: _navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader supabaseClient={supabase} />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.dashboardArea}>
           <Text style={styles.title}>{DASHBOARD_TITLE}</Text>
-          <Text style={styles.subtitle}>
-            {DASHBOARD_SUBTITLE}
-          </Text>
+          <Text style={styles.subtitle}>{DASHBOARD_SUBTITLE}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

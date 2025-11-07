@@ -1,5 +1,14 @@
 import { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Alert, Modal, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  Alert,
+  Modal,
+  Platform,
+} from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { User } from '@supabase/supabase-js';
 import type { UserProfile } from '../../types/profile';
@@ -30,26 +39,27 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<View>(null);
   const avatarRef = useRef<View>(null);
-  const [avatarLayout, setAvatarLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [avatarLayout, setAvatarLayout] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
   const auth = useAuthContext();
 
   const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel', onPress: () => setIsOpen(false) },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            setIsOpen(false);
-            await auth.signOut();
-            navigation.navigate('Home');
-          },
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel', onPress: () => setIsOpen(false) },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          setIsOpen(false);
+          await auth.signOut();
+          navigation.navigate('Home');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleNavigate = (route: 'Profile' | 'Dashboard') => {
@@ -57,7 +67,11 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
     navigation.navigate(route);
   };
 
-  const displayName = profile?.display_name || profile?.username || user.email?.split('@')[0] || 'User';
+  const displayName =
+    profile?.display_name ||
+    profile?.username ||
+    user.email?.split('@')[0] ||
+    'User';
 
   const handleAvatarPress = () => {
     if (avatarRef.current) {
@@ -79,7 +93,7 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
             style={styles.avatarButton}
             activeOpacity={0.7}
           >
-            <ProfileAvatar profile={profile} size="small" />
+            <ProfileAvatar profile={profile} size='small' />
           </TouchableOpacity>
         </View>
       </View>
@@ -87,7 +101,7 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
       <Modal
         visible={isOpen}
         transparent
-        animationType="fade"
+        animationType='fade'
         onRequestClose={() => setIsOpen(false)}
       >
         <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
@@ -98,7 +112,10 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
                 {
                   top: avatarLayout.y + avatarLayout.height + 8,
                   right: Platform.OS === 'ios' ? undefined : 16,
-                  left: Platform.OS === 'ios' ? avatarLayout.x + avatarLayout.width - 224 : undefined,
+                  left:
+                    Platform.OS === 'ios'
+                      ? avatarLayout.x + avatarLayout.width - 224
+                      : undefined,
                 },
               ]}
               onStartShouldSetResponder={() => true}
@@ -131,7 +148,9 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
                 style={[styles.menuItem, styles.menuItemDanger]}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.menuItemText, styles.menuItemDangerText]}>Sign Out</Text>
+                <Text style={[styles.menuItemText, styles.menuItemDangerText]}>
+                  Sign Out
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -199,4 +218,3 @@ const styles = StyleSheet.create({
     color: '#374151', // Keep same color as web for consistency
   },
 });
-

@@ -24,7 +24,10 @@ type RootStackParamList = {
   Dashboard: undefined;
 };
 
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Login'
+>;
 
 interface Props {
   navigation: LoginScreenNavigationProp;
@@ -51,9 +54,9 @@ export default function LoginScreen({ navigation }: Props) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await auth.signIn(email, password);
       navigation.navigate('Dashboard');
@@ -81,14 +84,17 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <AppHeader supabaseClient={supabase} />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.form}>
           <Text style={styles.title}>Sign in to your account</Text>
-          
+
           {/* OAuth Buttons */}
           <View style={styles.oauthContainer}>
             {oauthGoogle && (
-              <SocialLoginButton onPress={handleGoogleLogin} mode="signin" />
+              <SocialLoginButton onPress={handleGoogleLogin} mode='signin' />
             )}
           </View>
 
@@ -102,43 +108,44 @@ export default function LoginScreen({ navigation }: Props) {
           )}
           <TextInput
             style={styles.input}
-            placeholder="Email address"
+            placeholder='Email address'
             value={email}
             onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
+            keyboardType='email-address'
+            autoCapitalize='none'
             autoCorrect={false}
           />
-          
+
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder='Password'
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            autoCapitalize="none"
+            autoCapitalize='none'
             autoCorrect={false}
           />
-          
-          <TouchableOpacity 
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
+
+          <TouchableOpacity
+            style={[
+              styles.loginButton,
+              isLoading && styles.loginButtonDisabled,
+            ]}
             onPress={handleLogin}
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color='#ffffff' />
             ) : (
               <Text style={styles.loginButtonText}>Sign In</Text>
             )}
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => navigation.navigate('Signup')}
           >
-            <Text style={styles.linkText}>
-              Don't have an account? Sign up
-            </Text>
+            <Text style={styles.linkText}>Don't have an account? Sign up</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

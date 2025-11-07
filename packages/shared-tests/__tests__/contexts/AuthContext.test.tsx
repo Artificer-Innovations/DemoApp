@@ -1,5 +1,11 @@
 import React from 'react';
-import { renderHook, render, screen, waitFor, act } from '@testing-library/react';
+import {
+  renderHook,
+  render,
+  screen,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AuthProvider, useAuthContext } from '@shared/src/contexts/AuthContext';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
@@ -46,7 +52,7 @@ const createMockSupabaseClient = () => {
         data: { url: 'https://oauth-url.com' },
         error: null,
       }),
-      onAuthStateChange: jest.fn((callback) => {
+      onAuthStateChange: jest.fn(callback => {
         // Immediately call with the session
         setTimeout(() => callback('SIGNED_IN', mockSession), 0);
         return {
@@ -82,8 +88,8 @@ describe('AuthContext', () => {
       const auth = useAuthContext();
       return (
         <div>
-          <div data-testid="loading">{auth.loading ? 'loading' : 'ready'}</div>
-          <div data-testid="user">{auth.user?.email || 'no-user'}</div>
+          <div data-testid='loading'>{auth.loading ? 'loading' : 'ready'}</div>
+          <div data-testid='user'>{auth.user?.email || 'no-user'}</div>
         </div>
       );
     }
@@ -140,12 +146,16 @@ describe('AuthContext', () => {
 
     function Component1() {
       const auth = useAuthContext();
-      return <div data-testid="component1-user">{auth.user?.email || 'no-user'}</div>;
+      return (
+        <div data-testid='component1-user'>{auth.user?.email || 'no-user'}</div>
+      );
     }
 
     function Component2() {
       const auth = useAuthContext();
-      return <div data-testid="component2-user">{auth.user?.email || 'no-user'}</div>;
+      return (
+        <div data-testid='component2-user'>{auth.user?.email || 'no-user'}</div>
+      );
     }
 
     render(
@@ -157,8 +167,12 @@ describe('AuthContext', () => {
 
     // Both components should have access to the same user
     await waitFor(() => {
-      expect(screen.getByTestId('component1-user')).toHaveTextContent(mockUser.email!);
-      expect(screen.getByTestId('component2-user')).toHaveTextContent(mockUser.email!);
+      expect(screen.getByTestId('component1-user')).toHaveTextContent(
+        mockUser.email!
+      );
+      expect(screen.getByTestId('component2-user')).toHaveTextContent(
+        mockUser.email!
+      );
     });
   });
 
@@ -168,7 +182,7 @@ describe('AuthContext', () => {
     function TestComponent() {
       const auth = useAuthContext();
       return (
-        <div data-testid="session">
+        <div data-testid='session'>
           {auth.session ? 'has-session' : 'no-session'}
         </div>
       );
@@ -191,7 +205,7 @@ describe('AuthContext', () => {
     function TestComponent() {
       const auth = useAuthContext();
       return (
-        <div data-testid="error">
+        <div data-testid='error'>
           {auth.error ? auth.error.message : 'no-error'}
         </div>
       );
@@ -208,4 +222,3 @@ describe('AuthContext', () => {
     });
   });
 });
-

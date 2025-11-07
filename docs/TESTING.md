@@ -24,6 +24,7 @@ This project uses a **hybrid testing approach**:
 3. **Database tests follow Supabase convention** in `supabase/tests/` (required by tooling)
 
 **Rationale:**
+
 - Unit tests benefit from proximity to source code (shorter imports, clear ownership)
 - System-level tests (E2E, integration) don't belong to one app - they test everything together
 - A solo developer can easily find all E2E tests in one place: `tests/e2e/`
@@ -115,22 +116,22 @@ npm run test:coverage
 
 ```typescript
 // packages/shared/__tests__/hooks/useAuth.test.ts
-import { renderHook, act } from '@testing-library/react'
-import { useAuth } from '../../src/hooks/useAuth'
+import { renderHook, act } from '@testing-library/react';
+import { useAuth } from '../../src/hooks/useAuth';
 
 describe('useAuth', () => {
   it('returns user after successful auth', async () => {
-    const { result } = renderHook(() => useAuth())
-    
-    expect(result.current.loading).toBe(true)
-    
+    const { result } = renderHook(() => useAuth());
+
+    expect(result.current.loading).toBe(true);
+
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100))
-    })
-    
-    expect(result.current.loading).toBe(false)
-  })
-})
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+
+    expect(result.current.loading).toBe(false);
+  });
+});
 ```
 
 ## Integration Tests
@@ -166,24 +167,29 @@ Integration tests can use utilities from `tests/utils/`:
 
 ```typescript
 // tests/integration/auth-flow.test.ts
-import { createWebTestClient, createMobileTestClient } from '../utils/test-clients'
-import { createTestUser, signInTestUser } from '../utils/test-helpers'
+import {
+  createWebTestClient,
+  createMobileTestClient,
+} from '../utils/test-clients';
+import { createTestUser, signInTestUser } from '../utils/test-helpers';
 
 describe('Auth Flow Integration', () => {
   it('should sync auth state across web and mobile', async () => {
-    const webClient = createWebTestClient()
-    const mobileClient = createMobileTestClient()
-    
-    const { email, password } = await createTestUser(webClient)
-    await signInTestUser(mobileClient, email, password)
-    
+    const webClient = createWebTestClient();
+    const mobileClient = createMobileTestClient();
+
+    const { email, password } = await createTestUser(webClient);
+    await signInTestUser(mobileClient, email, password);
+
     // Verify both clients have the same session
-    const webSession = await webClient.auth.getSession()
-    const mobileSession = await mobileClient.auth.getSession()
-    
-    expect(webSession.data.session?.user.id).toBe(mobileSession.data.session?.user.id)
-  })
-})
+    const webSession = await webClient.auth.getSession();
+    const mobileSession = await mobileClient.auth.getSession();
+
+    expect(webSession.data.session?.user.id).toBe(
+      mobileSession.data.session?.user.id
+    );
+  });
+});
 ```
 
 ## E2E Tests
@@ -198,6 +204,7 @@ describe('Auth Flow Integration', () => {
 ### Prerequisites
 
 1. **Install Maestro CLI:**
+
    ```bash
    curl -Ls "https://get.maestro.mobile.dev" | bash
    export PATH="$HOME/.maestro/bin:$PATH"
@@ -217,6 +224,7 @@ describe('Auth Flow Integration', () => {
 **Before running E2E tests:**
 
 1. **Ensure Maestro is installed:**
+
    ```bash
    # If not already installed:
    curl -Ls "https://get.maestro.mobile.dev" | bash
@@ -224,6 +232,7 @@ describe('Auth Flow Integration', () => {
    ```
 
 2. **Set required environment variables:**
+
    ```bash
    # Set web URL (for web tests) - defaults to http://localhost:5173 if not set
    export WEB_URL="http://localhost:5173"
@@ -237,34 +246,37 @@ describe('Auth Flow Integration', () => {
    ```
 
 3. **Ensure the web app is running** (for web E2E tests):
+
    ```bash
    npm run web
    ```
 
 4. **Build and install the mobile app** (for mobile E2E tests):
-   
+
    **For iOS:**
+
    ```bash
    # Make sure an iOS simulator is running
    # Open Simulator app or run: open -a Simulator
-   
+
    # Build and install the app
    cd apps/mobile
    npm run ios
    # Or from root: npm run mobile:ios
    ```
-   
+
    **For Android:**
+
    ```bash
    # Make sure an Android emulator is running
    # Start from Android Studio or run: emulator -avd <avd_name>
-   
+
    # Build and install the app
    cd apps/mobile
    npm run android
    # Or from root: npm run mobile:android
    ```
-   
+
    **Note:** The app only needs to be built and installed once. After that, you can run E2E tests multiple times without rebuilding (unless you change native code).
 
 **Then run tests:**
@@ -300,27 +312,27 @@ E2E tests are written in YAML format using Maestro:
 
 ```yaml
 # tests/e2e/web/flows/home.yaml
-url: ${WEB_URL}  # Use 'url:' for web, 'appId:' for mobile
+url: ${WEB_URL} # Use 'url:' for web, 'appId:' for mobile
 ---
 - launchApp
 - waitForAnimationToEnd
-- assertVisible: "Welcome to Demo App"
-- assertVisible: "Sign Up"
-- tapOn: "Sign Up"
+- assertVisible: 'Welcome to Demo App'
+- assertVisible: 'Sign Up'
+- tapOn: 'Sign Up'
 - waitForAnimationToEnd
-- assertVisible: "Create your account"
+- assertVisible: 'Create your account'
 - inputText:
-    id: "email"
-    text: "${TEST_EMAIL}"
+    id: 'email'
+    text: '${TEST_EMAIL}'
 - inputText:
-    id: "password"
-    text: "${TEST_PASSWORD}"
+    id: 'password'
+    text: '${TEST_PASSWORD}'
 - inputText:
-    id: "confirm-password"
-    text: "${TEST_PASSWORD}"
-- tapOn: "Create account"
+    id: 'confirm-password'
+    text: '${TEST_PASSWORD}'
+- tapOn: 'Create account'
 - waitForAnimationToEnd
-- takeScreenshot: "after-signup"
+- takeScreenshot: 'after-signup'
 ```
 
 ### E2E Test Utilities
@@ -420,6 +432,7 @@ npm run test:watch
 ### Coverage
 
 **Prerequisites:**
+
 - ✅ `@vitest/coverage-v8@^1.6.1` is installed in `apps/web/package.json`
 - ✅ Jest coverage is configured for mobile and shared-tests
 - ✅ All coverage configurations are set up and ready to use
@@ -448,6 +461,7 @@ npm run test:coverage
 **Coverage Setup Status:**
 
 ✅ **All coverage tools are installed and configured:**
+
 - `@vitest/coverage-v8@^1.6.1` installed in `apps/web/`
 - Jest coverage configured in `apps/mobile/` and `packages/shared-tests/`
 - Coverage configurations added to all test configs
@@ -485,6 +499,7 @@ After running `npm run test:coverage`, you'll get:
    - `packages/shared-tests/coverage/index.html` - Shared package coverage (Jest)
 
 **Open reports in browser:**
+
 ```bash
 # View integrated summary
 cat coverage/coverage-summary.json
@@ -506,28 +521,34 @@ xdg-open packages/shared-tests/coverage/index.html
 ✅ **Maestro supports web testing** (in beta) using Chromium. Use `url:` instead of `appId:` in your test files.
 
 **Current limitations:**
+
 - Chromium-only (no Firefox/WebKit support yet)
 - Default `en-US` locale
 - Limited screen-size configuration options
 
 **When to use Maestro for web:**
+
 - You want one YAML framework across mobile + web
 - Chromium-only testing is acceptable
 - You like the Studio recorder/inspector
 
 **When to use Playwright/Cypress instead:**
+
 - You need cross-browser coverage (Chromium + WebKit + Firefox)
 - You need more mature React-web testing ergonomics
 
 **Troubleshooting:**
 
 If coverage reports don't appear:
+
 1. **Verify dependencies are installed:**
+
    ```bash
    npm install
    ```
 
 2. **Check coverage directories exist after running tests:**
+
    ```bash
    ls -la apps/web/coverage/
    ls -la apps/mobile/coverage/
@@ -535,6 +556,7 @@ If coverage reports don't appear:
    ```
 
 3. **Run tests individually to see errors:**
+
    ```bash
    npm run test:coverage:web
    npm run test:coverage:mobile
@@ -574,33 +596,36 @@ describe('LoginPage', () => {
 
 ```typescript
 // tests/integration/profile-sync.test.ts
-import { createWebTestClient, createMobileTestClient } from '../utils/test-clients'
-import { createTestUser, signInTestUser } from '../utils/test-helpers'
+import {
+  createWebTestClient,
+  createMobileTestClient,
+} from '../utils/test-clients';
+import { createTestUser, signInTestUser } from '../utils/test-helpers';
 
 describe('Profile Sync', () => {
   it('should sync profile updates across platforms', async () => {
-    const webClient = createWebTestClient()
-    const mobileClient = createMobileTestClient()
-    
-    const { userId, email } = await createTestUser(webClient)
-    await signInTestUser(mobileClient, email, 'TestPassword123!')
-    
+    const webClient = createWebTestClient();
+    const mobileClient = createMobileTestClient();
+
+    const { userId, email } = await createTestUser(webClient);
+    await signInTestUser(mobileClient, email, 'TestPassword123!');
+
     // Update profile on web
     await webClient
       .from('user_profiles')
       .update({ bio: 'Updated from web' })
-      .eq('user_id', userId)
-    
+      .eq('user_id', userId);
+
     // Verify update visible on mobile
     const { data } = await mobileClient
       .from('user_profiles')
       .select('bio')
       .eq('user_id', userId)
-      .single()
-    
-    expect(data?.bio).toBe('Updated from web')
-  })
-})
+      .single();
+
+    expect(data?.bio).toBe('Updated from web');
+  });
+});
 ```
 
 ### E2E Test Example
@@ -611,19 +636,19 @@ appId: ${WEB_URL}
 ---
 - launchApp
 - tapOn: "Don't have an account? Sign up"
-- assertVisible: "Create your account"
+- assertVisible: 'Create your account'
 - inputText:
-    id: "email"
-    text: "${TEST_EMAIL}"
+    id: 'email'
+    text: '${TEST_EMAIL}'
 - inputText:
-    id: "password"
-    text: "${TEST_PASSWORD}"
+    id: 'password'
+    text: '${TEST_PASSWORD}'
 - inputText:
-    id: "confirm-password"
-    text: "${TEST_PASSWORD}"
-- tapOn: "Create account"
-- assertVisible: "Dashboard"
-- takeScreenshot: "after-signup"
+    id: 'confirm-password'
+    text: '${TEST_PASSWORD}'
+- tapOn: 'Create account'
+- assertVisible: 'Dashboard'
+- takeScreenshot: 'after-signup'
 ```
 
 ## Best Practices
@@ -665,41 +690,52 @@ appId: ${WEB_URL}
 ### Unit Tests
 
 **Problem:** Tests fail with "Cannot find module" errors
+
 - **Solution:** Check path aliases in `tsconfig.json` and Jest config
 
 **Problem:** Tests timeout
+
 - **Solution:** Increase timeout in Jest config or use `jest.setTimeout()`
 
 **Problem:** Mock not working
+
 - **Solution:** Ensure mocks are in `__mocks__/` directory or use `jest.mock()`
 
 ### Integration Tests
 
 **Problem:** Tests fail with "Connection refused"
+
 - **Solution:** Ensure Supabase local is running: `supabase start`
 
 **Problem:** Tests leave data in database
+
 - **Solution:** Use cleanup functions from `tests/utils/test-helpers.ts`
 
 **Problem:** Tests are flaky
+
 - **Solution:** Add proper waits and retries using `waitFor` from test utilities
 
 ### E2E Tests
 
 **Problem:** Maestro not found
+
 - **Solution:** Install Maestro: `curl -Ls "https://get.maestro.mobile.dev" | bash`
 
 **Problem:** Web tests fail - "Cannot connect to server"
+
 - **Solution:** Ensure web dev server is running: `npm run web`
 
 **Problem:** Mobile tests fail - "App not installed"
+
 - **Solution:** Build and install app: `npm run mobile:ios` or `npm run mobile:android`
 
 **Problem:** Tests timeout
+
 - **Solution:** Increase wait times or check if app is responding
 
 **Problem:** Mobile E2E tests fail with "Unable to launch app"
-- **Solution:** 
+
+- **Solution:**
   - Ensure the app is built and installed: `cd apps/mobile && npm run ios` (or `npm run android`)
   - Ensure a simulator/emulator is running:
     - iOS: Open Simulator app or check with `xcrun simctl list devices | grep Booted`
@@ -708,6 +744,7 @@ appId: ${WEB_URL}
   - Try uninstalling and reinstalling: `cd apps/mobile && npm run ios:uninstall && npm run ios`
 
 **Problem:** "Invalid File Path" error with runScript
+
 - **Solution:** Maestro doesn't support `runScript`. Set environment variables before running tests:
   ```bash
   export TEST_EMAIL="e2e-test-$(date +%s)@example.com"
@@ -716,13 +753,15 @@ appId: ${WEB_URL}
   ```
 
 **Problem:** Web tests fail with "Unable to launch app"
-- **Solution:** 
+
+- **Solution:**
   - Use `url:` instead of `appId:` in web test YAML files
   - Ensure `WEB_URL` environment variable is set
   - Ensure the web app is running at the specified URL
 
 **Problem:** Assertions fail with "Element not visible"
-- **Solution:** 
+
+- **Solution:**
   - Check the actual UI text/selectors in your app - they may differ from test expectations
   - Use Maestro Studio to record and inspect: `maestro -p web studio`
   - Check debug artifacts in `~/.maestro/tests/` for screenshots and UI hierarchy
@@ -730,15 +769,19 @@ appId: ${WEB_URL}
 ### Database Tests
 
 **Problem:** Tests fail with "relation does not exist"
+
 - **Solution:** Ensure migrations are applied: `supabase db reset`
 
 **Problem:** Tests fail with permission errors
+
 - **Solution:** Check RLS policies are correctly configured
 
 **Problem:** Tests are slow
+
 - **Solution:** Use transactions (BEGIN/ROLLBACK) to avoid actual data changes
 
 **Problem:** Database tests fail with type errors (e.g., "function is(bigint, integer) does not exist")
+
 - **Solution:** Ensure proper type casting in pgTAP tests. Use `::bigint` for bigint comparisons:
   ```sql
   SELECT is(
@@ -749,6 +792,7 @@ appId: ${WEB_URL}
   ```
 
 **Problem:** Database tests fail when Supabase is already running
+
 - **Solution:** Database tests work with Supabase running. The error is likely a test syntax issue, not a conflict with running Supabase.
 
 ## CI/CD Integration
@@ -769,4 +813,3 @@ See `.github/workflows/test.yml` for test workflow configuration.
 - [Maestro Documentation](https://maestro.mobile.dev/)
 - [Supabase Testing](https://supabase.com/docs/guides/cli/local-development#testing)
 - [pgTAP Documentation](https://pgtap.org/)
-

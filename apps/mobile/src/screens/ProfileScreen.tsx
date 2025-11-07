@@ -27,7 +27,10 @@ type RootStackParamList = {
   Profile: undefined;
 };
 
-type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Profile'>;
+type ProfileScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Profile'
+>;
 
 interface Props {
   navigation: ProfileScreenNavigationProp;
@@ -51,7 +54,7 @@ export default function ProfileScreen({ navigation }: Props) {
   if (auth.loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size='large' color='#4F46E5' />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
@@ -61,7 +64,7 @@ export default function ProfileScreen({ navigation }: Props) {
   if (!auth.user) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size='large' color='#4F46E5' />
         <Text style={styles.loadingText}>Redirecting...</Text>
       </View>
     );
@@ -71,7 +74,7 @@ export default function ProfileScreen({ navigation }: Props) {
   return <ProfileScreenContent navigation={navigation} />;
 }
 
-function ProfileScreenContent({ navigation }: Props) {
+function ProfileScreenContent({ navigation: _navigation }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [componentsLoaded, setComponentsLoaded] = useState(false);
   const auth = useAuthContext();
@@ -81,11 +84,11 @@ function ProfileScreenContent({ navigation }: Props) {
   useEffect(() => {
     if (isEditing && !componentsLoaded) {
       import('@shared/components/profile/ProfileEditor.native')
-        .then((module) => {
+        .then(module => {
           ProfileEditor = module.ProfileEditor;
           setComponentsLoaded(true);
         })
-        .catch((err) => {
+        .catch(err => {
           console.warn('[ProfileScreen] Failed to load ProfileEditor:', err);
         });
     }
@@ -96,11 +99,14 @@ function ProfileScreenContent({ navigation }: Props) {
       <AppHeader supabaseClient={supabase} />
 
       {/* Main Content */}
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
         {/* Loading State */}
         {profile.loading && (
           <View style={styles.loadingSection}>
-            <ActivityIndicator size="large" color="#4F46E5" />
+            <ActivityIndicator size='large' color='#4F46E5' />
             <Text style={styles.loadingText}>Loading profile...</Text>
           </View>
         )}
@@ -157,7 +163,7 @@ function ProfileScreenContent({ navigation }: Props) {
                   />
                 ) : (
                   <View style={styles.loadingSection}>
-                    <ActivityIndicator size="small" color="#4F46E5" />
+                    <ActivityIndicator size='small' color='#4F46E5' />
                     <Text style={styles.loadingText}>Loading editor...</Text>
                   </View>
                 )}
@@ -242,4 +248,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

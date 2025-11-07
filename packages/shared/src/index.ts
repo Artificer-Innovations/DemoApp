@@ -43,5 +43,5 @@ export * from './validation/profileSchema';
 
 // OPTIONAL: also log from a shared module to compare
 // packages/shared/src/index.ts
-console.log("[shared sees react at]", require.resolve("react"));
-console.log("[shared sees rn at]", require.resolve("react-native"));
+console.log('[shared sees react at]', require.resolve('react'));
+console.log('[shared sees rn at]', require.resolve('react-native'));

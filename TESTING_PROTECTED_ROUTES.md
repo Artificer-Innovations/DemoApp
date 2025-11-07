@@ -9,6 +9,7 @@ This document describes how to manually verify that protected routes work correc
 **Goal**: Verify that unauthenticated users are automatically redirected from Dashboard to Login.
 
 **Steps**:
+
 1. **Sign out** if you're currently signed in (go to Dashboard → Sign Out)
 2. **Ensure you're signed out** - navigate to Home screen and verify no user info is shown
 3. **Navigate to Dashboard** - either:
@@ -17,6 +18,7 @@ This document describes how to manually verify that protected routes work correc
    - Or use the Expo dev menu: Shake device → "Debug" → navigate programmatically
 
 **Expected Result**:
+
 - You should briefly see a "Redirecting..." message with a loading spinner
 - You should be automatically redirected to the Login screen
 - You should NOT see the Dashboard content
@@ -26,6 +28,7 @@ This document describes how to manually verify that protected routes work correc
 **Goal**: Verify that authenticated users can access Dashboard without being redirected.
 
 **Steps**:
+
 1. **Sign in** - Go to Login screen and sign in with valid credentials
 2. **Navigate to Dashboard** (should happen automatically after successful login)
 3. **Verify Dashboard loads** - You should see:
@@ -35,6 +38,7 @@ This document describes how to manually verify that protected routes work correc
    - Sign Out button
 
 **Expected Result**:
+
 - Dashboard screen loads completely
 - No redirect to Login
 - Dashboard content is visible
@@ -44,6 +48,7 @@ This document describes how to manually verify that protected routes work correc
 **Goal**: Verify that authenticated sessions persist across app reloads.
 
 **Steps**:
+
 1. **Sign in** and navigate to Dashboard
 2. **Reload the app**:
    - iOS: Press Cmd+R in Metro bundler or shake device → "Reload"
@@ -53,6 +58,7 @@ This document describes how to manually verify that protected routes work correc
    - Then Dashboard should appear (no redirect to Login)
 
 **Expected Result**:
+
 - After reload, you remain on Dashboard (if you were there)
 - Or you're on the last screen you were on
 - No unexpected redirect to Login
@@ -62,6 +68,7 @@ This document describes how to manually verify that protected routes work correc
 **Goal**: Verify protection works even when trying to navigate directly to Dashboard.
 
 **Steps**:
+
 1. **Ensure you're signed out**
 2. **Try to navigate directly to Dashboard**:
    - Use React Navigation programmatically (if you have dev tools)
@@ -69,6 +76,7 @@ This document describes how to manually verify that protected routes work correc
    - Or if you have a deep link, use that
 
 **Expected Result**:
+
 - Brief "Loading..." or "Redirecting..." message
 - Automatic redirect to Login screen
 - Dashboard content is never shown
@@ -78,11 +86,13 @@ This document describes how to manually verify that protected routes work correc
 **Goal**: Verify that signing out from Dashboard redirects properly.
 
 **Steps**:
+
 1. **Sign in** and navigate to Dashboard
 2. **Sign out** from Dashboard (tap Sign Out button)
 3. **Observe behavior**
 
 **Expected Result**:
+
 - Sign out succeeds
 - You're redirected to Home screen (based on current implementation)
 - If you try to navigate back to Dashboard, you should be redirected to Login
@@ -92,10 +102,12 @@ This document describes how to manually verify that protected routes work correc
 ### Test 1: Unauthenticated User Redirect
 
 **Steps**:
+
 1. Sign out if signed in
 2. Navigate directly to `http://localhost:5173/dashboard` (or your web URL)
 
 **Expected Result**:
+
 - Brief "Loading..." message
 - Automatic redirect to `/login`
 - Dashboard page content is never shown
@@ -103,10 +115,12 @@ This document describes how to manually verify that protected routes work correc
 ### Test 2: Authenticated User Access
 
 **Steps**:
+
 1. Sign in through Login page
 2. Navigate to Dashboard (should happen automatically)
 
 **Expected Result**:
+
 - Dashboard page loads completely
 - No redirect to Login
 - Dashboard content is visible
@@ -136,4 +150,3 @@ This document describes how to manually verify that protected routes work correc
    - Check that auth context is working
    - Verify useEffect is running
    - Check navigation prop is available
-

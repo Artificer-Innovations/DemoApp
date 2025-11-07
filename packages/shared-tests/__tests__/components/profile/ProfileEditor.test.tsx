@@ -6,31 +6,47 @@ import type { UserProfile } from '@shared/src/types/profile';
 
 // Mock the form components
 jest.mock('@shared/src/components/forms/FormInput.web', () => ({
-  FormInput: ({ label, value, onChange, error, placeholder, disabled }: any) => (
+  FormInput: ({
+    label,
+    value,
+    onChange,
+    error,
+    placeholder,
+    disabled,
+  }: any) => (
     <div>
       <label>{label}</label>
       <input
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
         data-testid={`input-${label.toLowerCase().replace(/\s+/g, '-')}`}
       />
-      {error && <span data-testid={`error-${label.toLowerCase().replace(/\s+/g, '-')}`}>{error}</span>}
+      {error && (
+        <span data-testid={`error-${label.toLowerCase().replace(/\s+/g, '-')}`}>
+          {error}
+        </span>
+      )}
     </div>
   ),
 }));
 
 jest.mock('@shared/src/components/forms/FormButton.web', () => ({
   FormButton: ({ title, onPress, loading, disabled }: any) => (
-    <button onClick={onPress} disabled={disabled || loading} data-testid="submit-button">
+    <button
+      onClick={onPress}
+      disabled={disabled || loading}
+      data-testid='submit-button'
+    >
       {loading ? 'Loading...' : title}
     </button>
   ),
 }));
 
 jest.mock('@shared/src/components/forms/FormError.web', () => ({
-  FormError: ({ message }: any) => (message ? <div data-testid="form-error">{message}</div> : null),
+  FormError: ({ message }: any) =>
+    message ? <div data-testid='form-error'>{message}</div> : null,
 }));
 
 // Mock useProfile hook
@@ -78,7 +94,9 @@ describe('ProfileEditor', () => {
 
   it('renders message when user is not logged in', () => {
     render(<ProfileEditor supabaseClient={mockSupabaseClient} user={null} />);
-    expect(screen.getByText('Please sign in to edit your profile.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Please sign in to edit your profile.')
+    ).toBeInTheDocument();
   });
 
   it('renders loading message when profile is loading', () => {
@@ -92,7 +110,9 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
     expect(screen.getByText('Loading profile...')).toBeInTheDocument();
   });
 
@@ -107,14 +127,20 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
 
     await waitFor(() => {
-      const usernameInput = screen.getByTestId('input-username') as HTMLInputElement;
+      const usernameInput = screen.getByTestId(
+        'input-username'
+      ) as HTMLInputElement;
       expect(usernameInput.value).toBe('testuser');
     });
 
-    const displayNameInput = screen.getByTestId('input-display-name') as HTMLInputElement;
+    const displayNameInput = screen.getByTestId(
+      'input-display-name'
+    ) as HTMLInputElement;
     expect(displayNameInput.value).toBe('Test User');
 
     const bioInput = screen.getByTestId('input-bio') as HTMLInputElement;
@@ -132,10 +158,14 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
 
     await waitFor(() => {
-      const usernameInput = screen.getByTestId('input-username') as HTMLInputElement;
+      const usernameInput = screen.getByTestId(
+        'input-username'
+      ) as HTMLInputElement;
       fireEvent.change(usernameInput, { target: { value: 'newusername' } });
       expect(usernameInput.value).toBe('newusername');
     });
@@ -152,9 +182,13 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
 
-    const usernameInput = screen.getByTestId('input-username') as HTMLInputElement;
+    const usernameInput = screen.getByTestId(
+      'input-username'
+    ) as HTMLInputElement;
     fireEvent.change(usernameInput, { target: { value: 'ab' } }); // Too short
 
     const submitButton = screen.getByTestId('submit-button');
@@ -177,13 +211,18 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
 
     const submitButton = screen.getByTestId('submit-button');
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(mockCreateProfile).toHaveBeenCalledWith('user-id-1', expect.any(Object));
+      expect(mockCreateProfile).toHaveBeenCalledWith(
+        'user-id-1',
+        expect.any(Object)
+      );
     });
   });
 
@@ -199,7 +238,9 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
 
     await waitFor(() => {
       const submitButton = screen.getByTestId('submit-button');
@@ -210,7 +251,10 @@ describe('ProfileEditor', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(mockUpdateProfile).toHaveBeenCalledWith('user-id-1', expect.any(Object));
+      expect(mockUpdateProfile).toHaveBeenCalledWith(
+        'user-id-1',
+        expect.any(Object)
+      );
     });
   });
 
@@ -227,7 +271,11 @@ describe('ProfileEditor', () => {
     });
 
     render(
-      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} onSuccess={mockOnSuccess} />
+      <ProfileEditor
+        supabaseClient={mockSupabaseClient}
+        user={mockUser}
+        onSuccess={mockOnSuccess}
+      />
     );
 
     const submitButton = screen.getByTestId('submit-button');
@@ -251,7 +299,13 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} onError={mockOnError} />);
+    render(
+      <ProfileEditor
+        supabaseClient={mockSupabaseClient}
+        user={mockUser}
+        onError={mockOnError}
+      />
+    );
 
     const submitButton = screen.getByTestId('submit-button');
     fireEvent.click(submitButton);
@@ -273,9 +327,12 @@ describe('ProfileEditor', () => {
       refreshProfile: jest.fn(),
     });
 
-    render(<ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />);
+    render(
+      <ProfileEditor supabaseClient={mockSupabaseClient} user={mockUser} />
+    );
 
-    expect(screen.getByTestId('form-error')).toHaveTextContent('Failed to fetch profile');
+    expect(screen.getByTestId('form-error')).toHaveTextContent(
+      'Failed to fetch profile'
+    );
   });
 });
-

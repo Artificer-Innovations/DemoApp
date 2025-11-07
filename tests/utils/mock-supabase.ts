@@ -122,7 +122,7 @@ export function createMockDbErrorResponse(message: string) {
 export function resetMocks(mockClient: Partial<SupabaseClient>) {
   if (mockClient.auth) {
     const auth = mockClient.auth as unknown as MockAuth;
-    Object.values(auth).forEach((mock) => {
+    Object.values(auth).forEach(mock => {
       if (jest.isMockFunction(mock)) {
         mock.mockReset();
       }
@@ -133,4 +133,3 @@ export function resetMocks(mockClient: Partial<SupabaseClient>) {
     mockClient.from.mockReset();
   }
 }
-

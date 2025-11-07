@@ -65,7 +65,9 @@ describe('profileInsertSchema', () => {
     const result = profileInsertSchema.safeParse(invalidData);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('no more than 30 characters');
+      expect(result.error.errors[0].message).toContain(
+        'no more than 30 characters'
+      );
     }
   });
 
@@ -77,7 +79,9 @@ describe('profileInsertSchema', () => {
     const result = profileInsertSchema.safeParse(invalidData);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('letters, numbers, and underscores');
+      expect(result.error.errors[0].message).toContain(
+        'letters, numbers, and underscores'
+      );
     }
   });
 
@@ -98,7 +102,9 @@ describe('profileInsertSchema', () => {
     const result = profileInsertSchema.safeParse(invalidData);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('no more than 100 characters');
+      expect(result.error.errors[0].message).toContain(
+        'no more than 100 characters'
+      );
     }
   });
 
@@ -119,7 +125,9 @@ describe('profileInsertSchema', () => {
     const result = profileInsertSchema.safeParse(invalidData);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('no more than 500 characters');
+      expect(result.error.errors[0].message).toContain(
+        'no more than 500 characters'
+      );
     }
   });
 
@@ -412,4 +420,3 @@ describe('transformFormToUpdate', () => {
     expect(insertResult.display_name).toBe(updateResult.display_name);
   });
 });
-

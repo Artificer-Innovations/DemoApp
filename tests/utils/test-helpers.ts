@@ -9,7 +9,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
  * Sleep for a specified number of milliseconds
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -162,9 +162,10 @@ export async function cleanupTestData(
  * Generate unique test data
  */
 export const TestData = {
-  email: () => `test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`,
-  username: () => `testuser_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+  email: () =>
+    `test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`,
+  username: () =>
+    `testuser_${Date.now()}_${Math.random().toString(36).substring(7)}`,
   password: () => 'TestPassword123!',
   bio: () => `Test bio ${Date.now()}`,
 };
-

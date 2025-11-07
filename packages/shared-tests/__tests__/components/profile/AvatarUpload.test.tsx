@@ -32,10 +32,10 @@ describe('AvatarUpload', () => {
   it('renders with current avatar URL', () => {
     render(
       <AvatarUpload
-        currentAvatarUrl="https://example.com/avatar.jpg"
+        currentAvatarUrl='https://example.com/avatar.jpg'
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -43,7 +43,10 @@ describe('AvatarUpload', () => {
     const img = screen.getByAltText('Avatar preview');
     expect(img).toBeInTheDocument();
     // Component adds cache-busting to displayed URLs, so check for base URL with query params
-    expect(img).toHaveAttribute('src', expect.stringMatching(/^https:\/\/example\.com\/avatar\.jpg(\?|$)/));
+    expect(img).toHaveAttribute(
+      'src',
+      expect.stringMatching(/^https:\/\/example\.com\/avatar\.jpg(\?|$)/)
+    );
   });
 
   it('renders placeholder when no avatar URL', () => {
@@ -52,7 +55,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -77,12 +80,14 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement;
     expect(fileInput).toBeInTheDocument();
 
     const file = new File(['content'], 'avatar.jpg', { type: 'image/jpeg' });
@@ -93,7 +98,9 @@ describe('AvatarUpload', () => {
     });
 
     await waitFor(() => {
-      expect(mockOnUploadComplete).toHaveBeenCalledWith('https://example.com/avatar.jpg');
+      expect(mockOnUploadComplete).toHaveBeenCalledWith(
+        'https://example.com/avatar.jpg'
+      );
     });
   });
 
@@ -112,7 +119,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -136,7 +143,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -147,10 +154,10 @@ describe('AvatarUpload', () => {
   it('handles remove avatar', async () => {
     render(
       <AvatarUpload
-        currentAvatarUrl="https://example.com/avatar.jpg"
+        currentAvatarUrl='https://example.com/avatar.jpg'
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -179,10 +186,10 @@ describe('AvatarUpload', () => {
 
     render(
       <AvatarUpload
-        currentAvatarUrl="https://example.com/avatar.jpg"
+        currentAvatarUrl='https://example.com/avatar.jpg'
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -197,12 +204,14 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
 
-    expect(screen.getByText(/JPEG, PNG, or WebP. Max 2MB./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/JPEG, PNG, or WebP. Max 2MB./i)
+    ).toBeInTheDocument();
   });
 
   it('does not show remove button when no avatar exists', () => {
@@ -211,7 +220,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={null}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -222,7 +231,8 @@ describe('AvatarUpload', () => {
   it('should display uploadedUrl over currentAvatarUrl when a new image is uploaded', () => {
     const { useAvatarUpload } = require('@shared/src/hooks/useAvatarUpload');
     const oldAvatarUrl = 'https://example.com/old-avatar.jpg';
-    const newAvatarUrl = 'https://example.com/new-avatar.jpg?t=1234567890&v=abc123';
+    const newAvatarUrl =
+      'https://example.com/new-avatar.jpg?t=1234567890&v=abc123';
 
     useAvatarUpload.mockReturnValue({
       uploading: false,
@@ -238,7 +248,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={oldAvatarUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -251,8 +261,10 @@ describe('AvatarUpload', () => {
 
   it('should display new image when uploading a second image', async () => {
     const { useAvatarUpload } = require('@shared/src/hooks/useAvatarUpload');
-    const firstAvatarUrl = 'https://example.com/avatar1.jpg?t=1111111111&v=xyz789';
-    const secondAvatarUrl = 'https://example.com/avatar2.jpg?t=2222222222&v=def456';
+    const firstAvatarUrl =
+      'https://example.com/avatar1.jpg?t=1111111111&v=xyz789';
+    const secondAvatarUrl =
+      'https://example.com/avatar2.jpg?t=2222222222&v=def456';
 
     // Start with first avatar uploaded
     useAvatarUpload.mockReturnValue({
@@ -269,14 +281,17 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={firstAvatarUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
 
     let img = screen.getByAltText('Avatar preview');
     // Component adds cache-busting, so check for base URL
-    expect(img).toHaveAttribute('src', expect.stringMatching(/^https:\/\/example\.com\/avatar1\.jpg/));
+    expect(img).toHaveAttribute(
+      'src',
+      expect.stringMatching(/^https:\/\/example\.com\/avatar1\.jpg/)
+    );
 
     // Simulate second upload
     mockUploadAvatar.mockResolvedValueOnce(secondAvatarUrl);
@@ -294,7 +309,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={firstAvatarUrl} // Profile hasn't updated yet
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -302,14 +317,21 @@ describe('AvatarUpload', () => {
     // Should show the new uploaded URL, not the old one
     // Component adds cache-busting, so check for base URL
     img = screen.getByAltText('Avatar preview');
-    expect(img).toHaveAttribute('src', expect.stringMatching(/^https:\/\/example\.com\/avatar2\.jpg/));
-    expect(img).not.toHaveAttribute('src', expect.stringMatching(/avatar1\.jpg/));
+    expect(img).toHaveAttribute(
+      'src',
+      expect.stringMatching(/^https:\/\/example\.com\/avatar2\.jpg/)
+    );
+    expect(img).not.toHaveAttribute(
+      'src',
+      expect.stringMatching(/avatar1\.jpg/)
+    );
   });
 
   it('should prioritize uploadedUrl over currentAvatarUrl for immediate display', () => {
     const { useAvatarUpload } = require('@shared/src/hooks/useAvatarUpload');
     const currentAvatarUrl = 'https://example.com/current-avatar.jpg';
-    const uploadedUrl = 'https://example.com/uploaded-avatar.jpg?t=1234567890&v=abc123';
+    const uploadedUrl =
+      'https://example.com/uploaded-avatar.jpg?t=1234567890&v=abc123';
 
     useAvatarUpload.mockReturnValue({
       uploading: false,
@@ -325,7 +347,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={currentAvatarUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -355,14 +377,17 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={firstUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
 
     let img = screen.getByAltText('Avatar preview');
     // Component adds cache-busting, so check for base URL
-    expect(img).toHaveAttribute('src', expect.stringMatching(/^https:\/\/example\.com\/avatar1\.jpg/));
+    expect(img).toHaveAttribute(
+      'src',
+      expect.stringMatching(/^https:\/\/example\.com\/avatar1\.jpg/)
+    );
 
     // Update to second URL
     useAvatarUpload.mockReturnValue({
@@ -379,7 +404,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={secondUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -389,7 +414,10 @@ describe('AvatarUpload', () => {
     // Component adds cache-busting, so check for base URL
     img = screen.getByAltText('Avatar preview');
     expect(img).toHaveAttribute('src', expect.stringMatching(/avatar2\.jpg/));
-    expect(img).not.toHaveAttribute('src', expect.stringMatching(/avatar1\.jpg/));
+    expect(img).not.toHaveAttribute(
+      'src',
+      expect.stringMatching(/avatar1\.jpg/)
+    );
   });
 
   it('should add cache-busting to currentAvatarUrl to prevent stale image display', () => {
@@ -410,7 +438,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={currentAvatarUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -426,14 +454,17 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={newAvatarUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
 
     img = screen.getByAltText('Avatar preview');
     // Should show new URL with cache-busting
-    expect(img).toHaveAttribute('src', expect.stringMatching(/new-avatar\.jpg/));
+    expect(img).toHaveAttribute(
+      'src',
+      expect.stringMatching(/new-avatar\.jpg/)
+    );
     expect(img).toHaveAttribute('src', expect.stringMatching(/\?t=\d+/));
   });
 
@@ -456,7 +487,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={firstUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -470,7 +501,7 @@ describe('AvatarUpload', () => {
         currentAvatarUrl={secondUrl}
         onUploadComplete={mockOnUploadComplete}
         onRemove={mockOnRemove}
-        userId="user-id-1"
+        userId='user-id-1'
         supabaseClient={mockSupabaseClient}
       />
     );
@@ -481,4 +512,3 @@ describe('AvatarUpload', () => {
     expect(img).toHaveAttribute('src', expect.stringMatching(/\?t=\d+/));
   });
 });
-

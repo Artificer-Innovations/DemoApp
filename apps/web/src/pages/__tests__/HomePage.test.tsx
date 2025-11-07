@@ -15,11 +15,11 @@ vi.mock('@/lib/supabase', () => {
     data: null,
     error: { code: 'PGRST116', message: 'No rows returned' },
   });
-  
+
   const mockEq = vi.fn(() => ({
     single: mockSingle,
   }));
-  
+
   const mockSelect = vi.fn(() => ({
     eq: mockEq,
     limit: vi.fn().mockResolvedValue({
@@ -27,11 +27,11 @@ vi.mock('@/lib/supabase', () => {
       error: null,
     }),
   }));
-  
+
   const mockFrom = vi.fn(() => ({
     select: mockSelect,
   }));
-  
+
   return {
     supabase: {
       from: mockFrom,
@@ -46,17 +46,22 @@ describe('HomePage', () => {
     vi.clearAllMocks();
   });
 
-  const renderWithAuth = async (ui: React.ReactElement, authenticated = false) => {
+  const renderWithAuth = async (
+    ui: React.ReactElement,
+    authenticated = false
+  ) => {
     mockSupabaseClient = {
       auth: {
         getSession: vi.fn().mockResolvedValue({
           data: {
-            session: authenticated ? {
-              user: {
-                id: 'test-user-id',
-                email: 'test@example.com',
-              },
-            } : null,
+            session: authenticated
+              ? {
+                  user: {
+                    id: 'test-user-id',
+                    email: 'test@example.com',
+                  },
+                }
+              : null,
           },
         }),
         onAuthStateChange: vi.fn().mockReturnValue({
@@ -106,16 +111,18 @@ describe('HomePage', () => {
   describe('when user is not authenticated', () => {
     it('renders home page with title and subtitle', async () => {
       await renderWithAuth(<HomePage />, false);
-      
+
       // Title appears in both header and main content, check that it exists
       const titles = screen.getAllByText('Welcome to Demo App');
       expect(titles.length).toBeGreaterThan(0);
-      expect(screen.getByText(/A modern full-stack application/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/A modern full-stack application/i)
+      ).toBeInTheDocument();
     });
 
     it('shows sign in button', async () => {
       await renderWithAuth(<HomePage />, false);
-      
+
       // Sign In appears in both header and main content
       const signInLinks = screen.getAllByRole('link', { name: /sign in/i });
       expect(signInLinks.length).toBeGreaterThan(0);
@@ -123,7 +130,7 @@ describe('HomePage', () => {
 
     it('shows sign up button', async () => {
       await renderWithAuth(<HomePage />, false);
-      
+
       // Sign Up appears in both header and main content
       const signUpLinks = screen.getAllByRole('link', { name: /sign up/i });
       expect(signUpLinks.length).toBeGreaterThan(0);
@@ -131,13 +138,15 @@ describe('HomePage', () => {
 
     it('does not show dashboard link', async () => {
       await renderWithAuth(<HomePage />, false);
-      
-      expect(screen.queryByRole('link', { name: /go to dashboard/i })).not.toBeInTheDocument();
+
+      expect(
+        screen.queryByRole('link', { name: /go to dashboard/i })
+      ).not.toBeInTheDocument();
     });
 
     it('does not show signed in message', async () => {
       await renderWithAuth(<HomePage />, false);
-      
+
       expect(screen.queryByText(/signed in as/i)).not.toBeInTheDocument();
     });
   });
@@ -145,36 +154,46 @@ describe('HomePage', () => {
   describe('when user is authenticated', () => {
     it('shows signed in message with user email', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
         // The HomePage shows "Logged in as {email}" in the main content
-        expect(screen.getByText(/logged in as test@example.com/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/logged in as test@example.com/i)
+        ).toBeInTheDocument();
       });
     });
 
     it('shows dashboard link in main content', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
-        expect(screen.getByRole('link', { name: /go to dashboard/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('link', { name: /go to dashboard/i })
+        ).toBeInTheDocument();
       });
     });
 
     it('shows profile link in main content', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
-        expect(screen.getByRole('link', { name: /view profile/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('link', { name: /view profile/i })
+        ).toBeInTheDocument();
       });
     });
 
     it('shows navigation menu with dashboard and profile links', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
         // Check navigation header has Dashboard and Profile links
-        const dashboardNavLinks = screen.getAllByRole('link', { name: /dashboard/i });
-        const profileNavLinks = screen.getAllByRole('link', { name: /profile/i });
+        const dashboardNavLinks = screen.getAllByRole('link', {
+          name: /dashboard/i,
+        });
+        const profileNavLinks = screen.getAllByRole('link', {
+          name: /profile/i,
+        });
         expect(dashboardNavLinks.length).toBeGreaterThan(0);
         expect(profileNavLinks.length).toBeGreaterThan(0);
       });
@@ -182,30 +201,36 @@ describe('HomePage', () => {
 
     it('does not show sign in button in main content', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
         // Sign In may appear in header navigation, but not in main content area
         // Check that main content area doesn't have sign in
-        const mainContent = screen.getByText(/Go to Dashboard/i).closest('div[class*="max-w-md"]');
+        const mainContent = screen
+          .getByText(/Go to Dashboard/i)
+          .closest('div[class*="max-w-md"]');
         expect(mainContent).not.toHaveTextContent(/sign in/i);
       });
     });
 
     it('does not show sign up button in main content', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
         // Sign Up may appear in header navigation, but not in main content area
-        const mainContent = screen.getByText(/Go to Dashboard/i).closest('div[class*="max-w-md"]');
+        const mainContent = screen
+          .getByText(/Go to Dashboard/i)
+          .closest('div[class*="max-w-md"]');
         expect(mainContent).not.toHaveTextContent(/sign up/i);
       });
     });
 
     it('dashboard link points to correct route', async () => {
       await renderWithAuth(<HomePage />, true);
-      
+
       await waitFor(() => {
-        const dashboardLink = screen.getByRole('link', { name: /go to dashboard/i });
+        const dashboardLink = screen.getByRole('link', {
+          name: /go to dashboard/i,
+        });
         expect(dashboardLink).toHaveAttribute('href', '/dashboard');
       });
     });
@@ -215,4 +240,3 @@ describe('HomePage', () => {
   // which is hidden by default and activated via 4 clicks in bottom left corner.
   // These tests have been removed as the debug components are no longer directly visible.
 });
-
