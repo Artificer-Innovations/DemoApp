@@ -9,9 +9,9 @@ interface ProtectedRouteProps {
 
 /**
  * ProtectedRoute component for web (React Router)
- * Redirects unauthenticated users to the login page
+ * Redirects unauthenticated users to the home page
  */
-export function ProtectedRoute({ children, redirectTo = '/login' }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, redirectTo = '/' }: ProtectedRouteProps) {
   const auth = useAuthContext();
 
   // Show loading state while checking authentication

@@ -8,9 +8,12 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthContext } from '@shared/contexts/AuthContext';
+import { AppHeader } from '@shared/components/navigation/AppHeader.native';
+import { supabase } from '../lib/supabase';
 import { SocialLoginButton } from '../components/SocialLoginButton';
 import { useFeatureFlags } from '../config/featureFlags';
 
@@ -83,7 +86,8 @@ export default function SignupScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <AppHeader supabaseClient={supabase} />
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <View style={styles.form}>
           <Text style={styles.title}>Create your account</Text>
           
@@ -153,7 +157,7 @@ export default function SignupScreen({ navigation }: Props) {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -163,8 +167,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
   },

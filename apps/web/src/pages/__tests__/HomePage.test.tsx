@@ -147,7 +147,8 @@ describe('HomePage', () => {
       await renderWithAuth(<HomePage />, true);
       
       await waitFor(() => {
-        expect(screen.getByText(/signed in as test@example.com/i)).toBeInTheDocument();
+        // The HomePage shows "Logged in as {email}" in the main content
+        expect(screen.getByText(/logged in as test@example.com/i)).toBeInTheDocument();
       });
     });
 

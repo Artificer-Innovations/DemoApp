@@ -22,6 +22,11 @@ const config = {
   version: "1.0.0",
   orientation: "portrait",
   platforms: ["ios", "android"],
+  icon: "./assets/demo-flask-icon.svg",
+  splash: {
+    resizeMode: "contain",
+    backgroundColor: "#ffffff",
+  },
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.anonymous.demoapp",
@@ -37,6 +42,10 @@ const config = {
     package: "com.anonymous.demoapp",
     adaptiveIcon: {
       backgroundColor: "#ffffff",
+    },
+    splash: {
+      backgroundColor: "#ffffff",
+      resizeMode: "contain",
     },
     permissions: [
       "android.permission.DETECT_SCREEN_CAPTURE",
@@ -54,6 +63,8 @@ const config = {
           "com.googleusercontent.apps.75693205997-6r5f5nvmjnjhhehsm5j9baqsh6lej1rf",
       },
     ],
+    // Run our plugin last to ensure it runs after Expo's splash screen plugin
+    ["./plugins/withSplashScreenColor", {}],
   ],
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,

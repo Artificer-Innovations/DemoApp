@@ -40,11 +40,13 @@
     "react-native-get-random-values": "~1.8.0",
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
+    "react-native-svg": "14.1.0",
     "react-native-url-polyfill": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/runtime": "^7.23.0",
+    "@expo/config-plugins": "^7.9.2",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^12.9.0",
     "@types/react": "~18.2.45",
@@ -58,11 +60,12 @@
   "jest": {
     "preset": "react-native",
     "transformIgnorePatterns": [
-      "node_modules/(?!(react-native|@react-native|@react-navigation|expo|@expo|expo-status-bar|react-native-safe-area-context|react-native-screens)/)"
+      "node_modules/(?!(react-native|@react-native|@react-navigation|expo|@expo|expo-status-bar|react-native-safe-area-context|react-native-screens|react-native-svg)/)"
     ],
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "^@shared/(.*)$": "<rootDir>/../../packages/shared/src/$1"
+      "^@shared/(.*)$": "<rootDir>/../../packages/shared/src/$1",
+      "^react-native-svg$": "<rootDir>/__mocks__/react-native-svg.ts"
     },
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",

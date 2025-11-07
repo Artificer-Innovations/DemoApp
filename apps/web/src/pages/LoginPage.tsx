@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@shared/contexts/AuthContext';
+import { AppHeader } from '@shared/components/navigation/AppHeader.web';
+import { supabase } from '@/lib/supabase';
 import { SocialLoginButton } from '../components/SocialLoginButton';
 
 export default function LoginPage() {
@@ -42,8 +44,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gray-50">
+      <AppHeader supabaseClient={supabase} />
+      <div className="max-w-[800px] mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
@@ -133,6 +137,7 @@ export default function LoginPage() {
             </Link>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuthContext } from '@shared/contexts/AuthContext';
 import { useProfile } from '@shared/hooks/useProfile';
 import { supabase } from '@/lib/supabase';
+import { AppHeader } from '@shared/components/navigation/AppHeader.web';
 // Import Profile Display Components - Vite will automatically resolve .web.tsx files
 import { ProfileHeader } from '@shared/components/profile/ProfileHeader.web';
 import { ProfileStats } from '@shared/components/profile/ProfileStats.web';
@@ -9,42 +10,16 @@ import { ProfileStats } from '@shared/components/profile/ProfileStats.web';
 import { ProfileEditor } from '@shared/components/profile/ProfileEditor.web';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
   const auth = useAuthContext();
   const profile = useProfile(supabase, auth.user);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Navigation */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-900">Profile</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              {auth.user && (
-                <span className="text-sm text-gray-600">{auth.user.email}</span>
-              )}
-              <Link
-                to="/dashboard"
-                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/"
-                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Home
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <AppHeader supabaseClient={supabase} />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div className="max-w-[800px] mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Loading State */}
           {profile.loading && (
@@ -83,42 +58,34 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* Profile Editor Section - Show when profile exists or when no profile */}
-              <div className="bg-white shadow rounded-lg p-6">
-                {profile.profile ? (
-                  <>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                      Edit Profile
-                    </h2>
-                    <ProfileEditor
-                      supabaseClient={supabase}
-                      user={auth.user}
-                      onSuccess={() => {
-                        // Refresh profile data after successful update
-                        profile.refreshProfile();
-                      }}
-                      onError={(error) => {
-                        console.error('Profile save error:', error);
-                      }}
-                    />
-                  </>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-600 mb-4">No profile found. Create one below.</p>
-                    <ProfileEditor
-                      supabaseClient={supabase}
-                      user={auth.user}
-                      onSuccess={() => {
-                        // Refresh profile data after successful creation
-                        profile.refreshProfile();
-                      }}
-                      onError={(error) => {
-                        console.error('Profile creation error:', error);
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
+              {/* Profile Editor Section */}
+              {!isEditing && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
+              )}
+
+              {isEditing && (
+                <div className="bg-white shadow rounded-lg p-6">
+                  <ProfileEditor
+                    supabaseClient={supabase}
+                    user={auth.user}
+                    onSuccess={() => {
+                      // Refresh profile data after successful update
+                      profile.refreshProfile();
+                      setIsEditing(false);
+                    }}
+                    onError={(error) => {
+                      console.error('Profile save error:', error);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

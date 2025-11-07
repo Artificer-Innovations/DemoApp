@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthContext } from '@shared/contexts/AuthContext';
 import { useProfile } from '@shared/hooks/useProfile';
 import { supabase } from '../lib/supabase';
+import { AppHeader } from '@shared/components/navigation/AppHeader.native';
 // Import Profile Display Components - Metro will automatically resolve .native.tsx files
 import { ProfileHeader } from '@shared/components/profile/ProfileHeader.native';
 import { ProfileStats } from '@shared/components/profile/ProfileStats.native';
@@ -40,7 +41,7 @@ export default function ProfileScreen({ navigation }: Props) {
     if (!auth.loading && !auth.user) {
       // Small delay to ensure navigation is ready
       const timer = setTimeout(() => {
-        navigation.replace('Login');
+        navigation.replace('Home');
       }, 100);
       return () => clearTimeout(timer);
     }
@@ -71,13 +72,14 @@ export default function ProfileScreen({ navigation }: Props) {
 }
 
 function ProfileScreenContent({ navigation }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
   const [componentsLoaded, setComponentsLoaded] = useState(false);
   const auth = useAuthContext();
   const profile = useProfile(supabase, auth.user);
 
-  // Lazy load ProfileEditor only when this component mounts
+  // Lazy load ProfileEditor only when editing
   useEffect(() => {
-    if (!componentsLoaded) {
+    if (isEditing && !componentsLoaded) {
       import('@shared/components/profile/ProfileEditor.native')
         .then((module) => {
           ProfileEditor = module.ProfileEditor;
@@ -87,27 +89,11 @@ function ProfileScreenContent({ navigation }: Props) {
           console.warn('[ProfileScreen] Failed to load ProfileEditor:', err);
         });
     }
-  }, [componentsLoaded]);
+  }, [isEditing, componentsLoaded]);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Navigation */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <View style={styles.headerActions}>
-            {auth.user && (
-              <Text style={styles.userEmail}>{auth.user.email}</Text>
-            )}
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Dashboard')}
-              style={styles.headerButton}
-            >
-              <Text style={styles.headerButtonText}>Dashboard</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      <AppHeader supabaseClient={supabase} />
 
       {/* Main Content */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
@@ -143,53 +129,40 @@ function ProfileScreenContent({ navigation }: Props) {
             )}
 
             {/* Profile Editor Section */}
-            <View style={styles.card}>
-              {profile.profile ? (
-                <>
-                  <Text style={styles.sectionTitle}>Edit Profile</Text>
-                  {componentsLoaded && ProfileEditor ? (
-                    <ProfileEditor
-                      supabaseClient={supabase}
-                      user={auth.user}
-                      onSuccess={() => {
-                        // Refresh profile data after successful update
-                        profile.refreshProfile();
-                      }}
-                      onError={(error: Error) => {
-                        console.error('Profile save error:', error);
-                      }}
-                    />
-                  ) : (
-                    <View style={styles.loadingSection}>
-                      <ActivityIndicator size="small" color="#4F46E5" />
-                      <Text style={styles.loadingText}>Loading editor...</Text>
-                    </View>
-                  )}
-                </>
-              ) : (
-                <View style={styles.noProfileSection}>
-                  <Text style={styles.noProfileText}>No profile found. Create one below.</Text>
-                  {componentsLoaded && ProfileEditor ? (
-                    <ProfileEditor
-                      supabaseClient={supabase}
-                      user={auth.user}
-                      onSuccess={() => {
-                        // Refresh profile data after successful creation
-                        profile.refreshProfile();
-                      }}
-                      onError={(error: Error) => {
-                        console.error('Profile creation error:', error);
-                      }}
-                    />
-                  ) : (
-                    <View style={styles.loadingSection}>
-                      <ActivityIndicator size="small" color="#4F46E5" />
-                      <Text style={styles.loadingText}>Loading editor...</Text>
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
+            {!isEditing && (
+              <View style={styles.card}>
+                <TouchableOpacity
+                  onPress={() => setIsEditing(true)}
+                  style={styles.editButton}
+                >
+                  <Text style={styles.editButtonText}>Edit Profile</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {isEditing && (
+              <View style={styles.card}>
+                {componentsLoaded && ProfileEditor ? (
+                  <ProfileEditor
+                    supabaseClient={supabase}
+                    user={auth.user}
+                    onSuccess={() => {
+                      // Refresh profile data after successful update
+                      profile.refreshProfile();
+                      setIsEditing(false);
+                    }}
+                    onError={(error: Error) => {
+                      console.error('Profile save error:', error);
+                    }}
+                  />
+                ) : (
+                  <View style={styles.loadingSection}>
+                    <ActivityIndicator size="small" color="#4F46E5" />
+                    <Text style={styles.loadingText}>Loading editor...</Text>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -212,45 +185,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     color: '#6b7280',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 56,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  headerButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  headerButtonText: {
-    fontSize: 14,
-    color: '#6b7280',
-    fontWeight: '500',
   },
   scrollView: {
     flex: 1,
@@ -295,21 +229,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 16,
-  },
-  noProfileSection: {
+  editButton: {
+    backgroundColor: '#4F46E5',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
     alignItems: 'center',
-    paddingVertical: 24,
   },
-  noProfileText: {
+  editButtonText: {
+    color: '#ffffff',
     fontSize: 16,
-    color: '#6b7280',
-    marginBottom: 16,
-    textAlign: 'center',
+    fontWeight: '600',
   },
 });
 
