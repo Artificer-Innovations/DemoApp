@@ -21,7 +21,9 @@
     "android:uninstall": "adb uninstall com.anonymous.demoapp || echo 'App not installed or no device connected'",
     "ios:uninstall": "sh -c 'if command -v xcrun >/dev/null 2>&1; then booted=$(xcrun simctl list devices | grep -i \"booted\" | sed \"s/.*(\\([^)]*\\)).*/\\1/\" | head -1); if [ -n \"$booted\" ]; then xcrun simctl uninstall \"$booted\" com.anonymous.demoapp && echo \"App uninstalled from simulator $booted\" || echo \"App not installed or uninstall failed\"; else echo \"No booted iOS simulator found\"; fi; else echo \"xcrun not available\"; fi'",
     "test": "jest",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "generate-icon": "node scripts/convert-icon.js",
+    "pregenerate-icon": "cd ../.. && npm run sync-icons"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.21.0",
@@ -55,6 +57,7 @@
     "patch-package": "^8.0.0",
     "react-refresh": "^0.18.0",
     "react-test-renderer": "18.2.0",
+    "sharp": "^0.34.5",
     "typescript": "^5.3.0"
   },
   "jest": {

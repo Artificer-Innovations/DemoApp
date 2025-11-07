@@ -8,6 +8,7 @@
     "apps/*"
   ],
   "scripts": {
+    "sync-icons": "node scripts/sync-icon-assets.js",
     "mobile": "cd apps/mobile && npm start",
     "mobile:ios": "cd apps/mobile && npx expo start --ios --port 8082",
     "mobile:android": "cd apps/mobile && npx expo start --android --port 8082",
