@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Logger } from '@shared/utils/logger';
 
 interface SocialLoginButtonProps {
   onPress: () => Promise<void>;
@@ -16,7 +17,7 @@ export function SocialLoginButton({
     try {
       await onPress();
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      Logger.error('Google sign-in error:', error);
       // Error is already handled by useAuth hook
     } finally {
       setIsLoading(false);

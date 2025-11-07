@@ -12,7 +12,11 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { useAvatarUpload } from '../../hooks/useAvatarUpload';
+import {
+  useAvatarUpload,
+  type ArrayBufferWithMetadata,
+} from '../../hooks/useAvatarUpload';
+import { Logger } from '../../utils/logger';
 
 // Helper function to fix URLs for Android emulator
 const fixUrlForAndroid = (url: string | null): string | null => {
@@ -87,17 +91,17 @@ export function AvatarUpload({
 
   const handlePickImage = async () => {
     try {
-      console.log('[AvatarUpload] Button pressed, platform:', Platform.OS);
+      Logger.debug('[AvatarUpload] Button pressed, platform:', Platform.OS);
 
       // Handle permissions based on platform
       if (Platform.OS === 'ios') {
         // iOS: Always request permissions first
-        console.log(
+        Logger.debug(
           '[AvatarUpload] iOS: Requesting media library permissions...'
         );
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
-        console.log('[AvatarUpload] iOS Permission status:', status);
+        Logger.debug('[AvatarUpload] iOS Permission status:', status);
 
         if (status !== 'granted') {
           Alert.alert(
@@ -112,42 +116,48 @@ export function AvatarUpload({
       // We can skip permission requests and let the picker handle it
       // For older Android versions, we'll try to request but won't block if it fails
       else if (Platform.OS === 'android') {
-        console.log(
+        Logger.debug(
           '[AvatarUpload] Android: Skipping explicit permission request - system picker will handle it'
         );
         // On Android 13+, the system image picker handles permissions via scoped access
         // We can launch the picker directly and the system will handle permissions
       }
 
-      console.log('[AvatarUpload] Launching image picker...');
+      Logger.debug('[AvatarUpload] Launching image picker...');
 
       // Launch image picker with timeout to prevent hanging
       // On Android 13+, the system picker handles permissions automatically
-      const pickerPromise = ImagePicker.launchImageLibraryAsync({
+      const pickerOptions: ImagePicker.ImagePickerOptions = {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
         // Android-specific options
         allowsMultipleSelection: false,
-        // Ensure we can cancel
-        presentationStyle: 'pageSheet', // iOS only, but helps with cancel behavior
-      });
+      };
+      // iOS presentation style (type definition may not include all iOS options)
+      if (Platform.OS === 'ios') {
+        (
+          pickerOptions as unknown as { presentationStyle?: string }
+        ).presentationStyle = 'pageSheet';
+      }
+      const pickerPromise = ImagePicker.launchImageLibraryAsync(pickerOptions);
 
       // Add timeout to prevent hanging (30 seconds should be enough)
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error('Image picker timeout - please try again')),
-          30000
-        )
+      const timeoutPromise = new Promise<ImagePicker.ImagePickerResult>(
+        (_, reject) =>
+          setTimeout(
+            () => reject(new Error('Image picker timeout - please try again')),
+            30000
+          )
       );
 
-      const result = (await Promise.race([
+      const result = await Promise.race<ImagePicker.ImagePickerResult>([
         pickerPromise,
         timeoutPromise,
-      ])) as any;
+      ]);
 
-      console.log(
+      Logger.debug(
         '[AvatarUpload] Image picker result:',
         result.canceled ? 'canceled' : 'selected',
         result
@@ -159,11 +169,11 @@ export function AvatarUpload({
         !result.assets.length ||
         !result.assets[0]
       ) {
-        console.log('[AvatarUpload] No image selected or picker was canceled');
+        Logger.debug('[AvatarUpload] No image selected or picker was canceled');
         if (result.canceled) {
-          console.log('[AvatarUpload] User canceled the picker');
+          Logger.debug('[AvatarUpload] User canceled the picker');
         } else if (!result.assets || !result.assets.length) {
-          console.log('[AvatarUpload] No assets returned from picker');
+          Logger.debug('[AvatarUpload] No assets returned from picker');
           Alert.alert(
             'No Image Selected',
             "Please select an image from your gallery. If you don't have any photos, you can add some to your device first.",
@@ -174,7 +184,7 @@ export function AvatarUpload({
       }
 
       const asset = result.assets[0];
-      console.log('[AvatarUpload] Selected asset:', {
+      Logger.debug('[AvatarUpload] Selected asset:', {
         uri: asset.uri?.substring(0, 50) + '...',
         mimeType: asset.mimeType,
         width: asset.width,
@@ -247,7 +257,7 @@ export function AvatarUpload({
           throw new Error('Image file is empty or could not be converted');
         }
 
-        console.log(
+        Logger.debug(
           '[AvatarUpload] Blob size:',
           blob.size,
           'bytes, type:',
@@ -257,24 +267,27 @@ export function AvatarUpload({
         // Upload using ArrayBuffer directly (more reliable in React Native)
         // We need to pass mimeType info - create a File-like object or pass metadata
         // For now, create a minimal File-like object with the ArrayBuffer
-        const fileWithType = Object.assign(arrayBuffer, {
-          type: mimeType,
-          size: uint8Array.length,
-        }) as any;
+        const fileWithType: ArrayBufferWithMetadata = Object.assign(
+          arrayBuffer,
+          {
+            type: mimeType,
+            size: uint8Array.length,
+          }
+        );
         const url = await uploadAvatar(fileWithType);
-        console.log(
+        Logger.debug(
           '[AvatarUpload] Upload complete, received URL from hook:',
           url
         );
-        console.log(
+        Logger.debug(
           '[AvatarUpload] URL contains 10.0.2.2:',
           url.includes('10.0.2.2')
         );
-        console.log(
+        Logger.debug(
           '[AvatarUpload] URL contains 127.0.0.1:',
           url.includes('127.0.0.1')
         );
-        console.log(
+        Logger.debug(
           '[AvatarUpload] URL contains localhost:',
           url.includes('localhost')
         );
@@ -283,7 +296,7 @@ export function AvatarUpload({
         // This forces the Image component to reload with the new URL
         setImageKey(prev => {
           const newKey = prev + 1;
-          console.log('[AvatarUpload] Incrementing imageKey to:', newKey);
+          Logger.debug('[AvatarUpload] Incrementing imageKey to:', newKey);
           return newKey;
         });
 
@@ -292,7 +305,7 @@ export function AvatarUpload({
       } catch (fileError) {
         const error =
           fileError instanceof Error ? fileError : new Error(String(fileError));
-        console.error('[AvatarUpload] Failed to process image:', error);
+        Logger.error('[AvatarUpload] Failed to process image:', error);
         Alert.alert('Error', `Failed to process image: ${error.message}`);
         setPreviewUrl(null);
         return;
@@ -367,14 +380,14 @@ export function AvatarUpload({
                 style={styles.avatar}
                 resizeMode='cover'
                 onError={error => {
-                  console.warn(
+                  Logger.warn(
                     '[AvatarUpload] Failed to load preview image:',
                     displayUrl,
                     error.nativeEvent?.error || error
                   );
                 }}
                 onLoad={() => {
-                  console.log(
+                  Logger.debug(
                     '[AvatarUpload] Preview image loaded successfully:',
                     displayUrl
                   );
@@ -407,9 +420,9 @@ export function AvatarUpload({
               uploading && styles.buttonDisabled,
             ]}
             onPress={() => {
-              console.log('[AvatarUpload] Choose File button pressed');
+              Logger.debug('[AvatarUpload] Choose File button pressed');
               handlePickImage().catch(err => {
-                console.error('[AvatarUpload] Error in handlePickImage:', err);
+                Logger.error('[AvatarUpload] Error in handlePickImage:', err);
                 Alert.alert(
                   'Error',
                   `Failed to pick image: ${err instanceof Error ? err.message : String(err)}`

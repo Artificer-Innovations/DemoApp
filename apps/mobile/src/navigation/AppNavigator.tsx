@@ -1,5 +1,8 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  type NavigationContainerRef,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -8,16 +11,26 @@ import DashboardScreen from '../screens/DashboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useFeatureFlags } from '../config/featureFlags';
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+  Signup: undefined;
+  Dashboard: undefined;
+  Profile: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator = () => {
-  const navigationRef = React.useRef<any>(null);
+  const navigationRef =
+    React.useRef<NavigationContainerRef<RootStackParamList>>(null);
   const { showNativeHeader } = useFeatureFlags();
 
   // Expose navigation to global scope for debugging (dev only)
   if (__DEV__ && typeof global !== 'undefined') {
     React.useEffect(() => {
-      global.navigationRef = navigationRef;
+      (global as { navigationRef?: typeof navigationRef }).navigationRef =
+        navigationRef;
     }, []);
   }
 

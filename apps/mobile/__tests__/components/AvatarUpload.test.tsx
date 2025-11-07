@@ -289,7 +289,12 @@ describe('AvatarUpload.native', () => {
       .spyOn(Alert, 'alert')
       .mockImplementation((title, message, buttons) => {
         // Simulate user pressing "Remove" button
-        if (buttons && buttons[1] && buttons[1].onPress) {
+        if (
+          buttons &&
+          Array.isArray(buttons) &&
+          buttons[1] &&
+          buttons[1].onPress
+        ) {
           buttons[1].onPress();
         }
       });

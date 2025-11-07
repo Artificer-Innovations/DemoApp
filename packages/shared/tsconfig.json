@@ -16,7 +16,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false
+    "noEmit": false,
+    "jsxImportSource": "react"
   },
   "include": ["src/**/*"],
   "exclude": [

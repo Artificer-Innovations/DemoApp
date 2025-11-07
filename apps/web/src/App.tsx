@@ -9,13 +9,13 @@ import AuthCallbackPage from './pages/AuthCallbackPage';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className='min-h-screen bg-gray-50'>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path='/' element={<HomePage />} />
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/signup' element={<SignupPage />} />
         <Route
-          path="/dashboard"
+          path='/dashboard'
           element={
             <ProtectedRoute>
               <DashboardPage />
@@ -23,14 +23,14 @@ function App() {
           }
         />
         <Route
-          path="/profile"
+          path='/profile'
           element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
           }
         />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path='/auth/callback' element={<AuthCallbackPage />} />
       </Routes>
     </div>
   );

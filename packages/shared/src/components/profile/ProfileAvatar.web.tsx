@@ -23,14 +23,26 @@ export function ProfileAvatar({
 
   const getInitials = (): string => {
     if (profile?.display_name) {
-      const names = profile.display_name.trim().split(/\s+/);
+      const displayName = profile.display_name;
+      const names = displayName.trim().split(/\s+/);
       if (names.length >= 2) {
-        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+        const firstChar = names[0]?.[0];
+        const lastChar = names[names.length - 1]?.[0];
+        if (firstChar && lastChar) {
+          return (firstChar + lastChar).toUpperCase();
+        }
       }
-      return names[0][0].toUpperCase();
+      const firstChar = names[0]?.[0];
+      if (firstChar) {
+        return firstChar.toUpperCase();
+      }
     }
     if (profile?.username) {
-      return profile.username[0].toUpperCase();
+      const username = profile.username;
+      const firstChar = username?.[0];
+      if (firstChar) {
+        return firstChar.toUpperCase();
+      }
     }
     return '?';
   };

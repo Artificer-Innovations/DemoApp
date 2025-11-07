@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AuthHookReturn } from '../types/auth';
+import { Logger } from '../utils/logger';
 
 // Web platform does not require native Google configuration
 export function configureGoogleSignIn() {}
@@ -79,7 +80,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       // If signOut API call fails (e.g., 403), manually clear the session storage
       // This handles cases where the session is invalid/expired on the server
       if (error) {
-        console.warn(
+        Logger.warn(
           '[useAuth] signOut API call failed, manually clearing session storage:',
           error.message
         );
@@ -108,7 +109,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       setLoading(false);
     } catch (err) {
       // If signOut throws an error, still clear the session storage
-      console.warn(
+      Logger.warn(
         '[useAuth] signOut threw error, manually clearing session storage:',
         err
       );

@@ -50,6 +50,7 @@ export function AppHeader({ supabaseClient }: AppHeaderProps) {
           style={styles.leftSection}
         >
           <View style={styles.iconContainer}>
+            {/* @ts-expect-error - react-native-svg types have JSX compatibility issues in monorepo setup, but runtime works correctly */}
             <Svg width={32} height={32} viewBox='0 0 200 200'>
               {/* Background circle for app icon */}
               <Circle cx='100' cy='100' r='90' fill='#4F46E5' />

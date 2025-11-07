@@ -109,13 +109,12 @@ export function AvatarUpload({
   // Clear uploadedUrl once profile has been updated with the new URL
   // This ensures we use the profile URL (which is the source of truth) once it's updated
   useEffect(() => {
-    if (
-      uploadedUrl &&
-      currentAvatarUrl &&
-      currentAvatarUrl.includes(uploadedUrl.split('?')[0])
-    ) {
-      // Profile has been updated with the new URL, clear the temporary uploadedUrl
-      // We check if the base URL matches (ignoring query params) to confirm it's the same image
+    if (uploadedUrl && currentAvatarUrl) {
+      const baseUrl = uploadedUrl.split('?')[0];
+      if (baseUrl && currentAvatarUrl.includes(baseUrl)) {
+        // Profile has been updated with the new URL, clear the temporary uploadedUrl
+        // We check if the base URL matches (ignoring query params) to confirm it's the same image
+      }
     }
   }, [uploadedUrl, currentAvatarUrl]);
 

@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import ProfilePage from '../ProfilePage';
 import { AuthProvider } from '@shared/contexts/AuthContext';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { ProfileHeaderProps } from '@shared/components/profile/ProfileHeader.web';
+import type { ProfileStatsProps } from '@shared/components/profile/ProfileStats.web';
+import type { ProfileEditorProps } from '@shared/components/profile/ProfileEditor.web';
 
 const mockNavigate = vi.fn();
 
@@ -37,7 +40,7 @@ vi.mock('react-router-dom', async () => {
 
 // Mock the profile display components
 vi.mock('@shared/components/profile/ProfileHeader.web', () => ({
-  ProfileHeader: ({ profile }: any) => (
+  ProfileHeader: ({ profile }: ProfileHeaderProps) => (
     <div data-testid='profile-header'>
       {profile
         ? `Profile: ${profile.display_name || profile.username}`
@@ -47,18 +50,18 @@ vi.mock('@shared/components/profile/ProfileHeader.web', () => ({
 }));
 
 vi.mock('@shared/components/profile/ProfileStats.web', () => ({
-  ProfileStats: ({ profile }: any) =>
+  ProfileStats: ({ profile }: ProfileStatsProps) =>
     profile ? <div data-testid='profile-stats'>Stats</div> : null,
 }));
 
 vi.mock('@shared/components/profile/ProfileEditor.web', () => ({
-  ProfileEditor: ({ user }: any) => (
+  ProfileEditor: ({ user }: ProfileEditorProps) => (
     <div data-testid='profile-editor'>{user ? 'Editor' : 'No user'}</div>
   ),
 }));
 
 describe('ProfilePage', () => {
-  let mockSupabaseClient: Partial<SupabaseClient>;
+  let mockSupabaseClient: SupabaseClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -97,23 +100,24 @@ describe('ProfilePage', () => {
         signOut: vi.fn().mockResolvedValue({ error: null }),
       },
       from: mockFrom,
-    } as any;
+    } as unknown as SupabaseClient;
   });
 
   const renderWithAuth = async (ui: React.ReactElement) => {
-    let result: ReturnType<typeof render>;
+    let result: ReturnType<typeof render> | null = null;
     await act(async () => {
       result = render(
         <BrowserRouter>
-          <AuthProvider supabaseClient={mockSupabaseClient as SupabaseClient}>
-            {ui}
-          </AuthProvider>
+          <AuthProvider supabaseClient={mockSupabaseClient}>{ui}</AuthProvider>
         </BrowserRouter>
       );
       // Wait for the getSession promise to resolve
       await new Promise(resolve => setTimeout(resolve, 0));
     });
-    return result!;
+    if (!result) {
+      throw new Error('Failed to render ProfilePage test component');
+    }
+    return result;
   };
 
   it('renders profile page', async () => {
@@ -181,7 +185,9 @@ describe('ProfilePage', () => {
       })),
     }));
 
-    mockSupabaseClient.from = mockFrom;
+    Object.assign(mockSupabaseClient, {
+      from: mockFrom as unknown as SupabaseClient['from'],
+    });
 
     await renderWithAuth(<ProfilePage />);
 

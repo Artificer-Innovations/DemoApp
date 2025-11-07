@@ -11,13 +11,18 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthContext } from '@shared/contexts/AuthContext';
 import { useProfile } from '@shared/hooks/useProfile';
+import { Logger } from '@shared/utils/logger';
 import { supabase } from '../lib/supabase';
 import { AppHeader } from '@shared/components/navigation/AppHeader.native';
 // Import Profile Display Components - Metro will automatically resolve .native.tsx files
 import { ProfileHeader } from '@shared/components/profile/ProfileHeader.native';
 import { ProfileStats } from '@shared/components/profile/ProfileStats.native';
 // ProfileEditor imported lazily to avoid StyleSheet.create() native bridge errors
-let ProfileEditor: any = null;
+// Dynamic import is used here, which is supported by Metro bundler
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - Dynamic imports are supported by Metro, TypeScript error is a false positive
+import type { ProfileEditorProps } from '@shared/components/profile/ProfileEditor.native';
+let ProfileEditor: React.ComponentType<ProfileEditorProps> | null = null;
 
 type RootStackParamList = {
   Home: undefined;
@@ -83,13 +88,16 @@ function ProfileScreenContent({ navigation: _navigation }: Props) {
   // Lazy load ProfileEditor only when editing
   useEffect(() => {
     if (isEditing && !componentsLoaded) {
+      // Dynamic imports are supported by Metro bundler
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - TypeScript doesn't recognize dynamic imports but Metro supports them
       import('@shared/components/profile/ProfileEditor.native')
         .then(module => {
           ProfileEditor = module.ProfileEditor;
           setComponentsLoaded(true);
         })
         .catch(err => {
-          console.warn('[ProfileScreen] Failed to load ProfileEditor:', err);
+          Logger.error('[ProfileScreen] Failed to load ProfileEditor:', err);
         });
     }
   }, [isEditing, componentsLoaded]);
@@ -158,7 +166,7 @@ function ProfileScreenContent({ navigation: _navigation }: Props) {
                       setIsEditing(false);
                     }}
                     onError={(error: Error) => {
-                      console.error('Profile save error:', error);
+                      Logger.error('Profile save error:', error);
                     }}
                   />
                 ) : (

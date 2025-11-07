@@ -35,24 +35,43 @@ const mockNavigation = {
 
 // Mock the profile display components
 jest.mock('@shared/components/profile/ProfileHeader.native', () => ({
-  ProfileHeader: ({ profile }: any) => (
-    <div testID='profile-header'>
-      {profile
-        ? `Profile: ${profile.display_name || profile.username}`
-        : 'No profile'}
-    </div>
-  ),
+  ProfileHeader: ({ profile }: any) => {
+    const React = require('react');
+    const { View, Text } = require('react-native');
+    return (
+      <View testID='profile-header'>
+        <Text>
+          {profile
+            ? `Profile: ${profile.display_name || profile.username}`
+            : 'No profile'}
+        </Text>
+      </View>
+    );
+  },
 }));
 
 jest.mock('@shared/components/profile/ProfileStats.native', () => ({
-  ProfileStats: ({ profile }: any) =>
-    profile ? <div testID='profile-stats'>Stats</div> : null,
+  ProfileStats: ({ profile }: any) => {
+    const React = require('react');
+    const { View, Text } = require('react-native');
+    return profile ? (
+      <View testID='profile-stats'>
+        <Text>Stats</Text>
+      </View>
+    ) : null;
+  },
 }));
 
 jest.mock('@shared/components/profile/ProfileEditor.native', () => ({
-  ProfileEditor: ({ user }: any) => (
-    <div testID='profile-editor'>{user ? 'Editor' : 'No user'}</div>
-  ),
+  ProfileEditor: ({ user }: any) => {
+    const React = require('react');
+    const { View, Text } = require('react-native');
+    return (
+      <View testID='profile-editor'>
+        <Text>{user ? 'Editor' : 'No user'}</Text>
+      </View>
+    );
+  },
 }));
 
 describe('ProfileScreen', () => {

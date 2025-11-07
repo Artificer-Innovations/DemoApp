@@ -2,18 +2,27 @@ import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import Constants from 'expo-constants';
 import { AuthProvider } from '@shared/contexts/AuthContext';
-import { configureGoogleSignIn } from '@shared/hooks/useAuth';
+// Import from native-specific file for correct types
+import { configureGoogleSignIn } from '@shared/hooks/useAuth.native';
+import { Logger } from '@shared/utils/logger';
 import { supabase } from './src/lib/supabase';
 import { AppNavigator } from './src/navigation/AppNavigator';
 
 export default function App() {
   useEffect(() => {
-    const extra = (Constants.expoConfig?.extra ??
-      Constants.manifest?.extra) as {
-      googleWebClientId?: string;
-      googleIosClientId?: string;
-      googleAndroidClientId?: string;
-    };
+    // Handle both expoConfig (SDK 49+) and manifest (older SDKs)
+    const config = Constants.expoConfig ?? Constants.manifest;
+    const extra = (
+      config && 'extra' in config
+        ? (config as { extra?: Record<string, unknown> }).extra
+        : undefined
+    ) as
+      | {
+          googleWebClientId?: string;
+          googleIosClientId?: string;
+          googleAndroidClientId?: string;
+        }
+      | undefined;
 
     // Filter out unsubstituted env var patterns (e.g., "${EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID}")
     const webClientId = extra?.googleWebClientId?.startsWith('${')
@@ -27,7 +36,7 @@ export default function App() {
       : extra?.googleAndroidClientId;
 
     if (__DEV__) {
-      console.log('[App] Google Sign-In config:', {
+      Logger.debug('[App] Google Sign-In config:', {
         hasWebClientId: !!webClientId,
         hasIosClientId: !!iosClientId,
         hasAndroidClientId: !!androidClientId,

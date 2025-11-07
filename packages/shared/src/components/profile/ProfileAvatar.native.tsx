@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import type { UserProfile } from '../../types/profile';
+import { Logger } from '../../utils/logger';
 
 export interface ProfileAvatarProps {
   profile: UserProfile | null;
@@ -36,14 +37,26 @@ export function ProfileAvatar({
 
   const getInitials = (): string => {
     if (profile?.display_name) {
-      const names = profile.display_name.trim().split(/\s+/);
+      const displayName = profile.display_name;
+      const names = displayName.trim().split(/\s+/);
       if (names.length >= 2) {
-        return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+        const firstChar = names[0]?.[0];
+        const lastChar = names[names.length - 1]?.[0];
+        if (firstChar && lastChar) {
+          return (firstChar + lastChar).toUpperCase();
+        }
       }
-      return names[0][0].toUpperCase();
+      const firstChar = names[0]?.[0];
+      if (firstChar) {
+        return firstChar.toUpperCase();
+      }
     }
     if (profile?.username) {
-      return profile.username[0].toUpperCase();
+      const username = profile.username;
+      const firstChar = username?.[0];
+      if (firstChar) {
+        return firstChar.toUpperCase();
+      }
     }
     return '?';
   };
@@ -65,9 +78,11 @@ export function ProfileAvatar({
     let displayUrl = avatarUrl;
 
     // Extract base URL and query params separately
-    const [baseUrl, existingParams] = displayUrl.split('?');
+    const urlParts = displayUrl.split('?');
+    const baseUrl = urlParts[0];
+    const existingParams = urlParts[1];
 
-    if (Platform.OS === 'android' && __DEV__) {
+    if (Platform.OS === 'android' && __DEV__ && baseUrl) {
       // Replace localhost with Android emulator's host machine IP
       displayUrl = baseUrl.replace('http://127.0.0.1:', 'http://10.0.2.2:');
       displayUrl = displayUrl.replace('http://localhost:', 'http://10.0.2.2:');
@@ -113,7 +128,7 @@ export function ProfileAvatar({
           resizeMode='cover'
           onError={error => {
             // Image failed to load - log for debugging and show fallback
-            console.warn(
+            Logger.warn(
               '[ProfileAvatar] Failed to load image:',
               finalUrl,
               error.nativeEvent?.error || error

@@ -14,6 +14,7 @@ import { ProfileEditor } from '@shared/components/profile/ProfileEditor.web';
 import { ProfileAvatar } from '@shared/components/profile/ProfileAvatar.web';
 import { ProfileHeader } from '@shared/components/profile/ProfileHeader.web';
 import { ProfileStats } from '@shared/components/profile/ProfileStats.web';
+import { Logger } from '@shared/utils/logger';
 
 export function DebugTools() {
   const [isVisible, setIsVisible] = useState(false);
@@ -186,8 +187,8 @@ export function DebugTools() {
                   onSuccess={() => {
                     alert('Profile saved successfully!');
                   }}
-                  onError={error => {
-                    console.error('Profile save error:', error);
+                  onError={(error: Error) => {
+                    Logger.error('Profile save error:', error);
                   }}
                 />
                 <div className='mt-3 text-xs text-orange-600 italic'>

@@ -1,8 +1,9 @@
 import { ReactNode, useEffect } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { Logger } from '../../utils/logger';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -18,7 +19,7 @@ export function ProtectedRoute({
   redirectTo = 'Login',
 }: ProtectedRouteProps) {
   const auth = useAuthContext();
-  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   useEffect(() => {
     // Redirect to login if not authenticated (after loading completes)
@@ -28,12 +29,13 @@ export function ProtectedRoute({
         try {
           navigation.replace(redirectTo);
         } catch (error) {
-          console.warn('[ProtectedRoute] Navigation error:', error);
+          Logger.warn('[ProtectedRoute] Navigation error:', error);
         }
       }, 100); // Small delay to ensure navigation is ready
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [auth.loading, auth.user, navigation, redirectTo]);
 
   // Show loading state while checking authentication

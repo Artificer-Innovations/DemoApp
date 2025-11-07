@@ -6,6 +6,7 @@ import type {
   UserProfileUpdate,
 } from '../types/profile';
 import type { TablesInsert } from '../types/database';
+import { Logger } from '../utils/logger';
 
 export interface ProfileHookReturn {
   profile: UserProfile | null;
@@ -121,7 +122,7 @@ export function useProfile(
     setError(null);
 
     try {
-      console.log(
+      Logger.debug(
         '[useProfile] updateProfile called with userId:',
         userId,
         'data:',
@@ -134,7 +135,7 @@ export function useProfile(
         .select()
         .single();
 
-      console.log(
+      Logger.debug(
         '[useProfile] Update response - data:',
         updatedProfile,
         'error:',
@@ -142,14 +143,14 @@ export function useProfile(
       );
 
       if (updateError) {
-        console.error('[useProfile] Update error:', updateError);
+        Logger.error('[useProfile] Update error:', updateError);
         const errorObj = new Error(updateError.message);
         setError(errorObj);
         throw errorObj;
       }
 
       if (!updatedProfile) {
-        console.error('[useProfile] Update returned null data');
+        Logger.error('[useProfile] Update returned null data');
         const errorObj = new Error(
           'Update succeeded but returned no profile data'
         );
@@ -157,14 +158,14 @@ export function useProfile(
         throw errorObj;
       }
 
-      console.log(
+      Logger.debug(
         '[useProfile] Update successful, new profile:',
         updatedProfile
       );
       setProfile(updatedProfile);
       return updatedProfile;
     } catch (err) {
-      console.error('[useProfile] Update caught error:', err);
+      Logger.error('[useProfile] Update caught error:', err);
       const errorObj = err instanceof Error ? err : new Error(String(err));
       setError(errorObj);
       throw errorObj;

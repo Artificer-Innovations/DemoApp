@@ -37,7 +37,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('DashboardPage', () => {
-  let mockSupabaseClient: Partial<SupabaseClient>;
+  let mockSupabaseClient: SupabaseClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -76,23 +76,24 @@ describe('DashboardPage', () => {
         signOut: vi.fn().mockResolvedValue({ error: null }),
       },
       from: mockFrom,
-    } as any;
+    } as unknown as SupabaseClient;
   });
 
   const renderWithAuth = async (ui: React.ReactElement) => {
-    let result: ReturnType<typeof render>;
+    let result: ReturnType<typeof render> | null = null;
     await act(async () => {
       result = render(
         <BrowserRouter>
-          <AuthProvider supabaseClient={mockSupabaseClient as SupabaseClient}>
-            {ui}
-          </AuthProvider>
+          <AuthProvider supabaseClient={mockSupabaseClient}>{ui}</AuthProvider>
         </BrowserRouter>
       );
       // Wait for the getSession promise to resolve
       await new Promise(resolve => setTimeout(resolve, 0));
     });
-    return result!;
+    if (!result) {
+      throw new Error('Failed to render DashboardPage test component');
+    }
+    return result;
   };
 
   it('renders dashboard page', async () => {
@@ -150,7 +151,7 @@ describe('DashboardPage', () => {
       });
 
       await waitFor(() => {
-        expect(mockSupabaseClient.auth!.signOut).toHaveBeenCalled();
+        expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled();
       });
     } else {
       // If we can't find the avatar, just verify the page renders

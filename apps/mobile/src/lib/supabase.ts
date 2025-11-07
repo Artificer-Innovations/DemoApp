@@ -6,10 +6,18 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@shared/types/database';
 
 import Constants from 'expo-constants';
-const extra = (Constants.expoConfig?.extra ?? Constants.manifest?.extra) as {
-  supabaseUrl?: string;
-  supabaseAnonKey?: string;
-};
+// Handle both expoConfig (SDK 49+) and manifest (older SDKs)
+const config = Constants.expoConfig ?? Constants.manifest;
+const extra = (
+  config && 'extra' in config
+    ? (config as { extra?: Record<string, unknown> }).extra
+    : undefined
+) as
+  | {
+      supabaseUrl?: string;
+      supabaseAnonKey?: string;
+    }
+  | undefined;
 let supabaseUrl = extra?.supabaseUrl;
 const supabaseAnonKey = extra?.supabaseAnonKey;
 

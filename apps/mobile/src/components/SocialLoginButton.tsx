@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { Logger } from '@shared/utils/logger';
 
 interface SocialLoginButtonProps {
   onPress: () => Promise<void>;
@@ -24,8 +25,8 @@ export function SocialLoginButton({
     try {
       await onPress();
     } catch (error) {
-      console.warn('Google sign-in error:', error);
-      // Error is already handled by useAuth hook
+      // Error is already handled by useAuth hook - this is just for local debugging
+      Logger.debug('Google sign-in error:', error);
     } finally {
       setIsLoading(false);
     }

@@ -4,6 +4,7 @@
     "strict": true,
     "composite": true,
     "noEmit": false,
+    "module": "esnext",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],

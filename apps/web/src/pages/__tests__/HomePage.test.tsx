@@ -40,7 +40,7 @@ vi.mock('@/lib/supabase', () => {
 });
 
 describe('HomePage', () => {
-  let mockSupabaseClient: Partial<SupabaseClient>;
+  let mockSupabaseClient: SupabaseClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -91,21 +91,22 @@ describe('HomePage', () => {
           }),
         }),
       }),
-    } as any;
+    } as unknown as SupabaseClient;
 
-    let result: ReturnType<typeof render>;
+    let result: ReturnType<typeof render> | null = null;
     await act(async () => {
       result = render(
         <BrowserRouter>
-          <AuthProvider supabaseClient={mockSupabaseClient as SupabaseClient}>
-            {ui}
-          </AuthProvider>
+          <AuthProvider supabaseClient={mockSupabaseClient}>{ui}</AuthProvider>
         </BrowserRouter>
       );
       // Wait for the getSession promise to resolve
       await new Promise(resolve => setTimeout(resolve, 0));
     });
-    return result!;
+    if (!result) {
+      throw new Error('Failed to render HomePage test component');
+    }
+    return result;
   };
 
   describe('when user is not authenticated', () => {

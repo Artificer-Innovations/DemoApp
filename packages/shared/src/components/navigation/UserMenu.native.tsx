@@ -75,7 +75,7 @@ export function UserMenu({ user, profile, navigation }: UserMenuProps) {
 
   const handleAvatarPress = () => {
     if (avatarRef.current) {
-      avatarRef.current.measure((x, y, width, height, pageX, pageY) => {
+      avatarRef.current.measure((_x, _y, width, height, pageX, pageY) => {
         setAvatarLayout({ x: pageX, y: pageY, width, height });
         setIsOpen(!isOpen);
       });

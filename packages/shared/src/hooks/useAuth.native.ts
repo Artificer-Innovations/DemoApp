@@ -1,23 +1,77 @@
 import { useState, useEffect } from 'react';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import type { AuthHookReturn } from '../types/auth';
+import { Logger } from '../utils/logger';
+
+type GoogleSignInModule = {
+  configure(config: {
+    webClientId: string;
+    iosClientId?: string;
+    offlineAccess: boolean;
+  }): void;
+  hasPlayServices(options?: {
+    showPlayServicesUpdateDialog?: boolean;
+  }): Promise<void>;
+  signIn(): Promise<void>;
+  getTokens(): Promise<{ idToken: string | null; accessToken?: string | null }>;
+  signOut(): Promise<void>;
+};
+
+type GoogleStatusCodes = {
+  SIGN_IN_CANCELLED: string;
+  IN_PROGRESS: string;
+  PLAY_SERVICES_NOT_AVAILABLE: string;
+  [key: string]: string;
+};
+
+type SupabaseAuthStorage = {
+  getAllKeys: () => Promise<string[]>;
+  removeItem: (key: string) => Promise<void>;
+};
 
 // Lazy import to prevent native module from loading during bundle initialization
-let GoogleSignin: any = null;
-let statusCodes: any = null;
+let GoogleSignin: GoogleSignInModule | null = null;
+let statusCodes: GoogleStatusCodes | null = null;
 
-async function getGoogleSignIn() {
+async function getGoogleSignIn(): Promise<{
+  GoogleSignin: GoogleSignInModule | null;
+  statusCodes: GoogleStatusCodes | null;
+}> {
   if (!GoogleSignin) {
     try {
       const module = await import('@react-native-google-signin/google-signin');
-      GoogleSignin = module.GoogleSignin;
-      statusCodes = module.statusCodes;
+      GoogleSignin = module.GoogleSignin as GoogleSignInModule;
+      statusCodes = module.statusCodes as GoogleStatusCodes;
     } catch (err) {
-      console.warn('[useAuth] Google Sign-In module not available:', err);
+      Logger.warn('[useAuth] Google Sign-In module not available:', err);
     }
   }
   return { GoogleSignin, statusCodes };
 }
+
+const getAuthStorage = (client: SupabaseClient): SupabaseAuthStorage | null => {
+  const authCandidate = client.auth as unknown;
+  if (
+    authCandidate &&
+    typeof authCandidate === 'object' &&
+    'storage' in authCandidate
+  ) {
+    const potentialStorage = (authCandidate as { storage?: unknown }).storage;
+    if (
+      potentialStorage &&
+      typeof potentialStorage === 'object' &&
+      'getAllKeys' in potentialStorage &&
+      'removeItem' in potentialStorage &&
+      typeof (potentialStorage as { getAllKeys?: unknown }).getAllKeys ===
+        'function' &&
+      typeof (potentialStorage as { removeItem?: unknown }).removeItem ===
+        'function'
+    ) {
+      return potentialStorage as SupabaseAuthStorage;
+    }
+  }
+  return null;
+};
 
 // Export this function to be called on app startup
 // Client IDs must be provided from the app (via Constants.expoConfig.extra)
@@ -29,7 +83,7 @@ export function configureGoogleSignIn(options?: {
   // webClientId is required by Google Sign-In library
   const webClientId = options?.webClientId;
   if (!webClientId) {
-    console.warn(
+    Logger.warn(
       '[useAuth] Google Sign-In not configured: webClientId is missing'
     );
     return;
@@ -58,7 +112,7 @@ export function configureGoogleSignIn(options?: {
       module.GoogleSignin.configure(config);
     })
     .catch(err => {
-      console.warn('[useAuth] Failed to configure Google Sign-In:', err);
+      Logger.warn('[useAuth] Failed to configure Google Sign-In:', err);
     });
 }
 
@@ -137,13 +191,13 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       // If signOut API call fails (e.g., 403), manually clear the session storage
       // This handles cases where the session is invalid/expired on the server
       if (signOutError) {
-        console.warn(
+        Logger.warn(
           '[useAuth] signOut API call failed, manually clearing session storage:',
           signOutError.message
         );
         // Directly clear Supabase's AsyncStorage entries
         // Access the storage adapter from the client's internal config
-        const storage = (supabaseClient.auth as any).storage;
+        const storage = getAuthStorage(supabaseClient);
         if (storage && typeof storage.removeItem === 'function') {
           // Clear all Supabase auth-related keys from AsyncStorage
           // Supabase uses keys like 'sb-<project-ref>-auth-token'
@@ -159,7 +213,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
               );
             }
           } catch (storageErr) {
-            console.warn('[useAuth] Failed to clear AsyncStorage:', storageErr);
+            Logger.warn('[useAuth] Failed to clear AsyncStorage:', storageErr);
           }
         }
         // Clear state directly
@@ -170,14 +224,14 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       setLoading(false);
     } catch (err) {
       // If signOut throws an error, still clear the session storage
-      console.warn(
+      Logger.warn(
         '[useAuth] signOut threw error, manually clearing session storage:',
         err
       );
       // Try to clear AsyncStorage
       try {
-        const storage = (supabaseClient.auth as any).storage;
-        if (storage && typeof storage.getAllKeys === 'function') {
+        const storage = getAuthStorage(supabaseClient);
+        if (storage) {
           const allKeys = await storage.getAllKeys();
           if (Array.isArray(allKeys)) {
             const supabaseKeys = allKeys.filter(
@@ -190,7 +244,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
           }
         }
       } catch (storageErr) {
-        console.warn('[useAuth] Failed to clear AsyncStorage:', storageErr);
+        Logger.warn('[useAuth] Failed to clear AsyncStorage:', storageErr);
       }
       setSession(null);
       setUser(null);
@@ -220,7 +274,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       }
 
       if (__DEV__) {
-        console.log('[Google Sign-In] Got ID token');
+        Logger.debug('[Google Sign-In] Got ID token');
       }
 
       const { error: authError } = await supabaseClient.auth.signInWithIdToken({
@@ -233,7 +287,7 @@ export function useAuth(supabaseClient: SupabaseClient): AuthHookReturn {
       }
 
       if (__DEV__) {
-        console.log(
+        Logger.debug(
           '[Google Sign-In] Successfully authenticated with Supabase'
         );
       }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { UserProfileInsert, UserProfileUpdate } from '../types/profile';
 
 /**
  * Username validation: 3-30 characters, alphanumeric + underscore only
@@ -146,11 +147,12 @@ export type ProfileFormInput = z.infer<typeof profileFormSchema>;
 /**
  * Helper function to transform form data to database input
  * Converts empty strings to null as expected by the database
+ * Ensures all properties are explicitly set (not undefined) for exactOptionalPropertyTypes
  */
 export function transformFormToInsert(
   formData: ProfileFormInput
-): ProfileInsertInput {
-  return {
+): UserProfileInsert {
+  const result: UserProfileInsert = {
     username:
       formData.username && formData.username.trim() !== ''
         ? formData.username.trim()
@@ -174,16 +176,18 @@ export function transformFormToInsert(
         ? formData.avatar_url.trim()
         : null,
   };
+  return result;
 }
 
 /**
  * Helper function to transform form data to update input
  * Converts empty strings to null as expected by the database
+ * Ensures all properties are explicitly set (not undefined) for exactOptionalPropertyTypes
  */
 export function transformFormToUpdate(
   formData: ProfileFormInput
-): ProfileUpdateInput {
-  return {
+): UserProfileUpdate {
+  const result: UserProfileUpdate = {
     username:
       formData.username && formData.username.trim() !== ''
         ? formData.username.trim()
@@ -207,4 +211,5 @@ export function transformFormToUpdate(
         ? formData.avatar_url.trim()
         : null,
   };
+  return result;
 }

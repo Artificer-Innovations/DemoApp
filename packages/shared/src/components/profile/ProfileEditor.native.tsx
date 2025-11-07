@@ -14,6 +14,7 @@ import { FormInput } from '../forms/FormInput.native';
 import { FormButton } from '../forms/FormButton.native';
 import { FormError } from '../forms/FormError.native';
 import { AvatarUpload } from './AvatarUpload.native';
+import { Logger } from '../../utils/logger';
 
 export interface ProfileEditorProps {
   supabaseClient: SupabaseClient;
@@ -22,6 +23,35 @@ export interface ProfileEditorProps {
   onError?: (error: Error) => void;
   style?: ViewStyle;
 }
+
+type ZodErrorItem = {
+  path: Array<string | number>;
+  message: string;
+};
+
+type ZodErrorShape = {
+  errors: ZodErrorItem[];
+};
+
+const isZodErrorShape = (error: unknown): error is ZodErrorShape => {
+  if (!error || typeof error !== 'object' || !('errors' in error)) {
+    return false;
+  }
+  const candidate = (error as { errors?: unknown }).errors;
+  if (!Array.isArray(candidate)) {
+    return false;
+  }
+  return candidate.every(item => {
+    if (!item || typeof item !== 'object') {
+      return false;
+    }
+    const { path, message } = item as {
+      path?: unknown;
+      message?: unknown;
+    };
+    return Array.isArray(path) && typeof message === 'string';
+  });
+};
 
 /**
  * ProfileEditor component for React Native
@@ -51,12 +81,12 @@ export function ProfileEditor({
   useEffect(() => {
     if (profile.profile) {
       setFormData({
-        username: profile.profile.username || '',
-        display_name: profile.profile.display_name || '',
-        bio: profile.profile.bio || '',
-        website: profile.profile.website || '',
-        location: profile.profile.location || '',
-        avatar_url: profile.profile.avatar_url || '',
+        username: profile.profile['username'] || '',
+        display_name: profile.profile['display_name'] || '',
+        bio: profile.profile['bio'] || '',
+        website: profile.profile['website'] || '',
+        location: profile.profile['location'] || '',
+        avatar_url: profile.profile['avatar_url'] || '',
       });
       setFieldErrors({});
       setGeneralError(null);
@@ -83,15 +113,21 @@ export function ProfileEditor({
 
   // Memoize form inputs BEFORE early returns to comply with Rules of Hooks
   // All hooks must be called in the same order on every render
-  const formInputs = useMemo(
-    () => (
+  const formInputs = useMemo(() => {
+    const usernameError = fieldErrors['username'];
+    const displayNameError = fieldErrors['display_name'];
+    const bioError = fieldErrors['bio'];
+    const websiteError = fieldErrors['website'];
+    const locationError = fieldErrors['location'];
+
+    return (
       <>
         <FormInput
           key='username'
           label='Username'
-          value={formData.username}
+          value={formData.username ?? ''}
           onChange={handleFieldChange.bind(null, 'username')}
-          error={fieldErrors.username}
+          {...(usernameError ? { error: usernameError } : {})}
           placeholder='Enter username (optional)'
           disabled={isSubmitting || profile.loading}
         />
@@ -99,9 +135,9 @@ export function ProfileEditor({
         <FormInput
           key='display_name'
           label='Display Name'
-          value={formData.display_name}
+          value={formData.display_name ?? ''}
           onChange={handleFieldChange.bind(null, 'display_name')}
-          error={fieldErrors.display_name}
+          {...(displayNameError ? { error: displayNameError } : {})}
           placeholder='Enter display name (optional)'
           disabled={isSubmitting || profile.loading}
         />
@@ -109,9 +145,9 @@ export function ProfileEditor({
         <FormInput
           key='bio'
           label='Bio'
-          value={formData.bio}
+          value={formData.bio ?? ''}
           onChange={handleFieldChange.bind(null, 'bio')}
-          error={fieldErrors.bio}
+          {...(bioError ? { error: bioError } : {})}
           placeholder='Tell us about yourself (optional)'
           multiline
           numberOfLines={4}
@@ -121,9 +157,9 @@ export function ProfileEditor({
         <FormInput
           key='website'
           label='Website'
-          value={formData.website}
+          value={formData.website ?? ''}
           onChange={handleFieldChange.bind(null, 'website')}
-          error={fieldErrors.website}
+          {...(websiteError ? { error: websiteError } : {})}
           placeholder='https://example.com (optional)'
           keyboardType='url'
           autoCapitalize='none'
@@ -133,16 +169,15 @@ export function ProfileEditor({
         <FormInput
           key='location'
           label='Location'
-          value={formData.location}
+          value={formData.location ?? ''}
           onChange={handleFieldChange.bind(null, 'location')}
-          error={fieldErrors.location}
+          {...(locationError ? { error: locationError } : {})}
           placeholder='Enter your location (optional)'
           disabled={isSubmitting || profile.loading}
         />
       </>
-    ),
-    [formData, fieldErrors, isSubmitting, profile.loading, handleFieldChange]
-  );
+    );
+  }, [formData, fieldErrors, isSubmitting, profile.loading, handleFieldChange]);
 
   const handleSubmit = useCallback(async () => {
     if (!user) {
@@ -157,63 +192,59 @@ export function ProfileEditor({
     setGeneralError(null);
 
     try {
-      console.log('[ProfileEditor] Starting submit, formData:', formData);
-      console.log('[ProfileEditor] Has existing profile:', !!profile.profile);
+      Logger.debug('[ProfileEditor] Starting submit, formData:', formData);
+      Logger.debug('[ProfileEditor] Has existing profile:', !!profile.profile);
 
       // Validate form data
       const validatedData = profileFormSchema.parse(formData);
-      console.log('[ProfileEditor] Validation passed:', validatedData);
+      Logger.debug('[ProfileEditor] Validation passed:', validatedData);
 
       // Transform to database format (empty strings -> null)
       const updateData = profile.profile
         ? transformFormToUpdate(validatedData)
         : transformFormToInsert(validatedData);
-      console.log('[ProfileEditor] Transformed update data:', updateData);
+      Logger.debug('[ProfileEditor] Transformed update data:', updateData);
 
       // Submit to database
       let result;
       if (profile.profile) {
-        console.log('[ProfileEditor] Calling updateProfile for user:', user.id);
+        Logger.debug(
+          '[ProfileEditor] Calling updateProfile for user:',
+          user.id
+        );
         result = await profile.updateProfile(user.id, updateData);
-        console.log('[ProfileEditor] UpdateProfile result:', result);
+        Logger.debug('[ProfileEditor] UpdateProfile result:', result);
       } else {
-        console.log('[ProfileEditor] Calling createProfile for user:', user.id);
+        Logger.debug(
+          '[ProfileEditor] Calling createProfile for user:',
+          user.id
+        );
         result = await profile.createProfile(user.id, updateData);
-        console.log('[ProfileEditor] CreateProfile result:', result);
+        Logger.debug('[ProfileEditor] CreateProfile result:', result);
       }
 
       // Success - clear any errors
-      console.log('[ProfileEditor] Profile save successful!');
+      Logger.debug('[ProfileEditor] Profile save successful!');
       setGeneralError(null);
       setFieldErrors({});
       onSuccess?.();
     } catch (err) {
-      console.warn('[ProfileEditor] Submit error:', err);
+      Logger.warn('[ProfileEditor] Submit error:', err);
       // Safer ZodError check for React Native (avoids prototype issues)
-      const isZodError =
-        err &&
-        typeof err === 'object' &&
-        'errors' in err &&
-        Array.isArray((err as any).errors) &&
-        'path' in ((err as any).errors[0] || {});
-
-      if (isZodError) {
+      if (isZodErrorShape(err)) {
         // Map Zod errors to field errors
         const errors: Record<string, string> = {};
-        const zodError = err as {
-          errors: Array<{ path: (string | number)[]; message: string }>;
-        };
-        zodError.errors.forEach(error => {
-          const field = error.path[0] as string;
-          if (field) {
-            errors[field] = error.message;
+        err.errors.forEach(error => {
+          const [fieldCandidate] = error.path;
+          if (typeof fieldCandidate === 'string') {
+            errors[fieldCandidate] = error.message;
           }
         });
         setFieldErrors(errors);
         setGeneralError('Please correct the errors below');
       } else {
         const error = err instanceof Error ? err : new Error(String(err));
-        console.error(
+        Logger.error(
           '[ProfileEditor] Non-validation error:',
           error.message,
           error.stack
@@ -269,21 +300,25 @@ export function ProfileEditor({
           <AvatarUpload
             currentAvatarUrl={profile.profile?.avatar_url || null}
             onUploadComplete={async url => {
-              console.log('[ProfileEditor] Avatar upload complete, URL:', url);
+              Logger.debug('[ProfileEditor] Avatar upload complete, URL:', url);
               // Ensure we're saving the clean URL (without Android-specific modifications)
               // The URL from useAvatarUpload should already be clean, but let's verify
               const cleanUrl = url.split('?')[0]; // Remove any query params just in case
-              console.log(
+              Logger.debug(
                 '[ProfileEditor] Saving clean URL to database:',
                 cleanUrl
               );
 
               // Update profile with new avatar URL
-              await profile.updateProfile(user.id, { avatar_url: cleanUrl });
-              // Update form data
-              handleFieldChange('avatar_url', cleanUrl);
+              if (cleanUrl) {
+                await profile.updateProfile(user.id, {
+                  avatar_url: cleanUrl,
+                });
+                // Update form data
+                handleFieldChange('avatar_url', cleanUrl);
+              }
 
-              console.log('[ProfileEditor] Profile updated with avatar URL');
+              Logger.debug('[ProfileEditor] Profile updated with avatar URL');
             }}
             onRemove={async () => {
               // Update profile to remove avatar URL

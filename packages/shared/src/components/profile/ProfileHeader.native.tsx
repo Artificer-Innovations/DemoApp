@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ViewStyle, Linking } from 'react-native';
 import { ProfileAvatar } from './ProfileAvatar.native';
 import type { UserProfile } from '../../types/profile';
+import { Logger } from '../../utils/logger';
 
 export interface ProfileHeaderProps {
   profile: UserProfile | null;
@@ -28,7 +29,7 @@ export function ProfileHeader({ profile, style }: ProfileHeaderProps) {
   const handleWebsitePress = () => {
     if (profile.website) {
       Linking.openURL(profile.website).catch(err => {
-        console.warn('Failed to open website:', err);
+        Logger.warn('Failed to open website:', err);
       });
     }
   };

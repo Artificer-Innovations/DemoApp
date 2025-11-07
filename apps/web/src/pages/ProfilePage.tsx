@@ -8,6 +8,7 @@ import { ProfileHeader } from '@shared/components/profile/ProfileHeader.web';
 import { ProfileStats } from '@shared/components/profile/ProfileStats.web';
 // Import ProfileEditor - Vite will automatically resolve .web.tsx file
 import { ProfileEditor } from '@shared/components/profile/ProfileEditor.web';
+import { Logger } from '@shared/utils/logger';
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -83,7 +84,7 @@ export default function ProfilePage() {
                       setIsEditing(false);
                     }}
                     onError={error => {
-                      console.error('Profile save error:', error);
+                      Logger.error('Profile save error:', error);
                     }}
                   />
                 </div>

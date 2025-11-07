@@ -12,6 +12,7 @@ import { FormInput } from '../forms/FormInput.web';
 import { FormButton } from '../forms/FormButton.web';
 import { FormError } from '../forms/FormError.web';
 import { AvatarUpload } from './AvatarUpload.web';
+import { Logger } from '../../utils/logger';
 
 export interface ProfileEditorProps {
   supabaseClient: SupabaseClient;
@@ -49,12 +50,12 @@ export function ProfileEditor({
   useEffect(() => {
     if (profile.profile) {
       setFormData({
-        username: profile.profile.username || '',
-        display_name: profile.profile.display_name || '',
-        bio: profile.profile.bio || '',
-        website: profile.profile.website || '',
-        location: profile.profile.location || '',
-        avatar_url: profile.profile.avatar_url || '',
+        username: profile.profile['username'] || '',
+        display_name: profile.profile['display_name'] || '',
+        bio: profile.profile['bio'] || '',
+        website: profile.profile['website'] || '',
+        location: profile.profile['location'] || '',
+        avatar_url: profile.profile['avatar_url'] || '',
       });
       setFieldErrors({});
       setGeneralError(null);
@@ -152,27 +153,31 @@ export function ProfileEditor({
       <div className='space-y-4'>
         <FormInput
           label='Username'
-          value={formData.username}
+          value={formData.username ?? ''}
           onChange={value => handleFieldChange('username', value)}
-          error={fieldErrors.username}
+          {...(fieldErrors['username']
+            ? { error: fieldErrors['username'] }
+            : {})}
           placeholder='Enter username (optional)'
           disabled={isSubmitting || profile.loading}
         />
 
         <FormInput
           label='Display Name'
-          value={formData.display_name}
+          value={formData.display_name ?? ''}
           onChange={value => handleFieldChange('display_name', value)}
-          error={fieldErrors.display_name}
+          {...(fieldErrors['display_name']
+            ? { error: fieldErrors['display_name'] }
+            : {})}
           placeholder='Enter display name (optional)'
           disabled={isSubmitting || profile.loading}
         />
 
         <FormInput
           label='Bio'
-          value={formData.bio}
+          value={formData.bio ?? ''}
           onChange={value => handleFieldChange('bio', value)}
-          error={fieldErrors.bio}
+          {...(fieldErrors['bio'] ? { error: fieldErrors['bio'] } : {})}
           placeholder='Tell us about yourself (optional)'
           multiline
           rows={4}
@@ -181,9 +186,9 @@ export function ProfileEditor({
 
         <FormInput
           label='Website'
-          value={formData.website}
+          value={formData.website ?? ''}
           onChange={value => handleFieldChange('website', value)}
-          error={fieldErrors.website}
+          {...(fieldErrors['website'] ? { error: fieldErrors['website'] } : {})}
           placeholder='https://example.com (optional)'
           type='url'
           disabled={isSubmitting || profile.loading}
@@ -191,9 +196,11 @@ export function ProfileEditor({
 
         <FormInput
           label='Location'
-          value={formData.location}
+          value={formData.location ?? ''}
           onChange={value => handleFieldChange('location', value)}
-          error={fieldErrors.location}
+          {...(fieldErrors['location']
+            ? { error: fieldErrors['location'] }
+            : {})}
           placeholder='Enter your location (optional)'
           disabled={isSubmitting || profile.loading}
         />
@@ -202,23 +209,27 @@ export function ProfileEditor({
           currentAvatarUrl={profile.profile?.avatar_url || null}
           onUploadComplete={async url => {
             if (user) {
-              console.log(
+              Logger.debug(
                 '[ProfileEditor.web] Avatar upload complete, URL:',
                 url
               );
               // Ensure we're saving the clean URL (without cache-busting params)
               const cleanUrl = url.split('?')[0]; // Remove any query params
-              console.log(
+              Logger.debug(
                 '[ProfileEditor.web] Saving clean URL to database:',
                 cleanUrl
               );
 
               // Update profile with new avatar URL
-              await profile.updateProfile(user.id, { avatar_url: cleanUrl });
-              // Update form data
-              handleFieldChange('avatar_url', cleanUrl);
+              if (cleanUrl) {
+                await profile.updateProfile(user.id, {
+                  avatar_url: cleanUrl,
+                });
+                // Update form data
+                handleFieldChange('avatar_url', cleanUrl);
+              }
 
-              console.log(
+              Logger.debug(
                 '[ProfileEditor.web] Profile updated with avatar URL'
               );
             }

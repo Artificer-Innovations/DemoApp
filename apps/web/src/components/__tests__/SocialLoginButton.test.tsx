@@ -2,6 +2,21 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SocialLoginButton } from '../SocialLoginButton';
+import { Logger } from '@shared/utils/logger';
+
+const createDeferred = () => {
+  let innerResolve: (() => void) | undefined;
+  const promise = new Promise<void>(resolve => {
+    innerResolve = resolve;
+  });
+  const resolve = () => {
+    if (!innerResolve) {
+      throw new Error('Deferred resolve invoked before initialization');
+    }
+    innerResolve();
+  };
+  return { promise, resolve };
+};
 
 describe('SocialLoginButton', () => {
   it('renders Google copy for sign-in by default', () => {
@@ -22,10 +37,7 @@ describe('SocialLoginButton', () => {
 
   it('calls onPress once per click and displays loading state', async () => {
     const user = userEvent.setup();
-    let resolvePress: () => void;
-    const pressPromise = new Promise<void>(resolve => {
-      resolvePress = resolve;
-    });
+    const { promise: pressPromise, resolve: resolvePress } = createDeferred();
     const mockOnPress = vi.fn().mockReturnValueOnce(pressPromise);
 
     render(<SocialLoginButton onPress={mockOnPress} />);
@@ -47,7 +59,7 @@ describe('SocialLoginButton', () => {
 
     // Resolve the promise to complete the async operation
     await act(async () => {
-      resolvePress!();
+      resolvePress();
       await pressPromise;
     });
 
@@ -59,7 +71,7 @@ describe('SocialLoginButton', () => {
 
   it('logs an error when onPress rejects', async () => {
     const user = userEvent.setup();
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const loggerSpy = vi.spyOn(Logger, 'error').mockImplementation(() => {});
     const mockOnPress = vi
       .fn()
       .mockRejectedValueOnce(new Error('Google sign-in failed'));
@@ -71,11 +83,11 @@ describe('SocialLoginButton', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(loggerSpy).toHaveBeenCalledWith(
       'Google sign-in error:',
       expect.any(Error)
     );
 
-    consoleSpy.mockRestore();
+    loggerSpy.mockRestore();
   });
 });

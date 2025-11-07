@@ -13,6 +13,7 @@ import {
 import { useAuthContext } from '@shared/contexts/AuthContext';
 import { useProfile } from '@shared/hooks/useProfile';
 import { supabase } from '../lib/supabase';
+import { Logger } from '@shared/utils/logger';
 import {
   profileFormSchema,
   type ProfileFormInput,
@@ -217,7 +218,9 @@ export function DebugTools() {
                 ProfileHeader, ProfileStats) to verify they display user data
                 correctly.
               </Text>
-              <ProfileDisplayTestMobile profile={profile.profile} />
+              {profile.profile && (
+                <ProfileDisplayTestMobile profile={profile.profile} />
+              )}
               <Text style={styles.testNote}>
                 ✓ Verify: Avatar shows image or initials, Header displays all
                 profile info, Stats show member since and completion %
@@ -499,7 +502,7 @@ function ValidationTestFormMobile() {
         <TextInput
           style={[
             styles.validationInput,
-            errors.username && styles.validationInputError,
+            ...(errors.username ? [styles.validationInputError] : []),
           ]}
           value={formData.username}
           onChangeText={text => handleFieldChange('username', text)}
@@ -516,7 +519,7 @@ function ValidationTestFormMobile() {
         <TextInput
           style={[
             styles.validationInput,
-            errors.display_name && styles.validationInputError,
+            ...(errors.display_name ? [styles.validationInputError] : []),
           ]}
           value={formData.display_name}
           onChangeText={text => handleFieldChange('display_name', text)}
@@ -536,7 +539,7 @@ function ValidationTestFormMobile() {
           style={[
             styles.validationInput,
             styles.validationTextArea,
-            errors.bio && styles.validationInputError,
+            ...(errors.bio ? [styles.validationInputError] : []),
           ]}
           value={formData.bio}
           onChangeText={text => handleFieldChange('bio', text)}
@@ -560,7 +563,7 @@ function ValidationTestFormMobile() {
         <TextInput
           style={[
             styles.validationInput,
-            errors.website && styles.validationInputError,
+            ...(errors.website ? [styles.validationInputError] : []),
           ]}
           value={formData.website}
           onChangeText={text => handleFieldChange('website', text)}
@@ -589,7 +592,7 @@ function ValidationTestFormMobile() {
         <TextInput
           style={[
             styles.validationInput,
-            errors.avatar_url && styles.validationInputError,
+            ...(errors.avatar_url ? [styles.validationInputError] : []),
           ]}
           value={formData.avatar_url}
           onChangeText={text => handleFieldChange('avatar_url', text)}
@@ -635,13 +638,22 @@ function FormComponentsTestMobile() {
   const [showError, setShowError] = useState(false);
   const [componentsLoaded, setComponentsLoaded] = useState(false);
   const [FormComponents, setFormComponents] = useState<{
-    FormInput: any;
-    FormButton: any;
-    FormError: any;
+    FormInput: React.ComponentType<
+      import('@shared/components/forms/FormInput.native').FormInputProps
+    >;
+    FormButton: React.ComponentType<
+      import('@shared/components/forms/FormButton.native').FormButtonProps
+    >;
+    FormError: React.ComponentType<
+      import('@shared/components/forms/FormError.native').FormErrorProps
+    >;
   } | null>(null);
 
   useEffect(() => {
     if (!componentsLoaded) {
+      // Dynamic imports are supported by Metro bundler
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - TypeScript doesn't recognize dynamic imports but Metro supports them
       Promise.all([
         import('@shared/components/forms/FormInput.native'),
         import('@shared/components/forms/FormButton.native'),
@@ -656,7 +668,7 @@ function FormComponentsTestMobile() {
           setComponentsLoaded(true);
         })
         .catch(err => {
-          console.warn(
+          Logger.error(
             '[FormComponentsTest] Failed to load form components:',
             err
           );
@@ -793,11 +805,13 @@ function ProfileEditorTestMobile({
   supabase,
   user,
 }: {
-  supabase: any;
-  user: any;
+  supabase: import('@supabase/supabase-js').SupabaseClient;
+  user: import('@supabase/supabase-js').User;
 }) {
   const [componentsLoaded, setComponentsLoaded] = useState(false);
-  const [ProfileEditor, setProfileEditor] = useState<any>(null);
+  const [ProfileEditor, setProfileEditor] = useState<React.ComponentType<
+    import('@shared/components/profile/ProfileEditor.native').ProfileEditorProps
+  > | null>(null);
 
   useEffect(() => {
     if (!componentsLoaded) {
@@ -807,7 +821,7 @@ function ProfileEditorTestMobile({
           setComponentsLoaded(true);
         })
         .catch(err => {
-          console.warn(
+          Logger.error(
             '[ProfileEditorTest] Failed to load ProfileEditor:',
             err
           );
@@ -833,11 +847,11 @@ function ProfileEditorTestMobile({
         supabaseClient={supabase}
         user={user}
         onSuccess={() => {
-          console.log('[ProfileEditorTest] onSuccess callback fired');
+          Logger.debug('[ProfileEditorTest] onSuccess callback fired');
           Alert.alert('Success', 'Profile saved successfully!');
         }}
         onError={(error: Error) => {
-          console.error(
+          Logger.error(
             '[ProfileEditorTest] onError callback fired:',
             error.message,
             error.stack
@@ -850,11 +864,21 @@ function ProfileEditorTestMobile({
 }
 
 // Profile Display Components test component for mobile
-function ProfileDisplayTestMobile({ profile }: { profile: any }) {
+function ProfileDisplayTestMobile({
+  profile,
+}: {
+  profile: import('@shared/types/profile').UserProfile;
+}) {
   const [componentsLoaded, setComponentsLoaded] = useState(false);
-  const [ProfileAvatar, setProfileAvatar] = useState<any>(null);
-  const [ProfileHeader, setProfileHeader] = useState<any>(null);
-  const [ProfileStats, setProfileStats] = useState<any>(null);
+  const [ProfileAvatar, setProfileAvatar] = useState<React.ComponentType<
+    import('@shared/components/profile/ProfileAvatar.native').ProfileAvatarProps
+  > | null>(null);
+  const [ProfileHeader, setProfileHeader] = useState<React.ComponentType<
+    import('@shared/components/profile/ProfileHeader.native').ProfileHeaderProps
+  > | null>(null);
+  const [ProfileStats, setProfileStats] = useState<React.ComponentType<
+    import('@shared/components/profile/ProfileStats.native').ProfileStatsProps
+  > | null>(null);
 
   useEffect(() => {
     if (!componentsLoaded) {
@@ -870,7 +894,7 @@ function ProfileDisplayTestMobile({ profile }: { profile: any }) {
           setComponentsLoaded(true);
         })
         .catch(err => {
-          console.warn('[ProfileDisplayTest] Failed to load components:', err);
+          Logger.error('[ProfileDisplayTest] Failed to load components:', err);
         });
     }
   }, [componentsLoaded]);

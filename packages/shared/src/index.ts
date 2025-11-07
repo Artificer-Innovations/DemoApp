@@ -41,7 +41,4 @@ export * from './validation/profileSchema';
 // Apps should import directly from './components/profile/ProfileAvatar' etc.
 // Exporting both would cause conflicts, so let the bundlers handle platform resolution
 
-// OPTIONAL: also log from a shared module to compare
-// packages/shared/src/index.ts
-console.log('[shared sees react at]', require.resolve('react'));
-console.log('[shared sees rn at]', require.resolve('react-native'));
+export * from './utils/logger';

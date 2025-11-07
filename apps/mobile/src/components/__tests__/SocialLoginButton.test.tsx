@@ -1,9 +1,24 @@
 import React from 'react';
 import { render, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { SocialLoginButton } from '../SocialLoginButton';
+import { Logger } from '@shared/utils/logger';
 
 describe('SocialLoginButton', () => {
   const mockOnPress = jest.fn<Promise<void>, []>();
+
+  const createDeferred = () => {
+    let innerResolve: (() => void) | undefined;
+    const promise = new Promise<void>(resolve => {
+      innerResolve = resolve;
+    });
+    const resolve = () => {
+      if (!innerResolve) {
+        throw new Error('Deferred resolve invoked before initialization');
+      }
+      innerResolve();
+    };
+    return { promise, resolve };
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -24,10 +39,7 @@ describe('SocialLoginButton', () => {
   });
 
   it('invokes onPress exactly once per tap and shows loading state', async () => {
-    let resolvePress: () => void;
-    const pressPromise = new Promise<void>(resolve => {
-      resolvePress = resolve;
-    });
+    const { promise: pressPromise, resolve: resolvePress } = createDeferred();
     mockOnPress.mockReturnValueOnce(pressPromise);
 
     const { getByText, queryByText } = render(
@@ -44,7 +56,7 @@ describe('SocialLoginButton', () => {
     expect(mockOnPress).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      resolvePress!();
+      resolvePress();
       await pressPromise;
     });
 
@@ -58,7 +70,7 @@ describe('SocialLoginButton', () => {
   });
 
   it('logs a warning when onPress rejects', async () => {
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const loggerSpy = jest.spyOn(Logger, 'debug').mockImplementation(() => {});
     const errorPromise = Promise.reject(new Error('Google failure'));
     mockOnPress.mockReturnValueOnce(errorPromise);
 
@@ -73,11 +85,11 @@ describe('SocialLoginButton', () => {
       }
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(loggerSpy).toHaveBeenCalledWith(
       'Google sign-in error:',
       expect.any(Error)
     );
 
-    consoleSpy.mockRestore();
+    loggerSpy.mockRestore();
   });
 });

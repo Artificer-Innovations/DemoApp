@@ -1,12 +1,19 @@
 import { useState, useCallback } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+export type ArrayBufferWithMetadata = ArrayBuffer & {
+  type?: string;
+  size?: number;
+};
+
+export type UploadableFile = File | Blob | ArrayBufferWithMetadata;
+
 export interface AvatarUploadReturn {
   uploading: boolean;
   progress: number;
   error: Error | null;
   uploadedUrl: string | null;
-  uploadAvatar: (file: File | Blob) => Promise<string>;
+  uploadAvatar: (file: UploadableFile) => Promise<string>;
   removeAvatar: () => Promise<void>;
   reset: () => void;
 }
@@ -20,6 +27,20 @@ const BUCKET_NAME = 'avatars';
  * @param supabaseClient - Supabase client instance
  * @param userId - User ID for folder structure
  */
+const isArrayBufferWithMetadata = (
+  value: UploadableFile | ArrayBuffer
+): value is ArrayBufferWithMetadata => {
+  if (value instanceof ArrayBuffer) {
+    return true;
+  }
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    value.constructor === ArrayBuffer &&
+    'byteLength' in value
+  );
+};
+
 export function useAvatarUpload(
   supabaseClient: SupabaseClient,
   userId: string
@@ -66,8 +87,11 @@ export function useAvatarUpload(
     }
 
     // For Blob, check if type is set (we set it when creating from base64)
-    if (file.type && mimeToExt[file.type]) {
-      return mimeToExt[file.type];
+    if (file.type) {
+      const mimeType = file.type;
+      if (mimeToExt[mimeType]) {
+        return mimeToExt[mimeType];
+      }
     }
 
     // Default to jpg for Blob without type
@@ -78,7 +102,7 @@ export function useAvatarUpload(
    * Uploads avatar to Supabase Storage
    */
   const uploadAvatar = useCallback(
-    async (file: File | Blob | ArrayBuffer): Promise<string> => {
+    async (file: UploadableFile): Promise<string> => {
       setUploading(true);
       setProgress(0);
       setError(null);
@@ -86,18 +110,15 @@ export function useAvatarUpload(
 
       try {
         // Handle different input types
-        let uploadFile: File | Blob | ArrayBuffer;
+        let uploadFile: UploadableFile;
         let contentType: string;
         let extension: string;
 
-        if (
-          file instanceof ArrayBuffer ||
-          (file as any).constructor === ArrayBuffer
-        ) {
+        if (isArrayBufferWithMetadata(file)) {
           // ArrayBuffer from React Native (may have type property attached)
-          uploadFile = file as ArrayBuffer;
+          uploadFile = file;
           // Check if type was attached as a property
-          contentType = (file as any).type || 'image/jpeg';
+          contentType = file.type || 'image/jpeg';
           // Determine extension from content type
           const mimeToExt: Record<string, string> = {
             'image/jpeg': 'jpg',
