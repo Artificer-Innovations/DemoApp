@@ -27,7 +27,7 @@ describe('ProfileHeader', () => {
   };
 
   it('renders profile header with all information', () => {
-    render(<ProfileHeader profile={mockProfile} email="test@example.com" />);
+    render(<ProfileHeader profile={mockProfile} email='test@example.com' />);
 
     expect(screen.getByText('Test User')).toBeInTheDocument();
     expect(screen.getByText('@testuser')).toBeInTheDocument();
@@ -136,7 +136,7 @@ describe('ProfileHeader', () => {
   });
 
   it('renders email when provided', () => {
-    render(<ProfileHeader profile={mockProfile} email="user@example.com" />);
+    render(<ProfileHeader profile={mockProfile} email='user@example.com' />);
     expect(screen.getByText('user@example.com')).toBeInTheDocument();
   });
 
@@ -151,7 +151,12 @@ describe('ProfileHeader', () => {
       location: null,
       website: null,
     };
-    render(<ProfileHeader profile={profileWithoutMetadata} email="solo@example.com" />);
+    render(
+      <ProfileHeader
+        profile={profileWithoutMetadata}
+        email='solo@example.com'
+      />
+    );
     expect(screen.getByText('solo@example.com')).toBeInTheDocument();
   });
 });

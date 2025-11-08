@@ -11,7 +11,11 @@ export interface ProfileHeaderProps {
  * ProfileHeader component for web
  * Displays user profile header with avatar, name, username, email, bio, location, and website
  */
-export function ProfileHeader({ profile, email, className = '' }: ProfileHeaderProps) {
+export function ProfileHeader({
+  profile,
+  email,
+  className = '',
+}: ProfileHeaderProps) {
   if (!profile) {
     return (
       <div className={`rounded-md bg-gray-50 p-4 ${className}`}>
