@@ -207,7 +207,7 @@ link_supabase() {
       supabase link \
         --project-ref "${PROJECT_REF}" \
         --password "${DB_PASSWORD}" \
-        --non-interactive
+        --yes
   )
 }
 
@@ -219,7 +219,7 @@ reset_database() {
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db reset \
         --linked \
-        --non-interactive
+        --yes
   )
 }
 
@@ -241,7 +241,8 @@ seed_database() {
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db seed \
-        --linked
+        --linked \
+        --yes
   )
 }
 
@@ -280,7 +281,8 @@ unlink_supabase() {
     cd "${SUPABASE_CONFIG_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
-      supabase unlink
+      supabase unlink \
+        --yes
   )
 }
 
