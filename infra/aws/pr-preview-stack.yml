@@ -104,14 +104,14 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-      BucketEncryption: !If
-        - EncryptBuckets
-        -
-            ServerSideEncryptionConfiguration:
+      BucketEncryption:
+        Fn::If:
+          - EncryptBuckets
+          - ServerSideEncryptionConfiguration:
               - ServerSideEncryptionByDefault:
                   SSEAlgorithm: AES256
             BucketKeyEnabled: true
-        - !Ref AWS::NoValue
+          - !Ref AWS::NoValue
       LifecycleConfiguration:
         Rules:
           - Id: DeleteIncompleteMultipartUploads
@@ -139,14 +139,14 @@ Resources:
           - Id: ExpireLogs
             Status: Enabled
             ExpirationInDays: !Ref LogRetentionInDays
-      BucketEncryption: !If
-        - EncryptBuckets
-        -
-            ServerSideEncryptionConfiguration:
+      BucketEncryption:
+        Fn::If:
+          - EncryptBuckets
+          - ServerSideEncryptionConfiguration:
               - ServerSideEncryptionByDefault:
                   SSEAlgorithm: AES256
             BucketKeyEnabled: true
-        - !Ref AWS::NoValue
+          - !Ref AWS::NoValue
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
 

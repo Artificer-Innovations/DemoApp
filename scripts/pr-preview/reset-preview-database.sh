@@ -64,7 +64,16 @@ log() {
 
 run_cmd() {
   if [[ "${DRY_RUN}" == true ]]; then
-    log "DRY" "$*"
+    local printable=("$@")
+    for i in "${!printable[@]}"; do
+      if [[ -n "${SUPABASE_ACCESS_TOKEN}" && "${printable[$i]}" == *"${SUPABASE_ACCESS_TOKEN}"* ]]; then
+        printable[$i]="${printable[$i]//${SUPABASE_ACCESS_TOKEN}/***}"
+      fi
+      if [[ -n "${DB_PASSWORD}" && "${printable[$i]}" == *"${DB_PASSWORD}"* ]]; then
+        printable[$i]="${printable[$i]//${DB_PASSWORD}/***}"
+      fi
+    done
+    log "DRY" "${printable[*]}"
   else
     "$@"
   fi
@@ -175,7 +184,7 @@ parse_args() {
 
 checkout_baseline() {
   log "INFO" "Ensuring Supabase migrations are synced with ${BASELINE_REF}..."
-  run_cmd "git fetch --depth=1 origin"
+  run_cmd git fetch --depth=1 origin
   if [[ "${DRY_RUN}" == true ]]; then
     return
   fi
@@ -190,14 +199,23 @@ checkout_baseline() {
 
 link_supabase() {
   log "INFO" "Linking Supabase project ${PROJECT_REF}..."
-  local cmd="SUPABASE_ACCESS_TOKEN='${SUPABASE_ACCESS_TOKEN}' supabase link --project-ref ${PROJECT_REF} --password ${DB_PASSWORD} --config ${SUPABASE_CONFIG_DIR}/config.toml --non-interactive"
-  run_cmd "${cmd}"
+  run_cmd env \
+    SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase link \
+      --project-ref "${PROJECT_REF}" \
+      --password "${DB_PASSWORD}" \
+      --config "${SUPABASE_CONFIG_DIR}/config.toml" \
+      --non-interactive
 }
 
 reset_database() {
   log "INFO" "Resetting Supabase preview database to baseline migrations..."
-  local cmd="SUPABASE_ACCESS_TOKEN='${SUPABASE_ACCESS_TOKEN}' supabase db reset --linked --config ${SUPABASE_CONFIG_DIR}/config.toml --non-interactive"
-  run_cmd "${cmd}"
+  run_cmd env \
+    SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase db reset \
+      --linked \
+      --config "${SUPABASE_CONFIG_DIR}/config.toml" \
+      --non-interactive
 }
 
 seed_database() {
@@ -213,8 +231,11 @@ seed_database() {
   fi
 
   log "INFO" "Seeding database using ${seed_file}..."
-  local cmd="SUPABASE_ACCESS_TOKEN='${SUPABASE_ACCESS_TOKEN}' supabase db seed --linked --config ${SUPABASE_CONFIG_DIR}/config.toml"
-  run_cmd "${cmd}"
+  run_cmd env \
+    SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase db seed \
+      --linked \
+      --config "${SUPABASE_CONFIG_DIR}/config.toml"
 }
 
 generate_types() {
@@ -228,25 +249,28 @@ generate_types() {
   local mobile_types="${REPO_ROOT}/apps/mobile/src/types/database.ts"
 
   log "INFO" "Generating TypeScript types..."
-  local cmd="SUPABASE_ACCESS_TOKEN='${SUPABASE_ACCESS_TOKEN}' supabase gen types typescript --linked --config ${SUPABASE_CONFIG_DIR}/config.toml"
-
   if [[ "${DRY_RUN}" == true ]]; then
-    log "DRY" "${cmd} > ${shared_types}"
+    log "DRY" "env SUPABASE_ACCESS_TOKEN=*** supabase gen types typescript --linked --config ${SUPABASE_CONFIG_DIR}/config.toml > ${shared_types}"
     log "DRY" "cp ${shared_types} ${web_types}"
     log "DRY" "cp ${shared_types} ${mobile_types}"
     return
   fi
 
   mkdir -p "$(dirname "${shared_types}")" "$(dirname "${web_types}")" "$(dirname "${mobile_types}")"
-  ${cmd} >"${shared_types}"
+  env SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase gen types typescript \
+      --linked \
+      --config "${SUPABASE_CONFIG_DIR}/config.toml" >"${shared_types}"
   cp "${shared_types}" "${web_types}"
   cp "${shared_types}" "${mobile_types}"
 }
 
 unlink_supabase() {
   log "INFO" "Unlinking Supabase project..."
-  local cmd="SUPABASE_ACCESS_TOKEN='${SUPABASE_ACCESS_TOKEN}' supabase unlink --config ${SUPABASE_CONFIG_DIR}/config.toml"
-  run_cmd "${cmd}"
+  run_cmd env \
+    SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase unlink \
+      --config "${SUPABASE_CONFIG_DIR}/config.toml"
 }
 
 main() {

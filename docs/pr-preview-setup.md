@@ -41,7 +41,7 @@ locally ensure the following are available:
 
 1. **Wildcard Certificate**
    - Issue an ACM certificate in `us-east-1` that covers `<domain>` and
-     `*. <domain>`.
+     `*.<domain>`.
    - Example: `beakerstack.com`, `*.beakerstack.com`.
 
 2. **DNS Hosted Zone**
@@ -119,9 +119,8 @@ Triggered for `opened`, `reopened`, `synchronize`, `ready_for_review`.
    - Syncs shared error page and exports outputs.
 4. Run `scripts/pr-preview/reset-preview-database.sh`
    - Links to preview Supabase project.
-
-- Resets migrations + seed data.
-- Generates TypeScript types for all packages.
+   - Resets migrations + seed data.
+   - Generates TypeScript types for all packages.
 
 5. Run `scripts/pr-preview/deploy-web.sh`
    - Builds Vite web app.
