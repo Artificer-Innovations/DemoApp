@@ -1,3 +1,44 @@
+supabase_run() {
+  local allow_fail=0
+  if [[ "${1:-}" == "--allow-fail" ]]; then
+    allow_fail=1
+    shift
+  fi
+
+  local description="$1"
+  shift
+
+  if [[ "${DRY_RUN}" == true ]]; then
+    log "DRY" "${description}"
+    return 0
+  fi
+
+  local max_attempts="${SUPABASE_MAX_RETRIES:-3}"
+  local attempt=1
+  local delay=5
+
+  while true; do
+    if "$@"; then
+      return 0
+    fi
+
+    local status=$?
+    if (( attempt >= max_attempts )); then
+      if (( allow_fail )); then
+        log "WARN" "${description} failed after ${attempt} attempt(s); continuing. (exit ${status})"
+        return 0
+      fi
+      log "ERROR" "${description} failed after ${attempt} attempt(s). (exit ${status})"
+      return ${status}
+    fi
+
+    log "WARN" "${description} failed (attempt ${attempt}/${max_attempts}); retrying in ${delay}s..."
+    sleep "${delay}"
+    attempt=$((attempt + 1))
+    delay=$((delay * 2))
+  done
+}
+
 #!/usr/bin/env bash
 
 set -euo pipefail
@@ -210,9 +251,9 @@ link_supabase() {
   # supabase link requires running in the project directory where config.toml lives
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-    run_cmd env \
-      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase_run "Link Supabase project" env \
       SUPABASE_DISABLE_KEYRING=1 \
+      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase link \
         --project-ref "${PROJECT_REF}" \
         --password "${DB_PASSWORD}" \
@@ -224,9 +265,9 @@ reset_database() {
   log "INFO" "Resetting Supabase preview database to baseline migrations..."
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-    run_cmd env \
-      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase_run "Reset Supabase database" env \
       SUPABASE_DISABLE_KEYRING=1 \
+      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db reset \
         --linked \
         --yes
@@ -248,9 +289,9 @@ seed_database() {
   log "INFO" "Seeding database using ${seed_file}..."
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-    run_cmd env \
-      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase_run "Seed Supabase database" env \
       SUPABASE_DISABLE_KEYRING=1 \
+      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db seed
   )
 }
@@ -274,29 +315,32 @@ generate_types() {
   fi
 
   mkdir -p "$(dirname "${shared_types}")" "$(dirname "${web_types}")" "$(dirname "${mobile_types}")"
+  if [[ "${DRY_RUN}" == true ]]; then
+    log "DRY" "Generate Supabase types into ${shared_types}"
+    return
+  fi
+
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-    env SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
-      SUPABASE_DISABLE_KEYRING=1 \
-      supabase gen types typescript \
-        --linked >"${shared_types}"
-  )
+      supabase_run "Generate Supabase types" env \
+        SUPABASE_DISABLE_KEYRING=1 \
+        SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+        supabase gen types typescript \
+          --linked
+  ) >"${shared_types}"
   cp "${shared_types}" "${web_types}"
   cp "${shared_types}" "${mobile_types}"
 }
 
 unlink_supabase() {
   log "INFO" "Unlinking Supabase project..."
-  if [[ "${DRY_RUN}" == true ]]; then
-    log "DRY" "env SUPABASE_DISABLE_KEYRING=1 SUPABASE_ACCESS_TOKEN=*** supabase unlink --yes"
-    return
-  fi
-
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-    if ! env SUPABASE_DISABLE_KEYRING=1 SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" supabase unlink --yes; then
-      log "WARN" "Supabase unlink failed (likely missing keyring); continuing without unlink."
-    fi
+    supabase_run --allow-fail "Supabase unlink" env \
+      SUPABASE_DISABLE_KEYRING=1 \
+      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      supabase unlink \
+        --yes
   )
 }
 
