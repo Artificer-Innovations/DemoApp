@@ -288,7 +288,8 @@ unlink_supabase() {
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase unlink \
-        --yes
+        --yes \
+        --no-keyring
   )
 }
 
