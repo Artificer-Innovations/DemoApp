@@ -18,6 +18,8 @@ PROJECT_REF="${DEFAULT_PROJECT_REF}"
 DB_PASSWORD="${DEFAULT_DB_PASSWORD}"
 BASELINE_REF="${DEFAULT_BASELINE_REF}"
 SUPABASE_CONFIG_DIR="${DEFAULT_SUPABASE_CONFIG_DIR}"
+SUPABASE_RUNTIME_DIR="${DEFAULT_SUPABASE_CONFIG_DIR}"
+TEMP_SUPABASE_DIR=""
 GENERATE_TYPES=true
 RUN_SEED=true
 OUTPUT_ENV=""
@@ -193,18 +195,21 @@ checkout_baseline() {
   local worktree_dir
   worktree_dir="$(mktemp -d "${REPO_ROOT}/.supabase-worktree-XXXX")"
   git worktree add --detach "${worktree_dir}" "origin/${BASELINE_REF}" >/dev/null
-  rsync -a --delete "${worktree_dir}/supabase/" "${SUPABASE_CONFIG_DIR}/"
+
+  TEMP_SUPABASE_DIR="$(mktemp -d "${REPO_ROOT}/.supabase-runtime-XXXX")"
+  rsync -a --delete "${worktree_dir}/supabase/" "${TEMP_SUPABASE_DIR}/"
   git worktree remove "${worktree_dir}" --force >/dev/null
 
   # Overlay current branch migrations to ensure PR-specific changes are included.
-  rsync -a "${REPO_ROOT}/supabase/" "${SUPABASE_CONFIG_DIR}/"
+  rsync -a "${REPO_ROOT}/supabase/" "${TEMP_SUPABASE_DIR}/"
+  SUPABASE_RUNTIME_DIR="${TEMP_SUPABASE_DIR}"
 }
 
 link_supabase() {
   log "INFO" "Linking Supabase project ${PROJECT_REF}..."
   # supabase link requires running in the project directory where config.toml lives
   (
-    cd "${SUPABASE_CONFIG_DIR}"
+    cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase link \
@@ -217,7 +222,7 @@ link_supabase() {
 reset_database() {
   log "INFO" "Resetting Supabase preview database to baseline migrations..."
   (
-    cd "${SUPABASE_CONFIG_DIR}"
+    cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db reset \
@@ -232,7 +237,7 @@ seed_database() {
     return
   fi
 
-  local seed_file="${SUPABASE_CONFIG_DIR}/seed.sql"
+  local seed_file="${SUPABASE_RUNTIME_DIR}/seed.sql"
   if [[ ! -f "${seed_file}" ]]; then
     log "WARN" "Seed file not found (${seed_file}); skipping seeding."
     return
@@ -240,7 +245,7 @@ seed_database() {
 
   log "INFO" "Seeding database using ${seed_file}..."
   (
-    cd "${SUPABASE_CONFIG_DIR}"
+    cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db seed \
@@ -261,7 +266,7 @@ generate_types() {
 
   log "INFO" "Generating TypeScript types..."
   if [[ "${DRY_RUN}" == true ]]; then
-    log "DRY" "env SUPABASE_ACCESS_TOKEN=*** supabase gen types typescript --linked --config ${SUPABASE_CONFIG_DIR}/config.toml > ${shared_types}"
+    log "DRY" "env SUPABASE_ACCESS_TOKEN=*** supabase gen types typescript --linked > ${shared_types}"
     log "DRY" "cp ${shared_types} ${web_types}"
     log "DRY" "cp ${shared_types} ${mobile_types}"
     return
@@ -269,7 +274,7 @@ generate_types() {
 
   mkdir -p "$(dirname "${shared_types}")" "$(dirname "${web_types}")" "$(dirname "${mobile_types}")"
   (
-    cd "${SUPABASE_CONFIG_DIR}"
+    cd "${SUPABASE_RUNTIME_DIR}"
     env SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase gen types typescript \
         --linked >"${shared_types}"
@@ -281,13 +286,21 @@ generate_types() {
 unlink_supabase() {
   log "INFO" "Unlinking Supabase project..."
   (
-    cd "${SUPABASE_CONFIG_DIR}"
+    cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase unlink \
         --yes
   )
 }
+
+cleanup() {
+  if [[ -n "${TEMP_SUPABASE_DIR}" && -d "${TEMP_SUPABASE_DIR}" ]]; then
+    rm -rf "${TEMP_SUPABASE_DIR}"
+  fi
+}
+
+trap cleanup EXIT
 
 main() {
   parse_args "$@"
