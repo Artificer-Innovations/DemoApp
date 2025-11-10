@@ -287,13 +287,16 @@ generate_types() {
 
 unlink_supabase() {
   log "INFO" "Unlinking Supabase project..."
+  if [[ "${DRY_RUN}" == true ]]; then
+    log "DRY" "env SUPABASE_DISABLE_KEYRING=1 SUPABASE_ACCESS_TOKEN=*** supabase unlink --yes"
+    return
+  fi
+
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-    run_cmd env \
-      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
-      SUPABASE_DISABLE_KEYRING=1 \
-      supabase unlink \
-        --yes
+    if ! env SUPABASE_DISABLE_KEYRING=1 SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" supabase unlink --yes; then
+      log "WARN" "Supabase unlink failed (likely missing keyring); continuing without unlink."
+    fi
   )
 }
 
