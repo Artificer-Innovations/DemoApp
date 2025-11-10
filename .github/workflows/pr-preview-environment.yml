@@ -87,13 +87,15 @@ jobs:
         shell: bash
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          SUPABASE_MAX_RETRIES: 5
         run: |
           set -euo pipefail
           ./scripts/pr-preview/reset-preview-database.sh \
             --pr-number "${PR_NUMBER}" \
             --project-ref "${SUPABASE_PREVIEW_PROJECT_REF}" \
             --db-password "${SUPABASE_PREVIEW_DB_PASSWORD}" \
-            --baseline-ref "${{ github.base_ref }}"
+            --baseline-ref "${{ github.base_ref }}" \
+            --skip-if-unchanged
 
       - name: Build and deploy web preview
         id: web

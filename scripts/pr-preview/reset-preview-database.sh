@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
 supabase_run() {
   local allow_fail=0
   if [[ "${1:-}" == "--allow-fail" ]]; then
@@ -18,11 +22,13 @@ supabase_run() {
   local delay=5
 
   while true; do
-    if "$@"; then
+    local status
+    "$@"
+    status=$?
+    if (( status == 0 )); then
       return 0
     fi
 
-    local status=$?
     if (( attempt >= max_attempts )); then
       if (( allow_fail )); then
         log "WARN" "${description} failed after ${attempt} attempt(s); continuing. (exit ${status})"
@@ -38,10 +44,6 @@ supabase_run() {
     delay=$((delay * 2))
   done
 }
-
-#!/usr/bin/env bash
-
-set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -61,6 +63,8 @@ BASELINE_REF="${DEFAULT_BASELINE_REF}"
 SUPABASE_CONFIG_DIR="${DEFAULT_SUPABASE_CONFIG_DIR}"
 SUPABASE_RUNTIME_DIR="${DEFAULT_SUPABASE_CONFIG_DIR}"
 TEMP_SUPABASE_DIR=""
+SKIP_IF_UNCHANGED=false
+SUPABASE_HAS_CHANGES=true
 GENERATE_TYPES=true
 RUN_SEED=true
 OUTPUT_ENV=""
@@ -197,6 +201,10 @@ parse_args() {
         DRY_RUN=true
         shift
         ;;
+      --skip-if-unchanged)
+        SKIP_IF_UNCHANGED=true
+        shift
+        ;;
       --help|-h)
         usage
         exit 0
@@ -230,6 +238,14 @@ checkout_baseline() {
   run_cmd git fetch origin "${BASELINE_REF}" --depth=1
   if [[ "${DRY_RUN}" == true ]]; then
     return
+  fi
+
+  if [[ "${SKIP_IF_UNCHANGED}" == true ]]; then
+    if git diff --quiet "${BASELINE_REF}" HEAD -- supabase; then
+      SUPABASE_HAS_CHANGES=false
+      log "INFO" "No Supabase directory changes detected relative to ${BASELINE_REF}; skipping Supabase reset."
+      return
+    fi
   fi
 
   # Use a temporary worktree so we don't disturb the current workspace
@@ -367,11 +383,15 @@ main() {
   fi
 
   checkout_baseline
-  link_supabase
-  reset_database
-  seed_database
-  generate_types
-  unlink_supabase
+  if [[ "${SUPABASE_HAS_CHANGES}" == true ]]; then
+    link_supabase
+    reset_database
+    seed_database
+    generate_types
+    unlink_supabase
+  else
+    log "INFO" "Supabase changes skipped; retaining existing preview database and types."
+  fi
 
   if [[ -n "${PR_NUMBER}" ]]; then
     write_output "PREVIEW_PR_NUMBER" "${PR_NUMBER}"

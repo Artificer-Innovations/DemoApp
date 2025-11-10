@@ -36,6 +36,7 @@ locally ensure the following are available:
 - `psql` (PostgreSQL client) for teardown
 - `npx` (Node.js ≥ 18)
 - `jq` (JSON parsing in scripts)
+- Optional: set `SUPABASE_MAX_RETRIES` (default `3`) to raise retry attempts when Supabase CLI operations are flaky.
 
 ## Infrastructure Provisioning
 
@@ -124,6 +125,7 @@ Triggered for `opened`, `reopened`, `synchronize`, `ready_for_review`.
    - Links to preview Supabase project.
    - Resets migrations + seed data.
    - Generates TypeScript types for all packages.
+   - Uses `--skip-if-unchanged` to avoid contacting Supabase when no migrations changed.
 
 5. Run `scripts/pr-preview/deploy-web.sh`
    - Builds Vite web app.
@@ -182,6 +184,7 @@ All scripts support `--dry-run` and write outputs to `GITHUB_OUTPUT` (CI) or
      --project-ref your-preview-ref \
      --db-password your-db-password \
      --pr-number 123 \
+     --skip-if-unchanged \
      --dry-run
    ```
 
