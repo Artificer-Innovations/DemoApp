@@ -20,10 +20,10 @@ the helper scripts under `scripts/pr-preview/`.
 
 ### Accounts & Services
 
-| Service      | Description                                            | Notes                                                                         |
-| ------------ | ------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| **AWS**      | Hosts S3 bucket, CloudFront distribution, Route53 DNS. | Requires ability to create CloudFormation stacks and manage ACM certificates. |
-| **Supabase** | Dedicated preview project for PR data.                 | Service role password and API access token required.                          |
+| Service      | Description                                            | Notes                                                                                                               |
+| ------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **AWS**      | Hosts S3 bucket, CloudFront distribution, Route53 DNS. | Requires ability to create CloudFormation stacks and manage ACM certificates.                                       |
+| **Supabase** | Dedicated preview project for PR data.                 | Service role password and API access token required.                                                                |
 | **Expo**     | Expo EAS Update for mobile previews.                   | Requires `EXPO_TOKEN` with channel + update permissions and the Expo project’s **Project ID** (Settings → General). |
 
 ### CLI Tooling (CI)
@@ -94,16 +94,16 @@ variables → Actions) before enabling the workflow.
 
 ### Variables
 
-| Variable                    | Description                | Example                  |
-| --------------------------- | -------------------------- | ------------------------ |
-| `PR_PREVIEW_DOMAIN`         | Root domain for previews.  | `beakerstack.com`        |
-| `PR_PREVIEW_HOSTED_ZONE_ID` | Route53 zone ID.           | `Z0123456789`            |
-| `PR_PREVIEW_STACK_NAME`     | CloudFormation stack name. | `beakerstack-pr-preview` |
-| `PR_PREVIEW_PREFIX`         | Web/mobile preview prefix. | `pr-`                    |
-| `PR_PRODUCTION_PREFIX`      | Production path in S3.     | `production`             |
-| `PR_PREVIEW_AWS_REGION`     | AWS region for stack.      | `us-east-1`              |
-| `EXPO_ACCOUNT`              | Expo account slug.         | `artificerinnovations`   |
-| `EXPO_PROJECT_SLUG`         | Expo project slug.         | `beaker-stack`           |
+| Variable                    | Description                                        | Example                                |
+| --------------------------- | -------------------------------------------------- | -------------------------------------- |
+| `PR_PREVIEW_DOMAIN`         | Root domain for previews.                          | `beakerstack.com`                      |
+| `PR_PREVIEW_HOSTED_ZONE_ID` | Route53 zone ID.                                   | `Z0123456789`                          |
+| `PR_PREVIEW_STACK_NAME`     | CloudFormation stack name.                         | `beakerstack-pr-preview`               |
+| `PR_PREVIEW_PREFIX`         | Web/mobile preview prefix.                         | `pr-`                                  |
+| `PR_PRODUCTION_PREFIX`      | Production path in S3.                             | `production`                           |
+| `PR_PREVIEW_AWS_REGION`     | AWS region for stack.                              | `us-east-1`                            |
+| `EXPO_ACCOUNT`              | Expo account slug.                                 | `artificerinnovations`                 |
+| `EXPO_PROJECT_SLUG`         | Expo project slug.                                 | `beaker-stack`                         |
 | `EXPO_PROJECT_ID`           | Expo project ID (Settings → General → Project ID). | `00000000-0000-0000-0000-000000000000` |
 
 ## Workflow Behaviour
