@@ -294,6 +294,12 @@ seed_database() {
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
       supabase db seed
   )
+
+  supabase_run "Push Supabase migrations" env \
+    SUPABASE_DISABLE_KEYRING=1 \
+    SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+    supabase db push \
+      --linked
 }
 
 generate_types() {
@@ -315,18 +321,14 @@ generate_types() {
   fi
 
   mkdir -p "$(dirname "${shared_types}")" "$(dirname "${web_types}")" "$(dirname "${mobile_types}")"
-  if [[ "${DRY_RUN}" == true ]]; then
-    log "DRY" "Generate Supabase types into ${shared_types}"
-    return
-  fi
 
   (
     cd "${SUPABASE_RUNTIME_DIR}"
-      supabase_run "Generate Supabase types" env \
-        SUPABASE_DISABLE_KEYRING=1 \
-        SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
-        supabase gen types typescript \
-          --linked
+    supabase_run "Generate Supabase types" env \
+      SUPABASE_DISABLE_KEYRING=1 \
+      SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      supabase gen types typescript \
+        --linked
   ) >"${shared_types}"
   cp "${shared_types}" "${web_types}"
   cp "${shared_types}" "${mobile_types}"
