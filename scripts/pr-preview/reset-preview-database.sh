@@ -103,15 +103,15 @@ ensure_prereqs() {
     exit 1
   }
 
-  if ! command -v git >/dev/null 2>&1; then
+  command -v git >/dev/null 2>&1 || {
     log "ERROR" "git is required."
     exit 1
-  fi
+  }
 
-  if ! command -v rsync >/dev/null 2>&1; then
+  command -v rsync >/dev/null 2>&1 || {
     log "ERROR" "rsync is required."
     exit 1
-  fi
+  }
 }
 
 parse_args() {
