@@ -212,6 +212,7 @@ link_supabase() {
     cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      SUPABASE_DISABLE_KEYRING=1 \
       supabase link \
         --project-ref "${PROJECT_REF}" \
         --password "${DB_PASSWORD}" \
@@ -225,6 +226,7 @@ reset_database() {
     cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      SUPABASE_DISABLE_KEYRING=1 \
       supabase db reset \
         --linked \
         --yes
@@ -248,6 +250,7 @@ seed_database() {
     cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      SUPABASE_DISABLE_KEYRING=1 \
       supabase db seed
   )
 }
@@ -264,7 +267,7 @@ generate_types() {
 
   log "INFO" "Generating TypeScript types..."
   if [[ "${DRY_RUN}" == true ]]; then
-    log "DRY" "env SUPABASE_ACCESS_TOKEN=*** supabase gen types typescript --linked > ${shared_types}"
+    log "DRY" "env SUPABASE_DISABLE_KEYRING=1 SUPABASE_ACCESS_TOKEN=*** supabase gen types typescript --linked > ${shared_types}"
     log "DRY" "cp ${shared_types} ${web_types}"
     log "DRY" "cp ${shared_types} ${mobile_types}"
     return
@@ -274,6 +277,7 @@ generate_types() {
   (
     cd "${SUPABASE_RUNTIME_DIR}"
     env SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      SUPABASE_DISABLE_KEYRING=1 \
       supabase gen types typescript \
         --linked >"${shared_types}"
   )
@@ -287,9 +291,9 @@ unlink_supabase() {
     cd "${SUPABASE_RUNTIME_DIR}"
     run_cmd env \
       SUPABASE_ACCESS_TOKEN="${SUPABASE_ACCESS_TOKEN}" \
+      SUPABASE_DISABLE_KEYRING=1 \
       supabase unlink \
-        --yes \
-        --no-keyring
+        --yes
   )
 }
 
