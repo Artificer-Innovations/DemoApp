@@ -6,21 +6,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 MOBILE_APP_DIR="${REPO_ROOT}/apps/mobile"
 
-DEFAULT_PREVIEW_PREFIX="pr-"
-DEFAULT_CHANNEL_PREFIX="${DEFAULT_PREVIEW_PREFIX}"
+DEFAULT_CHANNEL="production"
 DEFAULT_PLATFORM="all"
-DEFAULT_MESSAGE_TEMPLATE="PR #%s preview update"
+DEFAULT_MESSAGE="Production deployment update"
 DEFAULT_EXPO_PROJECT_SLUG="beaker-stack"
 
-PR_NUMBER=""
-CHANNEL_PREFIX="${DEFAULT_CHANNEL_PREFIX}"
+CHANNEL="${DEFAULT_CHANNEL}"
 PLATFORM="${DEFAULT_PLATFORM}"
-UPDATE_MESSAGE=""
+UPDATE_MESSAGE="${DEFAULT_MESSAGE}"
 EXPO_ACCOUNT=""
 EXPO_PROJECT_SLUG="${DEFAULT_EXPO_PROJECT_SLUG}"
 OUTPUT_ENV=""
 DRY_RUN=false
 PROJECT_DIR="${MOBILE_APP_DIR}"
+BUILD_ONLY=false
 
 EAS_BIN=(npx --yes eas-cli)
 
@@ -28,32 +27,33 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") [options]
 
-Publishes an Expo EAS Update for a pull request preview, targeting a dedicated
-channel (e.g., pr-123). The script ensures the branch/channel exist, publishes
-the update, and returns handy preview URLs.
+Builds and optionally publishes an Expo EAS Update for production, targeting the production channel.
+Can also build standalone builds for App Store/Play Store submission.
 
 Required:
-  --pr-number NUMBER             Pull request number
   --expo-account ACCOUNT         Expo account slug (e.g., artificerinnovations)
 
 Optional:
   --project-dir PATH             Path to the Expo project (default: ${PROJECT_DIR})
   --expo-project SLUG            Expo project slug (default: ${DEFAULT_EXPO_PROJECT_SLUG})
-  --channel-prefix PREFIX        Prefix for preview channels (default: ${DEFAULT_CHANNEL_PREFIX})
-  --platform [all|ios|android]   Platform target for EAS Update (default: ${DEFAULT_PLATFORM})
-  --message TEXT                 Custom update message (default: "PR #<number> preview update")
+  --channel CHANNEL              Channel name (default: ${DEFAULT_CHANNEL})
+  --platform [all|ios|android]   Platform target (default: ${DEFAULT_PLATFORM})
+  --message TEXT                 Custom update message (default: "${DEFAULT_MESSAGE}")
+  --build-only                   Only build, don't publish update (for store submissions)
   --env-file PATH                Write outputs to PATH (KEY=VALUE format)
   --dry-run                      Log commands without executing
   --help                         Show this help message
 
 Environment variables:
   EXPO_TOKEN                     Required for non-interactive EAS commands
-  EXPO_PROJECT_ID                Required if .eas/project.json is absent (can be found in Expo dashboard)
+  EXPO_PROJECT_ID                Required if .eas/project.json is absent
+  PRODUCTION_SUPABASE_URL        Supabase URL for production
+  PRODUCTION_SUPABASE_ANON_KEY   Supabase anon key for production
 
 Outputs:
-  PREVIEW_MOBILE_CHANNEL         Expo Update channel name
-  PREVIEW_MOBILE_UPDATE_URL      Expo URL to view the latest update
-  PREVIEW_MOBILE_INSTALL_URL     Expo go/QR URL for testers (if available)
+  PRODUCTION_MOBILE_CHANNEL      Expo Update channel name
+  PRODUCTION_MOBILE_UPDATE_URL   Expo URL to view the latest update
+  PRODUCTION_MOBILE_BUILD_ID     Build ID (if --build-only)
 EOF
 }
 
@@ -103,10 +103,6 @@ ensure_prereqs() {
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --pr-number)
-        PR_NUMBER="$2"
-        shift 2
-        ;;
       --expo-account)
         EXPO_ACCOUNT="$2"
         shift 2
@@ -119,8 +115,8 @@ parse_args() {
         EXPO_PROJECT_SLUG="$2"
         shift 2
         ;;
-      --channel-prefix)
-        CHANNEL_PREFIX="$2"
+      --channel)
+        CHANNEL="$2"
         shift 2
         ;;
       --platform)
@@ -130,6 +126,10 @@ parse_args() {
       --message)
         UPDATE_MESSAGE="$2"
         shift 2
+        ;;
+      --build-only)
+        BUILD_ONLY=true
+        shift
         ;;
       --env-file)
         OUTPUT_ENV="$2"
@@ -152,18 +152,9 @@ parse_args() {
     esac
   done
 
-  if [[ -z "${PR_NUMBER}" ]]; then
-    log "ERROR" "--pr-number is required."
-    exit 1
-  fi
-
   if [[ -z "${EXPO_ACCOUNT}" ]]; then
     log "ERROR" "--expo-account is required."
     exit 1
-  fi
-
-  if [[ -z "${UPDATE_MESSAGE}" ]]; then
-    UPDATE_MESSAGE=$(printf "${DEFAULT_MESSAGE_TEMPLATE}" "${PR_NUMBER}")
   fi
 
   if [[ ! -d "${PROJECT_DIR}" ]]; then
@@ -172,12 +163,7 @@ parse_args() {
   fi
 }
 
-channel_name() {
-  printf '%s%s' "${CHANNEL_PREFIX}" "${PR_NUMBER}"
-}
-
 run_eas() {
-  local channel
   if [[ "${DRY_RUN}" == true ]]; then
     log "DRY" "eas $*"
     return 0
@@ -233,55 +219,60 @@ ensure_project_configured() {
   fi
 }
 
-ensure_branch_and_channel() {
-  local channel
-  channel="$(channel_name)"
-
-  log "INFO" "Ensuring Expo branch ${channel} exists..."
-  if ! run_eas branch:show "${channel}" --json >/dev/null 2>&1; then
-    run_eas branch:create "${channel}" --json --non-interactive || log "WARN" "Branch may already exist: ${channel}"
+ensure_channel() {
+  log "INFO" "Ensuring Expo channel ${CHANNEL} exists..."
+  if ! run_eas channel:view "${CHANNEL}" --json >/dev/null 2>&1; then
+    run_eas channel:create "${CHANNEL}" --non-interactive --json || log "WARN" "Channel may already exist: ${CHANNEL}"
   fi
 
-  log "INFO" "Ensuring Expo channel ${channel} points to branch ${channel}..."
-  if ! run_eas channel:view "${channel}" --json >/dev/null 2>&1; then
-    run_eas channel:create "${channel}" --non-interactive --json || log "WARN" "Channel may already exist: ${channel}"
-  fi
+  run_eas channel:edit "${CHANNEL}" --branch "${CHANNEL}" --non-interactive >/dev/null 2>&1 || true
+}
 
-  run_eas channel:edit "${channel}" --branch "${channel}" --non-interactive >/dev/null 2>&1 || true
+build_standalone() {
+  local build_json build_id
+  log "INFO" "Building standalone app for ${PLATFORM} (profile: production)..."
+  
+  build_json="$(run_eas build --platform "${PLATFORM}" --profile production --non-interactive --json --no-wait || true)"
+  
+  if [[ -z "${build_json}" ]]; then
+    log "ERROR" "Failed to start build."
+    exit 1
+  fi
+  
+  build_id="$(echo "${build_json}" | jq -r '.id // empty')"
+  
+  if [[ -z "${build_id}" ]]; then
+    log "ERROR" "Failed to parse build ID from build output."
+    exit 1
+  fi
+  
+  log "INFO" "Build started with ID: ${build_id}"
+  write_output "PRODUCTION_MOBILE_BUILD_ID" "${build_id}"
+  log "INFO" "Build is running in the background. Check status at: https://expo.dev/accounts/${EXPO_ACCOUNT}/projects/${EXPO_PROJECT_SLUG}/builds/${build_id}"
 }
 
 publish_update() {
-  local channel
-  channel="$(channel_name)"
-
-  log "INFO" "Publishing EAS Update to branch ${channel}..."
-  run_eas update --branch "${channel}" --message "${UPDATE_MESSAGE}" --platform "${PLATFORM}" --non-interactive --json || {
+  log "INFO" "Publishing EAS Update to channel ${CHANNEL}..."
+  run_eas update --channel "${CHANNEL}" --message "${UPDATE_MESSAGE}" --platform "${PLATFORM}" --non-interactive --json || {
     log "ERROR" "Failed to publish Expo update."
     exit 1
   }
 }
 
 fetch_latest_update_urls() {
-  local channel project_url install_url
-  channel="$(channel_name)"
+  local project_url
+  project_url="https://expo.dev/accounts/${EXPO_ACCOUNT}/projects/${EXPO_PROJECT_SLUG}/updates/${CHANNEL}"
 
   if [[ "${DRY_RUN}" == true ]]; then
-    project_url="https://expo.dev/accounts/${EXPO_ACCOUNT}/projects/${EXPO_PROJECT_SLUG}/updates/${channel}"
-    install_url="${project_url}"
-    write_output "PREVIEW_MOBILE_CHANNEL" "${channel}"
-    write_output "PREVIEW_MOBILE_UPDATE_URL" "${project_url}"
-    write_output "PREVIEW_MOBILE_INSTALL_URL" "${install_url}"
+    write_output "PRODUCTION_MOBILE_CHANNEL" "${CHANNEL}"
+    write_output "PRODUCTION_MOBILE_UPDATE_URL" "${project_url}"
     return
   fi
 
-  project_url="https://expo.dev/accounts/${EXPO_ACCOUNT}/projects/${EXPO_PROJECT_SLUG}/updates/${channel}"
-  install_url="${project_url}"
+  write_output "PRODUCTION_MOBILE_CHANNEL" "${CHANNEL}"
+  write_output "PRODUCTION_MOBILE_UPDATE_URL" "${project_url}"
 
-  write_output "PREVIEW_MOBILE_CHANNEL" "${channel}"
-  write_output "PREVIEW_MOBILE_UPDATE_URL" "${project_url}"
-  write_output "PREVIEW_MOBILE_INSTALL_URL" "${install_url}"
-
-  log "INFO" "Preview update available at ${project_url}"
+  log "INFO" "Production update available at ${project_url}"
 }
 
 main() {
@@ -293,11 +284,16 @@ main() {
   fi
 
   ensure_project_configured
-  ensure_branch_and_channel
-  publish_update
-  fetch_latest_update_urls
+  ensure_channel
 
-  log "INFO" "Mobile preview deployment completed."
+  if [[ "${BUILD_ONLY}" == true ]]; then
+    build_standalone
+  else
+    publish_update
+    fetch_latest_update_urls
+  fi
+
+  log "INFO" "Production mobile deployment completed."
 }
 
 main "$@"
