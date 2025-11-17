@@ -196,13 +196,36 @@ ensure_project_configured() {
     return
   fi
 
-  if [[ -z "${EXPO_PROJECT_ID:-}" ]]; then
-    log "ERROR" ".eas/project.json not found. Set EXPO_PROJECT_ID or check in the generated file from 'eas init'."
+  local project_id="${EXPO_PROJECT_ID:-}"
+
+  # Try to get project ID from EAS if not set
+  if [[ -z "${project_id}" && -n "${EXPO_ACCOUNT:-}" && -n "${EXPO_PROJECT_SLUG:-}" ]]; then
+    log "INFO" "EXPO_PROJECT_ID not set, attempting to look up project ID from EAS..."
+    local project_info
+    project_info="$(run_eas project:info --json 2>/dev/null || true)"
+    if [[ -n "${project_info}" ]]; then
+      project_id="$(echo "${project_info}" | jq -r '.id // empty' 2>/dev/null || true)"
+      if [[ -n "${project_id}" && "${project_id}" != "null" ]]; then
+        log "INFO" "Found project ID: ${project_id}"
+      fi
+    fi
+  fi
+
+  if [[ -z "${project_id}" ]]; then
+    log "ERROR" ".eas/project.json not found and EXPO_PROJECT_ID not set."
+    log "ERROR" ""
+    log "ERROR" "To fix this, either:"
+    log "ERROR" "  1. Set EXPO_PROJECT_ID as a GitHub secret (recommended for CI)"
+    log "ERROR" "  2. Run 'eas init' locally and commit .eas/project.json to the repository"
+    log "ERROR" ""
+    log "ERROR" "To get your project ID:"
+    log "ERROR" "  - Visit https://expo.dev/accounts/${EXPO_ACCOUNT}/projects/${EXPO_PROJECT_SLUG}"
+    log "ERROR" "  - Or run 'eas project:info' locally"
     exit 1
   fi
 
   log "INFO" "Configuring Expo project for CI (creating .eas/project.json)..."
-  run_eas init --id "${EXPO_PROJECT_ID}" --non-interactive --force >/dev/null
+  run_eas init --id "${project_id}" --non-interactive --force >/dev/null
 
   if [[ ! -f "${PROJECT_DIR}/.eas/project.json" ]]; then
     log "ERROR" "Failed to configure Expo project automatically. Run 'eas init' locally and commit .eas/project.json."
@@ -221,10 +244,10 @@ ensure_branch_and_channel() {
 
   log "INFO" "Ensuring Expo channel ${channel} points to branch ${channel}..."
   if ! run_eas channel:view "${channel}" --json >/dev/null 2>&1; then
-    run_eas channel:create "${channel}" --branch "${channel}" --non-interactive --json || log "WARN" "Channel may already exist: ${channel}"
-  else
-    run_eas channel:edit "${channel}" --add-branch "${channel}" --non-interactive >/dev/null 2>&1 || true
+    run_eas channel:create "${channel}" --non-interactive --json || log "WARN" "Channel may already exist: ${channel}"
   fi
+
+  run_eas channel:edit "${channel}" --branch "${channel}" --non-interactive >/dev/null 2>&1 || true
 }
 
 publish_update() {
@@ -239,7 +262,7 @@ publish_update() {
 }
 
 fetch_latest_update_urls() {
-  local channel update_json update_id update_group project_url install_url
+  local channel project_url install_url
   channel="$(channel_name)"
 
   if [[ "${DRY_RUN}" == true ]]; then
@@ -249,16 +272,6 @@ fetch_latest_update_urls() {
     write_output "PREVIEW_MOBILE_UPDATE_URL" "${project_url}"
     write_output "PREVIEW_MOBILE_INSTALL_URL" "${install_url}"
     return
-  fi
-
-  update_json="$(run_eas update:list --branch "${channel}" --limit 1 --json)"
-
-  if [[ -z "${update_json}" || "${update_json}" == "[]" ]]; then
-    log "WARN" "No updates found on branch ${channel} yet."
-  else
-    update_id="$(echo "${update_json}" | jq -r '.[0].id')"
-    update_group="$(echo "${update_json}" | jq -r '.[0].group')"
-    log "INFO" "Latest update ID: ${update_id} (group ${update_group})"
   fi
 
   project_url="https://expo.dev/accounts/${EXPO_ACCOUNT}/projects/${EXPO_PROJECT_SLUG}/updates/${channel}"

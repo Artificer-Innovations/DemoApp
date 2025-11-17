@@ -15,7 +15,7 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "pr-{{PR_NUMBER}}",
+      "channel": "preview",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "{{PREVIEW_SUPABASE_URL}}",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "{{PREVIEW_SUPABASE_ANON_KEY}}"
@@ -55,7 +55,7 @@
         "buildConfiguration": "Release"
       },
       "android": {
-        "buildType": "aab"
+        "buildType": "app-bundle"
       }
     }
   },

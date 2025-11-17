@@ -66,6 +66,7 @@ function buildATSConfig() {
 const config = {
   name: 'Beaker Stack',
   slug: 'beaker-stack',
+  owner: 'artificer-innovations-llc',
   scheme: 'beaker-stack',
   version: '1.0.0',
   orientation: 'portrait',
@@ -74,6 +75,12 @@ const config = {
   splash: {
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
+  },
+  updates: {
+    url: 'https://u.expo.dev/23c5e522-5341-4342-85f5-f2e46dd6087f',
   },
   ios: {
     supportsTablet: true,
@@ -125,6 +132,9 @@ const config = {
     googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     googleAndroidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    eas: {
+      projectId: '23c5e522-5341-4342-85f5-f2e46dd6087f',
+    },
   },
 };
 
